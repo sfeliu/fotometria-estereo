@@ -1,4 +1,5 @@
 #include <iostream>
+#include<stdio.h>
 #include "ppmloader.h"
 
 using namespace std;
