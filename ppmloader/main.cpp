@@ -1,9 +1,10 @@
 #include <iostream>
 #include<stdio.h>
 #include "ppmloader.h"
+#include<vector>
 
 using namespace std;
-
+using std::vector;
 typedef unsigned char uchar;
 
 // Ejemplo de como  acceder a los pixeles de una imagen RGB
@@ -45,6 +46,30 @@ void test_image(){
   delete [] data;
 }
 
+vector<unsigned int> get_max_pixel(std::string filename){
+    uchar* data = NULL;
+    int width = 0, height = 0;
+    read_image(filename, &data, &width, &height);
+    vector<unsigned int> max (2,0);
+    unsigned int max_value = get_pixel_average(data, max.at(0), max.at(1), height, width);
+
+    for (int h = 0; h < height; ++h){
+        for(int w = 0; w < width; ++w){
+            unsigned int temporal_value = get_pixel_average(data, h, w , height, width);
+            if (max_value < temporal_value){
+                max[0] = w;
+                max[1] = h;
+                max_value = temporal_value;
+                std::cout << "New max value: " << std::endl;
+                std::cout << max_value << std::endl;
+            }
+        }
+    }
+    return max;
+
+};
+
+
 void test_load(){
 
   uchar* data = NULL;
@@ -82,10 +107,12 @@ void test_save(){
 }
 
 int main() {
-
   test_load();
   test_save();
   test_image();
-
+  vector<unsigned int> max = get_max_pixel("mate.0.ppm");
+    std::cout << "Position of maximum brightness: " << std::endl;
+    std::cout << max.at(0) << std::endl;
+    std::cout << max.at(1) << std::endl;
   return 0;
 }

@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(SOURCE_FILES
         main.cpp
         ppmloader.cpp
-        ppmloader.h)
+        ppmloader.h
+        algebraical_tools.h)
 
 add_executable(ppmloader ${SOURCE_FILES})
