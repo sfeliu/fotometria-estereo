@@ -1,0 +1,13 @@
+Brightest point:
+	mate.o.ppm: (x,y) = (295,99) ---------> Muy Ambiguo.
+	mate.1.ppm: (x,y) = (263,142)
+	mate.2.ppm: (x,y) = (244,107) --------> Ambiguo.
+	mate.3.ppm: (x,y) = (242,113)
+	mate.4.ppm: (x,y) = (229,110)
+	mate.5.ppm: (x,y) = (242,113)
+	mate.6.ppm: (x,y) = (263,141)
+	mate.7.ppm: (x,y) = (252,116)
+	mate.8.ppm: (x,y) = (263,141)
+	mate.9.ppm: (x,y) = (262,141)
+	mate.10.ppm: (x,y) = (262,141)
+	mate.11.ppm: (x,y) = (238,111) ------> Ambiguo.
