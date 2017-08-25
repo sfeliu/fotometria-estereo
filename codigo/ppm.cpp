@@ -73,9 +73,3 @@ void PPM::guardarImagen(const string f) const {
         cout << "ERROR: no se pudo guardar el archivo" << endl;
     }
 }
-
-int main() {
-    PPM imagen = PPM();
-    cout << imagen(50,50) << endl;
-    return 0;
-}
