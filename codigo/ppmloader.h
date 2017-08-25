@@ -1,9 +1,11 @@
 #ifndef __PPMPLOADER_H__
 #define __PPMLOADER_H__
 
+#include <cstddef>
+
 typedef unsigned char uchar;
 
-typedef 
+typedef
 enum _PPM_LOADER_PIXEL_TYPE {
 	PPM_LOADER_PIXEL_TYPE_INVALID = -1,
 	PPM_LOADER_PIXEL_TYPE_RGB_8B = 0,

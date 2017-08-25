@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdexcept>
 #include "ppm.h"
 
 using namespace std;
