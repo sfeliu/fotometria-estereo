@@ -1,5 +1,6 @@
 #include <string>
 #include <stdexcept>
+#include <cmath>
 #include "matriz.h"
 
 using namespace std;
@@ -46,7 +47,7 @@ Matriz::Matriz(const uint f, const uint c) {
 Matriz::Matriz(const uint f, const uint c, const double a[], const uint n) {
     _crearMatriz(f, c);
     uint i = 0, j = 0;
-    while (i < f && j < c && f*c < n) {
+    while (i < f && j < c && i*j < n) {
         (*this)(i,j) = a[i*f + j];
         ++i;
         ++j;
@@ -199,30 +200,17 @@ bool Matriz::invertir() {
     return invertible;
 }
 
+const double Matriz::norma2() const {
+    double suma = 0;
+    for (uint i = 0; i < filas(); ++i) {
+        for (uint j = 0; j < columnas(); ++j) {
+            suma += pow((*this)(i,j), 2);
+        }
+    }
+    return pow(suma, 0.5);
+}
+
 void Matriz::_verificarRango(const uint f, const uint c) {
     if (!(f < filas() && c < columnas()))
         throw domain_error("Los indices de fila y/o columna estan fuera de rango.");
-}
-
-int main() {
-    Matriz m(4,3);
-    m(0,0) = 6;
-    m(0,1) = 2;
-    m(0,2) = 1;
-    m(1,0) = 3;
-    m(1,1) = 1;
-    m(1,2) = 0.5;
-    m(2,0) = 6;
-    m(2,1) = 2;
-    m(2,2) = 1;
-    m(3,0) = 1;
-    m(3,1) = 2;
-    m(3,2) = 3;
-    m.print();
-    printf("\n");
-    Matriz b(4,1);
-    m.eliminacionGaussJordan(b);
-    m.print();
-
-    return 0;
 }
