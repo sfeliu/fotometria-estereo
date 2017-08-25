@@ -12,6 +12,7 @@ void Matriz::_crearMatriz(const uint f, const uint c) {
     }
     _filas = f;
     _columnas = c;
+    _traspuesta = false;
     _matriz = new double*[_filas];
     for (uint i = 0; i < _filas; ++i) {
         _matriz[i] = new double[_columnas]();
@@ -42,12 +43,13 @@ Matriz::Matriz(const uint f, const uint c) {
     _crearMatriz(f, c);
 }
 
-Matriz::Matriz(const double a[], const uint f, const uint c) {
+Matriz::Matriz(const uint f, const uint c, const double a[], const uint n) {
     _crearMatriz(f, c);
-    for (uint i = 0; i < filas(); ++i) {
-        for (uint j = 0; j < columnas(); ++j) {
-            (*this)(i,j) = a[i*f + j];
-        }
+    uint i = 0, j = 0;
+    while (i < f && j < c && f*c < n) {
+        (*this)(i,j) = a[i*f + j];
+        ++i;
+        ++j;
     }
 }
 
@@ -81,9 +83,7 @@ const double& Matriz::operator()(const uint i, const uint j) const {
 
 Matriz& Matriz::operator*(const Matriz &o) const {
     if (columnas() != o.filas()) {
-        throw domain_error("Error: la multiplicación no esta definida entre matrices de " +
-            to_string(filas()) + "x" + to_string(columnas()) + " y " +
-            to_string(o.filas()) + "x" + to_string(o.columnas()));
+        throw domain_error("Error: la multiplicación no esta definida estos tipos de matrices");
     }
     Matriz *res = new Matriz(filas(), o.columnas());
     for (uint i = 0; i < filas(); ++i) {

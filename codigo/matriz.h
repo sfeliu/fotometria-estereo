@@ -11,14 +11,14 @@ class Matriz {
         Matriz(const Matriz &o); // constructor por copia
         Matriz(const uint n); // matriz identidad de nxn
         Matriz(const uint f, const uint c); // matriz nula de fxn
-        Matriz(const double a[], const uint f, const uint c); // construye una matriz de fxc a partir de un arreglo de tamanio f*c
+        Matriz(const uint f, const uint c, const double a[], const uint n); // construye una matriz de fxc a partir de un arreglo de tamanio n
         ~Matriz();
-        
+
         Matriz& operator=(Matriz o);
         double& operator()(const uint i, const uint j);
         const double& operator()(const uint i, const uint j) const;
         Matriz& operator*(const Matriz &o) const;
-        
+
         uint filas() const;
         uint columnas() const;
         bool esCuadrada() const;
@@ -44,9 +44,9 @@ class Matriz {
     private:
         uint _filas, _columnas;
         double **_matriz;
-        bool _traspuesta = false;
+        bool _traspuesta;
         uint *_cols;
-        
+
         void _crearMatriz(const uint f, const uint c);
         void _verificarRango(const uint f, const uint c);
 };
