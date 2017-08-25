@@ -46,11 +46,12 @@ Matriz::Matriz(const uint f, const uint c) {
 
 Matriz::Matriz(const uint f, const uint c, const double a[], const uint n) {
     _crearMatriz(f, c);
-    uint i = 0, j = 0;
-    while (i < f && j < c && i*j < n) {
-        (*this)(i,j) = a[i*f + j];
-        ++i;
-        ++j;
+    uint i = 0, j = 0, k = 0;
+    while (k < n) {
+        (*this)(i,j) = a[k];
+        j = (j+1) % c;
+        i = j == 0 ? i+1 : i;
+        ++k;
     }
 }
 
