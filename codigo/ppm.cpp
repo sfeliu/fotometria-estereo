@@ -4,13 +4,14 @@
 
 using namespace std;
 
-PPM::PPM() : _data(NULL) {}
+PPM::PPM() : _data(NULL), _mascara(NULL) {}
 
 PPM::PPM(const PPM &o) {
     cargarImagen(o._filename);
+    _mascara = o._mascara;
 }
 
-PPM::PPM(const string f) {
+PPM::PPM(const string f) : _mascara(NULL) {
     cargarImagen(f);
 }
 
@@ -67,40 +68,99 @@ void PPM::guardarImagen(const string f) const {
     }
 }
 
-vector<pair<uint, uint>> PPM::generarMascara() const {
-    vector<pair<uint, uint>> mascara;
+vector<PPM::punto> PPM::generarMascara() const {
+    vector<PPM::punto> mascara;
     for (uint i = 0; i < _height; ++i) {
         for (uint j = 0; j < _width; ++j) {
-            if (brillo(i,j) == 0)
+            if (brillo(i,j) != 0)
                 mascara.emplace_back(i,j);
         }
     }
     return mascara;
 }
 
+void PPM::aplicarMascara(vector<punto> *m) {
+    _mascara = m;
+}
+
+void PPM::eliminarMascara() {
+    _mascara = NULL;
+}
+
+bool PPM::enmascarado() const {
+    return _mascara != NULL;
+}
+
 double PPM::brillo(const uint i, const uint j) const {
     return ((*this)(i,j,0) + (*this)(i,j,1) + (*this)(i,j,2)) / 3;
 }
 
-double PPM::brilloMaximo() const {
+double PPM::brilloMaximo() {
     double max = 0;
-    for (uint i = 0; i < _height; ++i) {
-        for (uint j = 0; j < _width; ++j) {
-            if (max < brillo(i,j))
-                max = brillo(i,j);
-        }
+    for (PPM::iterador it = this->it(); !it.fin(); ++it) {
+        if (max < it.brillo())
+            max = it.brillo();
     }
     return max;
 }
 
-vector<pair<uint, uint>> PPM::puntosMasBrillantes() const {
+vector<PPM::punto> PPM::puntosMasBrillantes() {
     double max = brilloMaximo();
-    vector<pair<uint, uint>> pts;
-    for (uint i = 0; i < _height; ++i) {
-        for (uint j = 0; j < _width; ++j) {
-            if ((int)brillo(i,j) == (int)max)
-                pts.emplace_back(i,j);
-        }
+    vector<PPM::punto> pts;
+    for (PPM::iterador it = this->it(); !it.fin(); ++it) {
+        if ((int)it.brillo() == (int)max)
+            pts.push_back(it.pos());
     }
     return pts;
+}
+
+PPM::iterador PPM::it() {
+    return iterador(this);
+}
+
+PPM::punto PPM::iterador::pos() {
+    return _pos;
+}
+
+PPM::iterador::iterador(PPM *ppm) : _ppm(ppm), _indice(0) {
+    if (_ppm->enmascarado())
+        _pos = _ppm->_mascara->at(0);
+    else
+        _pos.x = _pos.y = 0;
+}
+
+uchar& PPM::iterador::operator[](const uint k) {
+    return (*_ppm)(_pos.x, _pos.y, k);
+}
+
+void PPM::iterador::operator++() {
+    if (_ppm->enmascarado()) {
+        _pos = _ppm->_mascara->at(++_indice);
+    } else {
+        _pos.y = (_pos.y+1) % _ppm->width();
+        if (_pos.y == 0) ++_pos.x;
+    }
+}
+
+void PPM::iterador::operator--() {
+    if (_ppm->enmascarado()) {
+        _pos = _ppm->_mascara->at(--_indice);
+    } else {
+        _pos.y = _pos.y == 0 ? _ppm->width()-1 : _pos.y-1;
+        if (_pos.y == _ppm->width()-1) --_pos.x;
+    }
+}
+
+bool PPM::iterador::inicio() {
+    return _ppm->enmascarado() ? _indice == 0 : _pos.x == 0 && _pos.y == 0;
+}
+
+bool PPM::iterador::fin() {
+    return _ppm->enmascarado()
+        ? _indice == _ppm->_mascara->size()-1
+        : _pos.x == _ppm->height()-1 && _pos.y == _ppm->width()-1;
+}
+
+double PPM::iterador::brillo() {
+    return _ppm->brillo(_pos.x, _pos.y);
 }
