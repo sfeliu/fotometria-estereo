@@ -22,22 +22,6 @@ PPM::PPM() {
     _cargarImagen(f);
 }
 
-uint PPM::operator()(const uint i, const uint j) {
-    uint suma = 0;
-    for (uint k = 0; i < 3; ++k) {
-        suma += (*this)(i,j,k);
-    }
-    return suma / 3;
-}
-
-const uint PPM::operator()(const uint i, const uint j) const {
-    uint suma = 0;
-    for (uint k = 0; i < 3; ++k) {
-        suma += (*this)(i,j,k);
-    }
-    return suma / 3;
-}
-
 uint PPM::operator()(const uint i, const uint j, const uint k) {
     if(i >= _height)
         throw std::runtime_error("El direccionamiento vertical no puede ser mayor a la altura.");
@@ -72,4 +56,12 @@ void PPM::guardarImagen(const string f) const {
     if (!ret) {
         cout << "ERROR: no se pudo guardar el archivo" << endl;
     }
+}
+
+const double PPM::brillo(const uint i, const uint j) const {
+    double suma = 0;
+    for (uint k = 0; i < 3; ++k) {
+        suma += (double)(*this)(i,j,k);
+    }
+    return suma / 3;
 }

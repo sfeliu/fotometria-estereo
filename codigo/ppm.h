@@ -11,8 +11,6 @@ class PPM {
         PPM();
         PPM(const string f);
 
-        uint operator()(const uint i, const uint j);
-        const uint operator()(const uint i, const uint j) const;
         uint operator()(const uint i, const uint j, const uint k);
         const uint operator()(const uint i, const uint j, const uint k) const;
 
@@ -24,6 +22,7 @@ class PPM {
         const uint height() const;
 
         void guardarImagen(const string f) const;
+        const double brillo(const uint i, const uint j) const;
 
     private:
         uchar* _data;
