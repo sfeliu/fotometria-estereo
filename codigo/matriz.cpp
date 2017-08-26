@@ -1,6 +1,3 @@
-#include <string>
-#include <stdexcept>
-#include <cmath>
 #include "matriz.h"
 
 using namespace std;
@@ -120,7 +117,7 @@ bool Matriz::eliminacionGaussiana(Matriz &b) {
     while (f < filas() && c < columnas()) {
         uint i = f;
         for (uint k = i + 1; k < filas(); ++k) {
-            if ((*this)(i,c) < (*this)(k,c))
+            if (fabs((*this)(i,c)) < fabs((*this)(k,c)))
                 i = k;
         }
         if ((*this)(i,c) != 0) { // tener en cuenta error de redondeo
@@ -147,7 +144,7 @@ bool Matriz::eliminacionGaussJordan(Matriz &b) {
     while (f < filas() && c < columnas()) {
         uint i = f;
         for (uint k = i + 1; k < filas(); ++k) {
-            if ((*this)(i,c) < (*this)(k,c))
+            if (fabs((*this)(i,c)) < fabs((*this)(k,c)))
                 i = k;
         }
         if ((*this)(i,c) != 0) { // tener en cuenta error de redondeo
