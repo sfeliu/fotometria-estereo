@@ -21,6 +21,8 @@ void Matriz::_crearMatriz(const uint f, const uint c) {
     }
 }
 
+Matriz::Matriz() : _filas(0), _columnas(0), _matriz(NULL), _traspuesta(false), _cols(NULL) {}
+
 Matriz::Matriz(const Matriz &o) {
     _crearMatriz(o._filas, o._columnas);
     for (uint i = 0; i < _filas; ++i) {
@@ -62,7 +64,9 @@ Matriz::~Matriz() {
 Matriz& Matriz::operator=(Matriz o) {
     swap(_filas, o._filas);
     swap(_columnas, o._columnas);
+    swap(_traspuesta, o._traspuesta);
     swap(_matriz, o._matriz);
+    swap(_cols, o._cols);
     return *this;
 }
 
@@ -121,12 +125,12 @@ bool Matriz::eliminacionGaussiana(Matriz &b) {
                 i = k;
         }
         if ((*this)(i,c) != 0) { // tener en cuenta error de redondeo
-            permutarFila(f, i);
             b.permutarFila(f, i);
+            permutarFila(f, i);
             for (uint k = f + 1; k < filas(); ++k) {
                 if ((*this)(k,c) != 0) { // tener en cuenta error de redondeo
-                    restarMultiploDeFila(k, f, (*this)(k,c) / (*this)(f,c));
                     b.restarMultiploDeFila(k, f, (*this)(k,c) / (*this)(f,c));
+                    restarMultiploDeFila(k, f, (*this)(k,c) / (*this)(f,c));
                 }
             }
             ++f;
@@ -148,13 +152,14 @@ bool Matriz::eliminacionGaussJordan(Matriz &b) {
                 i = k;
         }
         if ((*this)(i,c) != 0) { // tener en cuenta error de redondeo
-            permutarFila(f, i);
             b.permutarFila(f, i);
+            permutarFila(f, i);
+            b.multiplicarFilaPorEscalar(f, 1 / (*this)(f,c));
             multiplicarFilaPorEscalar(f, 1 / (*this)(f,c));
             for (uint k = 0; k < filas(); ++k) {
                 if (k != f && (*this)(k,c) != 0) { // tener en cuenta error de redondeo
-                    restarMultiploDeFila(k, f, (*this)(k,c));
                     b.restarMultiploDeFila(k, f, (*this)(k,c));
+                    restarMultiploDeFila(k, f, (*this)(k,c));
                 }
             }
             ++f;

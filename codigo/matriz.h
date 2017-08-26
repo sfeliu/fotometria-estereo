@@ -11,6 +11,7 @@ typedef unsigned int uint;
 
 class Matriz {
     public:
+        Matriz();
         Matriz(const Matriz &o); // constructor por copia
         Matriz(const uint n); // matriz identidad de nxn
         Matriz(const uint f, const uint c); // matriz nula de fxn
