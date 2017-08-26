@@ -36,6 +36,7 @@ class Matriz {
         void restarMultiploDeFila(const uint i, const uint j, const double c);
         void dividirFilaPorEscalar(const uint i, const double c);
         bool invertir();
+        Matriz matrizLU();
 
         double normaF() const;
 

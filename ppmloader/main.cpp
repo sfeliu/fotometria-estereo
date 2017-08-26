@@ -1,6 +1,8 @@
 #include <iostream>
 #include<stdio.h>
 #include "ppmloader.h"
+#include "ppm.h"
+#include "matriz.h"
 #include<vector>
 #include <string>
 #include <sstream>
@@ -158,6 +160,7 @@ void test_save(){
 }
 
 int main() {
+
   test_load();
   test_save();
   test_image();

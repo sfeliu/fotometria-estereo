@@ -2,9 +2,9 @@ function show_model()
 
 %%
 fnameZ = 'buda.depths.dat';
-% fnameN = 'buda.normals.dat';
+%fnameN = 'buda.normals.dat';
 
-% N = read_normals(fnameN);
+%N = read_normals(fnameN);
 Z = read_depths(fnameZ);
 
 [height,width] = size(Z);
