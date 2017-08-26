@@ -70,11 +70,9 @@ void PPM::guardarImagen(const string f) {
 
 vector<PPM::punto> PPM::generarMascara() {
     vector<PPM::punto> mascara;
-    for (uint i = 0; i < _height; ++i) {
-        for (uint j = 0; j < _width; ++j) {
-            if (brillo(i,j) != 0)
-                mascara.emplace_back(i,j);
-        }
+    for (PPM::iterador it = this->it(); it.haySiguiente(); ++it) {
+        if (it.brillo() != 0)
+            mascara.push_back(it.pos());
     }
     return mascara;
 }
@@ -100,7 +98,6 @@ double PPM::brilloMaximo() {
     for (PPM::iterador it = this->it(); it.haySiguiente(); ++it) {
         if (max < it.brillo())
             max = it.brillo();
-        ++count;
     }
     return max;
 }
@@ -159,7 +156,7 @@ bool PPM::iterador::hayAnterior() {
 bool PPM::iterador::haySiguiente() {
     return _ppm->enmascarado()
         ? _indice < _ppm->_mascara->size()
-        : _pos.x < _ppm->height() && _pos.y < _ppm->width();
+        : _pos.x < _ppm->width() && _pos.y < _ppm->height();
 }
 
 double PPM::iterador::brillo() {
