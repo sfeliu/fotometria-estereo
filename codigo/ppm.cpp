@@ -4,26 +4,14 @@
 
 using namespace std;
 
-void PPM::_cargarImagen(const string f) {
-    _filename = f;
-    _data = NULL;
-    _width = 0;
-    _height = 0;
-    _pt = PPM_LOADER_PIXEL_TYPE_INVALID;
-    bool cargado = LoadPPMFile(&_data, (int*)&_width, (int*)&_height, &_pt, f.c_str());
-    if (!cargado || _width == 0 || _height == 0/* || _pt! = PPM_LOADER_PIXEL_TYPE_RGB_8B*/) {
-        throw std::runtime_error("Fallo al leer la imagen.");
-    }
-}
-
 PPM::PPM() : _data(NULL) {}
 
 PPM::PPM(const PPM &o) {
-    _cargarImagen(o._filename);
+    cargarImagen(o._filename);
 }
 
 PPM::PPM(const string f) {
-    _cargarImagen(f);
+    cargarImagen(f);
 }
 
 PPM::~PPM() {
@@ -66,6 +54,24 @@ const uint PPM::width() const { return _width; }
 
 uint PPM::height() { return _height; }
 const uint PPM::height() const { return _height; }
+
+void PPM::cargarImagen() {
+    string f;
+    cin >> f;
+    cargarImagen(f);
+}
+
+void PPM::cargarImagen(const string f) {
+    _filename = f;
+    _data = NULL;
+    _width = 0;
+    _height = 0;
+    _pt = PPM_LOADER_PIXEL_TYPE_INVALID;
+    bool cargado = LoadPPMFile(&_data, (int*)&_width, (int*)&_height, &_pt, f.c_str());
+    if (!cargado || _width == 0 || _height == 0/* || _pt! = PPM_LOADER_PIXEL_TYPE_RGB_8B*/) {
+        throw std::runtime_error("Fallo al leer la imagen.");
+    }
+}
 
 void PPM::guardarImagen(const string f) const {
     bool ret = SavePPMFile(f.c_str(), _data, _width, _height, _pt, NULL);

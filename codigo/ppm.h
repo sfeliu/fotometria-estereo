@@ -26,7 +26,10 @@ class PPM {
         uint height();
         const uint height() const;
 
+        void cargarImagen();
+        void cargarImagen(const string f);
         void guardarImagen(const string f) const;
+        
         const double brillo(const uint i, const uint j) const;
         const double brilloMaximo() const;
         const vector<pair<uint, uint>> puntosMasBrillantes() const;
@@ -37,6 +40,4 @@ class PPM {
         uint _width;
         uint _height;
         PPM_LOADER_PIXEL_TYPE _pt;
-
-        void _cargarImagen(const string f);
 };
