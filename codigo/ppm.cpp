@@ -27,14 +27,14 @@ PPM& PPM::operator=(PPM o) {
     return *this;
 }
 
-uchar& PPM::operator()(const uint i, const uint j, const uint k) {
-    if(i >= _height)
+uchar& PPM::operator()(const uint x, const uint y, const uint k) {
+    if(y >= _height)
         throw std::runtime_error("El direccionamiento vertical no puede ser mayor a la altura.");
-    if(j >= _width)
+    if(x >= _width)
         throw std::runtime_error("El direccionamiento horizontal no puede ser mayor al ancho.");
     if(k >= 3)
         throw std::runtime_error("El indice de color debe estar entre 0 y 2 inclusive.");
-    return _data[i*_width*3 + j*3 + k];
+    return _data[y*_width*3 + x*3 + k];
 }
 
 uchar* PPM::data() { return _data; }
