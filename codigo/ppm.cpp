@@ -5,6 +5,7 @@
 using namespace std;
 
 void PPM::_cargarImagen(const string f) {
+    _filename = f;
     _data = NULL;
     _width = 0;
     _height = 0;
@@ -15,11 +16,26 @@ void PPM::_cargarImagen(const string f) {
     }
 }
 
-PPM::PPM() {
-    cout << "Ingrese la ruta de la imagen: ";
-    string f;
-    cin >> f;
+PPM::PPM() : _data(NULL) {}
+
+PPM::PPM(const PPM &o) {
+    _cargarImagen(o._filename);
+}
+
+PPM::PPM(const string f) {
     _cargarImagen(f);
+}
+
+PPM::~PPM() {
+    delete[] _data;
+}
+
+PPM& PPM::operator=(PPM o) {
+    swap(_data, o._data);
+    swap(_width, o._width);
+    swap(_height, o._height);
+    swap(_pt, o._pt);
+    return *this;
 }
 
 uint PPM::operator()(const uint i, const uint j, const uint k) {
@@ -64,4 +80,27 @@ const double PPM::brillo(const uint i, const uint j) const {
         suma += (double)(*this)(i,j,k);
     }
     return suma / 3;
+}
+
+const double PPM::brilloMaximo() const {
+    double max = 0;
+    for (uint i = 0; i < _height; ++i) {
+        for (uint j = 0; j < _width; ++j) {
+            if (max < brillo(i,j))
+                max = brillo(i,j);
+        }
+    }
+    return max;
+}
+
+const vector<pair<uint, uint>> PPM::puntosMasBrillantes() const {
+    double max = brilloMaximo();
+    vector<pair<uint, uint>> pts;
+    for (uint i = 0; i < _height; ++i) {
+        for (uint j = 0; j < _width; ++j) {
+            if (brillo(i,j) == max)
+                pts.emplace_back(i,j);
+        }
+    }
+    return pts;
 }

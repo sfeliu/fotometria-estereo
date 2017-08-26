@@ -1,4 +1,6 @@
 #include <string>
+#include <vector>
+#include <algorithm>
 #include "ppmloader.h"
 
 using namespace std;
@@ -9,8 +11,11 @@ typedef unsigned int uint;
 class PPM {
     public:
         PPM();
+        PPM(const PPM &o);
         PPM(const string f);
+        ~PPM();
 
+        PPM& operator=(PPM o);
         uint operator()(const uint i, const uint j, const uint k);
         const uint operator()(const uint i, const uint j, const uint k) const;
 
@@ -23,8 +28,11 @@ class PPM {
 
         void guardarImagen(const string f) const;
         const double brillo(const uint i, const uint j) const;
+        const double brilloMaximo() const;
+        const vector<pair<uint, uint>> puntosMasBrillantes() const;
 
     private:
+        string _filename;
         uchar* _data;
         uint _width;
         uint _height;
