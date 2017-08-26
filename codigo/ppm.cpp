@@ -82,7 +82,7 @@ void PPM::guardarImagen(const string f) const {
 
 const double PPM::brillo(const uint i, const uint j) const {
     double suma = 0;
-    for (uint k = 0; i < 3; ++k) {
+    for (uint k = 0; k < 3; ++k) {
         suma += (double)(*this)(i,j,k);
     }
     return suma / 3;
