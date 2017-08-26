@@ -22,21 +22,21 @@ class PPM {
         ~PPM();
 
         PPM& operator=(PPM o);
-        uchar& operator()(const uint i, const uint j, const uint k) const;
+        uchar& operator()(const uint i, const uint j, const uint k);
 
-        uchar* data() const;
-        uint width() const;
-        uint height() const;
+        uchar* data();
+        uint width();
+        uint height();
 
         void cargarImagen();
         void cargarImagen(const string f);
-        void guardarImagen(const string f) const;
-        vector<punto> generarMascara() const;
+        void guardarImagen(const string f);
+        vector<punto> generarMascara();
         void aplicarMascara(vector<punto> *m);
         void eliminarMascara();
-        bool enmascarado() const;
+        bool enmascarado();
         
-        double brillo(const uint i, const uint j) const;
+        double brillo(const uint i, const uint j);
         double brilloMaximo();
         vector<punto> puntosMasBrillantes();
         
