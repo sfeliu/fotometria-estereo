@@ -22,6 +22,7 @@ class Matriz {
         double& operator()(const uint i, const uint j);
         const double& operator()(const uint i, const uint j) const;
         Matriz& operator*(const Matriz &o) const;
+        Matriz& operator*(const double c) const;
 
         uint filas() const;
         uint columnas() const;
@@ -41,7 +42,7 @@ class Matriz {
         void print() const {
             for (uint i = 0; i < filas(); ++i) {
                 for (uint j = 0; j < columnas(); ++j) {
-                    printf("%.2f    ", (*this)(i,j));
+                    printf("%.8f    ", (*this)(i,j));
                 }
                 printf("\n");
             }
@@ -56,5 +57,7 @@ class Matriz {
         void _crearMatriz(const uint f, const uint c);
         void _verificarRango(const uint f, const uint c);
 };
+
+Matriz& operator*(const double c, const Matriz &m);
 
 #endif //__MATRIZ_H__

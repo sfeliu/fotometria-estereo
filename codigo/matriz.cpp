@@ -99,6 +99,16 @@ Matriz& Matriz::operator*(const Matriz &o) const {
     return *res;
 }
 
+Matriz& Matriz::operator*(const double c) const {
+    Matriz *res = new Matriz(filas(), columnas());
+    for (uint i = 0; i < filas(); ++i) {
+        for (uint j = 0; j < columnas(); ++j) {
+            (*res)(i,j) += (*this)(i,j) * c;
+        }
+    }
+    return *res;
+}
+
 uint Matriz::filas() const {
     return _traspuesta ? _columnas : _filas;
 }
@@ -216,4 +226,8 @@ double Matriz::normaF() const {
 void Matriz::_verificarRango(const uint f, const uint c) {
     if (!(f < filas() && c < columnas()))
         throw domain_error("Los indices de fila y/o columna estan fuera de rango.");
+}
+
+Matriz& operator*(const double c, const Matriz &m) {
+    return m * c;
 }
