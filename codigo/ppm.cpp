@@ -67,6 +67,17 @@ void PPM::guardarImagen(const string f) const {
     }
 }
 
+vector<pair<uint, uint>> PPM::generarMascara() const {
+    vector<pair<uint, uint>> mascara;
+    for (uint i = 0; i < _height; ++i) {
+        for (uint j = 0; j < _width; ++j) {
+            if (brillo(i,j) == 0)
+                mascara.emplace_back(i,j);
+        }
+    }
+    return mascara;
+}
+
 double PPM::brillo(const uint i, const uint j) const {
     return ((*this)(i,j,0) + (*this)(i,j,1) + (*this)(i,j,2)) / 3;
 }

@@ -25,6 +25,7 @@ class PPM {
         void cargarImagen();
         void cargarImagen(const string f);
         void guardarImagen(const string f) const;
+        vector<pair<uint, uint>> generarMascara() const;
         
         double brillo(const uint i, const uint j) const;
         double brilloMaximo() const;
