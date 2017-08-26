@@ -62,8 +62,8 @@ class PPM::iterador {
         void operator++();
         void operator--();
         
-        bool inicio();
-        bool fin();
+        bool hayAnterior();
+        bool haySiguiente();
         double brillo();
         
     private:

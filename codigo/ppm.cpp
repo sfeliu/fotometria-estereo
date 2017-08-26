@@ -97,9 +97,10 @@ double PPM::brillo(const uint i, const uint j) {
 
 double PPM::brilloMaximo() {
     double max = 0;
-    for (PPM::iterador it = this->it(); !it.fin(); ++it) {
+    for (PPM::iterador it = this->it(); it.haySiguiente(); ++it) {
         if (max < it.brillo())
             max = it.brillo();
+        ++count;
     }
     return max;
 }
@@ -107,7 +108,7 @@ double PPM::brilloMaximo() {
 vector<PPM::punto> PPM::puntosMasBrillantes() {
     double max = brilloMaximo();
     vector<PPM::punto> pts;
-    for (PPM::iterador it = this->it(); !it.fin(); ++it) {
+    for (PPM::iterador it = this->it(); it.haySiguiente(); ++it) {
         if ((int)it.brillo() == (int)max)
             pts.push_back(it.pos());
     }
@@ -151,14 +152,14 @@ void PPM::iterador::operator--() {
     }
 }
 
-bool PPM::iterador::inicio() {
-    return _ppm->enmascarado() ? _indice == 0 : _pos.x == 0 && _pos.y == 0;
+bool PPM::iterador::hayAnterior() {
+    return _ppm->enmascarado() ? _indice > 0 : !(_pos.x == 0 && _pos.y == 0);
 }
 
-bool PPM::iterador::fin() {
+bool PPM::iterador::haySiguiente() {
     return _ppm->enmascarado()
-        ? _indice == _ppm->_mascara->size()-1
-        : _pos.x == _ppm->height()-1 && _pos.y == _ppm->width()-1;
+        ? _indice < _ppm->_mascara->size()
+        : _pos.x < _ppm->height() && _pos.y < _ppm->width();
 }
 
 double PPM::iterador::brillo() {
