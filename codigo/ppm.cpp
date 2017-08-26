@@ -26,7 +26,7 @@ PPM& PPM::operator=(PPM o) {
     return *this;
 }
 
-uint PPM::operator()(const uint i, const uint j, const uint k) {
+uchar& PPM::operator()(const uint i, const uint j, const uint k) const {
     if(i >= _height)
         throw std::runtime_error("El direccionamiento vertical no puede ser mayor a la altura.");
     if(j >= _width)
@@ -36,24 +36,11 @@ uint PPM::operator()(const uint i, const uint j, const uint k) {
     return _data[i*_width*3 + j*3 + k];
 }
 
-const uint PPM::operator()(const uint i, const uint j, const uint k) const {
-    if(i >= _height)
-        throw std::runtime_error("El direccionamiento vertical no puede ser mayor a la altura.");
-    if(j >= _width)
-        throw std::runtime_error("El direccionamiento horizontal no puede ser mayor al ancho.");
-    if(k >= 3)
-        throw std::runtime_error("El indice de color debe estar entre 0 y 2 inclusive.");
-    return _data[i*_width*3 + j*3 + k];
-}
+uchar* PPM::data() const { return _data; }
 
-uchar* PPM::data() { return _data; }
-const uchar* PPM::data() const { return _data; }
+uint PPM::width() const { return _width; }
 
-uint PPM::width() { return _width; }
-const uint PPM::width() const { return _width; }
-
-uint PPM::height() { return _height; }
-const uint PPM::height() const { return _height; }
+uint PPM::height() const { return _height; }
 
 void PPM::cargarImagen() {
     string f;
@@ -80,15 +67,11 @@ void PPM::guardarImagen(const string f) const {
     }
 }
 
-const double PPM::brillo(const uint i, const uint j) const {
-    double suma = 0;
-    for (uint k = 0; k < 3; ++k) {
-        suma += (double)(*this)(i,j,k);
-    }
-    return suma / 3;
+double PPM::brillo(const uint i, const uint j) const {
+    return ((*this)(i,j,0) + (*this)(i,j,1) + (*this)(i,j,2)) / 3;
 }
 
-const double PPM::brilloMaximo() const {
+double PPM::brilloMaximo() const {
     double max = 0;
     for (uint i = 0; i < _height; ++i) {
         for (uint j = 0; j < _width; ++j) {
@@ -99,12 +82,12 @@ const double PPM::brilloMaximo() const {
     return max;
 }
 
-const vector<pair<uint, uint>> PPM::puntosMasBrillantes() const {
+vector<pair<uint, uint>> PPM::puntosMasBrillantes() const {
     double max = brilloMaximo();
     vector<pair<uint, uint>> pts;
     for (uint i = 0; i < _height; ++i) {
         for (uint j = 0; j < _width; ++j) {
-            if (brillo(i,j) == max)
+            if ((int)brillo(i,j) == (int)max)
                 pts.emplace_back(i,j);
         }
     }

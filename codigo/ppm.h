@@ -16,23 +16,19 @@ class PPM {
         ~PPM();
 
         PPM& operator=(PPM o);
-        uint operator()(const uint i, const uint j, const uint k);
-        const uint operator()(const uint i, const uint j, const uint k) const;
+        uchar& operator()(const uint i, const uint j, const uint k) const;
 
-        uchar* data();
-        const uchar* data() const;
-        uint width();
-        const uint width() const;
-        uint height();
-        const uint height() const;
+        uchar* data() const;
+        uint width() const;
+        uint height() const;
 
         void cargarImagen();
         void cargarImagen(const string f);
         void guardarImagen(const string f) const;
         
-        const double brillo(const uint i, const uint j) const;
-        const double brilloMaximo() const;
-        const vector<pair<uint, uint>> puntosMasBrillantes() const;
+        double brillo(const uint i, const uint j) const;
+        double brilloMaximo() const;
+        vector<pair<uint, uint>> puntosMasBrillantes() const;
 
     private:
         string _filename;
