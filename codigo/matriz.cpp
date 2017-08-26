@@ -201,7 +201,7 @@ bool Matriz::invertir() {
     return invertible;
 }
 
-const double Matriz::norma2() const {
+const double Matriz::normaF() const {
     double suma = 0;
     for (uint i = 0; i < filas(); ++i) {
         for (uint j = 0; j < columnas(); ++j) {

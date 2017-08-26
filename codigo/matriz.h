@@ -32,7 +32,7 @@ class Matriz {
         void dividirFilaPorEscalar(const uint i, const double c);
         bool invertir();
 
-        const double norma2() const;
+        const double normaF() const;
 
         void print() const {
             for (uint i = 0; i < filas(); ++i) {
