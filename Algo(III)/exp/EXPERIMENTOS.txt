@@ -1,0 +1,60 @@
+EXPERIMENTOS
+
+FAMILIAS:
+-grafo arbol
+-grafo completo
+-clique minima
+
+2)
+no importa variar el grupo de instancias pq es un alg exacto
+VARIAR con y sin poda
+	Tiempos
+	a) n1 = n2, variamos n1, 
+		i) m=n-1 
+		ii) m constante 
+	b) n1,m1 fijo, variamos n2,
+		i) m2=n2-1 
+		ii)m2 constante
+3)
+no importa variar el grupo de instancias pq es un alg exacto
+	Tiempos, siempre valdra n1>n2, si no es O(1).
+	a) g1 es completo, n2 fijo
+	b) g1 
+
+4)
+no importa variar el grupo de instancias pq no miramos resultados
+	Tiempos:
+	a) n1 = n2, variamos n1, 
+		i) m=n-1 
+	b) n1,m1 fijo, variamos n2,
+		i) m2=n2-1
+
+5)
+VARIAR vecindades
+	Tiempos y resultado al mismo tiempo
+	a) par de instancias
+		i) n1 = n2, variamos n1
+			A) B).. m1,m2 que dependan del tipo de instancias
+		ii) n1 varia, n2 y m2 fijo
+			A) B).. m1 que dependa del tipo de instancias
+		iii) n1 y m1 fijo, n2 varia
+			A) B).. m2 que dependa del tipo de instancias
+	b) par de instancias distintas (?)
+		mismo que a)
+
+6) 
+VARIAR, entre criterio de parada 1 y 3 (dado que 2 se parece a 3) (determinar cant iteraciones previamente), cambiar entre un tamaño de lista fijo y el dinamico, y las vecindades
+	Tiempos y resultado al mismo tiempo
+	a) par de instancias
+		i) n1 = n2, variamos n1
+			A) B).. m1,m2 que dependan del tipo de instancias
+		ii) n1 varia, n2 y m2 fijo
+			A) B).. m1 que dependa del tipo de instancias
+		iii) n1 y m1 fijo, n2 varia
+			A) B).. m2 que dependa del tipo de instancias
+	b) par de instancias distintas (?)
+		mismo que a)
+
+7)
+Para los mejores de 5 y 6,
+nuevo par de instancias, repetir..
