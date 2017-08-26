@@ -198,7 +198,7 @@ bool Matriz::invertir() {
     return invertible;
 }
 
-const double Matriz::normaF() const {
+double Matriz::normaF() const {
     double suma = 0;
     for (uint i = 0; i < filas(); ++i) {
         for (uint j = 0; j < columnas(); ++j) {
