@@ -36,7 +36,7 @@ class PPM {
         void eliminarMascara();
         bool enmascarado();
         
-        double brillo(const uint i, const uint j);
+        double brillo(const uint x, const uint y);
         double brilloMaximo();
         vector<punto> puntosMasBrillantes();
         

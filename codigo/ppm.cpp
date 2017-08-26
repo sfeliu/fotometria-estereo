@@ -89,8 +89,8 @@ bool PPM::enmascarado() {
     return _mascara != NULL;
 }
 
-double PPM::brillo(const uint i, const uint j) {
-    return ((*this)(i,j,0) + (*this)(i,j,1) + (*this)(i,j,2)) / 3;
+double PPM::brillo(const uint x, const uint y) {
+    return ((*this)(x,y,0) + (*this)(x,y,1) + (*this)(x,y,2)) / 3;
 }
 
 double PPM::brilloMaximo() {
@@ -135,8 +135,8 @@ void PPM::iterador::operator++() {
     if (_ppm->enmascarado()) {
         _pos = _ppm->_mascara->at(++_indice);
     } else {
-        _pos.y = (_pos.y+1) % _ppm->width();
-        if (_pos.y == 0) ++_pos.x;
+        _pos.x = (_pos.x+1) % _ppm->width();
+        if (_pos.x == 0) ++_pos.y;
     }
 }
 
@@ -144,8 +144,8 @@ void PPM::iterador::operator--() {
     if (_ppm->enmascarado()) {
         _pos = _ppm->_mascara->at(--_indice);
     } else {
-        _pos.y = _pos.y == 0 ? _ppm->width()-1 : _pos.y-1;
-        if (_pos.y == _ppm->width()-1) --_pos.x;
+        _pos.x = _pos.x == 0 ? _ppm->width()-1 : _pos.x-1;
+        if (_pos.x == _ppm->width()-1) --_pos.y;
     }
 }
 
