@@ -76,36 +76,38 @@ vector<PPM::punto>* PPM::generarMascara() {
     for (y_t = 0; y_t < height(); ++y_t) {
         for (uint x = 0; x < width(); ++x) {
             if (brillo(x,y_t) != 0)
-                break;
+                goto __listo_y_t;
         }
     }
+    __listo_y_t:;
     // Busco borde inferior
     for (y_b = height()-1; 0 <= (int)y_b; --y_b) {
         for (uint x = 0; x < width(); ++x) {
             if (brillo(x,y_b) != 0)
-                break;
+                goto __listo_y_b;
         }
     }
+    __listo_y_b:;
     // Busco borde izquierdo
     for (x_l = 0; x_l < width(); ++x_l) {
         for (uint y = 0; y < height(); ++y) {
             if (brillo(x_l,y) != 0)
-                break;
+                goto __listo_x_l;
         }
     }
+    __listo_x_l:;
     // Busco borde derecho
     for (x_r = width()-1; 0 <= (int)x_r; --x_r) {
         for (uint y = 0; y < height(); ++y) {
             if (brillo(x_r,y) != 0)
-                break;
+                goto __listo_x_r;
         }
     }
+    __listo_x_r:;
     if (y_b < 0) return NULL; // todos los puntos tienen brillo cero
-    int w = x_r - x_l + 1; // ancho de mascara
-    int h = y_b - y_t + 1; // alto de mascara
-    vector<punto> *mascara = new vector<punto>[w*h];
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
+    vector<punto> *mascara = new vector<punto>[(x_r - x_l + 1)*(y_b - y_t + 1)];
+    for (int y = y_t; y <= y_b; ++y) {
+        for (int x = x_l; x <= x_r; ++x) {
             mascara->emplace_back(x,y);
         }
     }
