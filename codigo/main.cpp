@@ -19,11 +19,11 @@ int main() {
     Matriz S = Matriz(3, 3, dirs, 9);
     S.trasponer();
     S.invertir();
-
+/*
     PPM imgs[3];
     for (uint i = 0; i < 3; ++i) {
         stringstream f;
-        f << "/Users/pablo2martin/MetNum/Metodos_TP1/codigo/buda/buda." << i << ".ppm";
+        f << "buda/buda." << i << ".ppm";
         imgs[i].cargarImagen(f.str());
     }
     ofstream x, y, z;
@@ -45,22 +45,23 @@ int main() {
     }
     x.close();
     y.close();
-    z.close();
+    z.close();*/
     
-    /*PPM mascara = PPM("/Users/pablo2martin/MetNum/Metodos_TP1/codigo/mate/mate.mask.ppm");
+    PPM mascara = PPM("mate/mate.mask.ppm");
     auto mask = mascara.generarMascara();
-    for (auto it = mask.begin(); it != mask.end(); ++it) {
+    for (auto it = mask->begin(); it != mask->end(); ++it) {
+        printf("%d, %d\n", (*it).x, (*it).y);
         mascara((*it).x, (*it).y, 0) = 255;
         mascara((*it).x, (*it).y, 1) = 0;
         mascara((*it).x, (*it).y, 2) = 0;
     }
-    mascara.guardarImagen("/Users/pablo2martin/MetNum/Metodos_TP1/codigo/mate2/mate.mask.ppm");
+    mascara.guardarImagen("mate2/mate.mask.ppm");
     PPM imgs[12];
     for (int i = 0; i < 12; ++i) {
         stringstream f;
-        f << "/Users/pablo2martin/MetNum/Metodos_TP1/codigo/mate/mate." << i << ".ppm";
+        f << "mate/mate." << i << ".ppm";
         imgs[i].cargarImagen(f.str());
-        imgs[i].aplicarMascara(&mask);
+        imgs[i].aplicarMascara(mask);
         imgs[i].eliminarMascara();
         auto v = imgs[i].puntosMasBrillantes();
         for (uint j = 0; j < v.size(); ++j) {
@@ -69,9 +70,9 @@ int main() {
             imgs[i](v.at(j).x, v.at(j).y, 2) = 0;
         }
         stringstream o;
-        o << "/Users/pablo2martin/MetNum/Metodos_TP1/codigo/mate2/mate." << i << ".ppm";
+        o << "mate2/mate." << i << ".ppm";
         imgs[i].guardarImagen(o.str());
-    }*/
+    }
 
     // 2. Reconstruccion del modeo 3D
 
