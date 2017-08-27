@@ -20,17 +20,19 @@ PPM::~PPM() {
 }
 
 PPM& PPM::operator=(PPM o) {
+    swap(_filename, o._filename);
     swap(_data, o._data);
     swap(_width, o._width);
     swap(_height, o._height);
     swap(_pt, o._pt);
+    swap(_mascara, o._mascara);
     return *this;
 }
 
 uchar& PPM::operator()(const uint x, const uint y, const uint k) {
-    if(y >= _height)
+    if(y >= height())
         throw std::runtime_error("El direccionamiento vertical no puede ser mayor a la altura.");
-    if(x >= _width)
+    if(x >= width())
         throw std::runtime_error("El direccionamiento horizontal no puede ser mayor al ancho.");
     if(k >= 3)
         throw std::runtime_error("El indice de color debe estar entre 0 y 2 inclusive.");
@@ -68,11 +70,44 @@ void PPM::guardarImagen(const string f) {
     }
 }
 
-vector<PPM::punto> PPM::generarMascara() {
-    vector<PPM::punto> mascara;
-    for (PPM::iterador it = this->it(); it.haySiguiente(); ++it) {
-        if (it.brillo() != 0)
-            mascara.push_back(it.pos());
+vector<PPM::punto>* PPM::generarMascara() {
+    uint y_t, y_b, x_l, x_r;
+    // Busco borde superior
+    for (y_t = 0; y_t < height(); ++y_t) {
+        for (uint x = 0; x < width(); ++x) {
+            if (brillo(x,y_t) != 0)
+                break;
+        }
+    }
+    // Busco borde inferior
+    for (y_b = height()-1; 0 <= (int)y_b; --y_b) {
+        for (uint x = 0; x < width(); ++x) {
+            if (brillo(x,y_b) != 0)
+                break;
+        }
+    }
+    // Busco borde izquierdo
+    for (x_l = 0; x_l < width(); ++x_l) {
+        for (uint y = 0; y < height(); ++y) {
+            if (brillo(x_l,y) != 0)
+                break;
+        }
+    }
+    // Busco borde derecho
+    for (x_r = width()-1; 0 <= (int)x_r; --x_r) {
+        for (uint y = 0; y < height(); ++y) {
+            if (brillo(x_r,y) != 0)
+                break;
+        }
+    }
+    if (y_b < 0) return NULL; // todos los puntos tienen brillo cero
+    int w = x_r - x_l + 1; // ancho de mascara
+    int h = y_b - y_t + 1; // alto de mascara
+    vector<punto> *mascara = new vector<punto>[w*h];
+    for (int y = 0; y < h; ++y) {
+        for (int x = 0; x < w; ++x) {
+            mascara->emplace_back(x,y);
+        }
     }
     return mascara;
 }
@@ -120,7 +155,7 @@ PPM::punto PPM::iterador::pos() {
     return _pos;
 }
 
-PPM::iterador::iterador(PPM *ppm) : _ppm(ppm), _indice(0) {
+PPM::iterador::iterador(PPM *ppm) : _ppm(ppm), _indMasc(0) {
     if (_ppm->enmascarado())
         _pos = _ppm->_mascara->at(0);
     else
@@ -133,7 +168,7 @@ uchar& PPM::iterador::operator[](const uint k) {
 
 void PPM::iterador::operator++() {
     if (_ppm->enmascarado()) {
-        _pos = _ppm->_mascara->at(++_indice);
+        _pos = _ppm->_mascara->at(++_indMasc);
     } else {
         _pos.x = (_pos.x+1) % _ppm->width();
         if (_pos.x == 0) ++_pos.y;
@@ -142,7 +177,7 @@ void PPM::iterador::operator++() {
 
 void PPM::iterador::operator--() {
     if (_ppm->enmascarado()) {
-        _pos = _ppm->_mascara->at(--_indice);
+        _pos = _ppm->_mascara->at(--_indMasc);
     } else {
         _pos.x = _pos.x == 0 ? _ppm->width()-1 : _pos.x-1;
         if (_pos.x == _ppm->width()-1) --_pos.y;
@@ -150,12 +185,12 @@ void PPM::iterador::operator--() {
 }
 
 bool PPM::iterador::hayAnterior() {
-    return _ppm->enmascarado() ? _indice > 0 : !(_pos.x == 0 && _pos.y == 0);
+    return _ppm->enmascarado() ? _indMasc > 0 : !(_pos.x == 0 && _pos.y == 0);
 }
 
 bool PPM::iterador::haySiguiente() {
     return _ppm->enmascarado()
-        ? _indice < _ppm->_mascara->size()
+        ? _indMasc < _ppm->_mascara->size()
         : _pos.x < _ppm->width() && _pos.y < _ppm->height();
 }
 

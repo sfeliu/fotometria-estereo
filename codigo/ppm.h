@@ -31,7 +31,7 @@ class PPM {
         void cargarImagen();
         void cargarImagen(const string f);
         void guardarImagen(const string f);
-        vector<punto> generarMascara();
+        vector<punto>* generarMascara();
         void aplicarMascara(vector<punto> *m);
         void eliminarMascara();
         bool enmascarado();
@@ -69,5 +69,5 @@ class PPM::iterador {
     private:
         PPM* _ppm;
         punto _pos;
-        uint _indice;
+        uint _indMasc;
 };
