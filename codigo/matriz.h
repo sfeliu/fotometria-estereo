@@ -7,42 +7,40 @@
 #include <cmath>
 #include <stdexcept>
 
-typedef unsigned int uint;
-
 class Matriz {
     public:
         Matriz();
         Matriz(const Matriz &o); // constructor por copia
-        Matriz(const uint n); // matriz identidad de nxn
-        Matriz(const uint f, const uint c); // matriz nula de fxn
-        Matriz(const uint f, const uint c, const double a[], const uint n); // construye una matriz de fxc a partir de un arreglo de tamanio n
+        Matriz(const int n); // matriz identidad de nxn
+        Matriz(const int f, const int c); // matriz nula de fxn
+        Matriz(const int f, const int c, const double a[], const int n); // construye una matriz de fxc a partir de un arreglo de tamanio n
         ~Matriz();
 
         Matriz& operator=(Matriz o);
-        double& operator()(const uint i, const uint j);
-        const double& operator()(const uint i, const uint j) const;
+        double& operator()(const int i, const int j);
+        const double& operator()(const int i, const int j) const;
         Matriz& operator*(const Matriz &o) const;
         Matriz& operator*(const double c) const;
 
-        uint filas() const;
-        uint columnas() const;
+        int filas() const;
+        int columnas() const;
         bool esCuadrada() const;
         void trasponer();
 
         bool eliminacionGaussiana(Matriz &b);
         bool eliminacionGaussJordan(Matriz &b);
-        void permutarFila(const uint i, const uint j);
-        void multiplicarFilaPorEscalar(const uint i, const double c);
-        void restarMultiploDeFila(const uint i, const uint j, const double c);
-        void dividirFilaPorEscalar(const uint i, const double c);
+        void permutarFila(const int i, const int j);
+        void multiplicarFilaPorEscalar(const int i, const double c);
+        void restarMultiploDeFila(const int i, const int j, const double c);
+        void dividirFilaPorEscalar(const int i, const double c);
         bool invertir();
         Matriz matrizLU();
 
         double normaF() const;
 
         void print() const {
-            for (uint i = 0; i < filas(); ++i) {
-                for (uint j = 0; j < columnas(); ++j) {
+            for (int i = 0; i < filas(); ++i) {
+                for (int j = 0; j < columnas(); ++j) {
                     printf("%.8f    ", (*this)(i,j));
                 }
                 printf("\n");
@@ -50,13 +48,13 @@ class Matriz {
         }
 
     private:
-        uint _filas, _columnas;
+        int _filas, _columnas;
         double **_matriz;
         bool _traspuesta;
-        uint *_cols;
+        int *_cols;
 
-        void _crearMatriz(const uint f, const uint c);
-        void _verificarRango(const uint f, const uint c);
+        void _crearMatriz(const int f, const int c);
+        void _verificarRango(const int f, const int c);
 };
 
 Matriz& operator*(const double c, const Matriz &m);

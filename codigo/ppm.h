@@ -6,14 +6,13 @@
 using namespace std;
 
 typedef unsigned char uchar;
-typedef unsigned int uint;
 
 class PPM {
     public:
         struct punto {
             punto() : x(0), y(0) {};
-            punto(const uint x, const uint y) : x(x), y(y) {}
-            uint x, y;
+            punto(const int x, const int y) : x(x), y(y) {}
+            int x, y;
         };
         
         PPM();
@@ -22,11 +21,11 @@ class PPM {
         ~PPM();
 
         PPM& operator=(PPM o);
-        uchar& operator()(const uint i, const uint j, const uint k);
+        uchar& operator()(const int i, const int j, const int k);
 
         uchar* data();
-        uint width();
-        uint height();
+        int width();
+        int height();
 
         void cargarImagen();
         void cargarImagen(const string f);
@@ -36,7 +35,7 @@ class PPM {
         void eliminarMascara();
         bool enmascarado();
         
-        double brillo(const uint x, const uint y);
+        double brillo(const int x, const int y);
         double brilloMaximo();
         vector<punto> puntosMasBrillantes();
         
@@ -46,8 +45,8 @@ class PPM {
     private:
         string _filename;
         uchar* _data;
-        uint _width;
-        uint _height;
+        int _width;
+        int _height;
         PPM_LOADER_PIXEL_TYPE _pt;
         vector<punto>* _mascara;
 };
@@ -58,7 +57,7 @@ class PPM::iterador {
         
         punto pos();
         
-        uchar& operator[](const uint k);
+        uchar& operator[](const int k);
         void operator++();
         void operator--();
         
@@ -69,5 +68,5 @@ class PPM::iterador {
     private:
         PPM* _ppm;
         punto _pos;
-        uint _indMasc;
+        int _indMasc;
 };

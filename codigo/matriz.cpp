@@ -2,21 +2,19 @@
 
 using namespace std;
 
-typedef unsigned int uint;
-
-void Matriz::_crearMatriz(const uint f, const uint c) {
-    if (f == 0 || c == 0) {
+void Matriz::_crearMatriz(const int f, const int c) {
+    if (f <= 0 || c <= 0) {
         throw domain_error("Error: la cantidad de filas y columnas debe ser mayor a cero.");
     }
     _filas = f;
     _columnas = c;
     _traspuesta = false;
     _matriz = new double*[_filas];
-    for (uint i = 0; i < _filas; ++i) {
+    for (int i = 0; i < _filas; ++i) {
         _matriz[i] = new double[_columnas]();
     }
-    _cols = new uint[_columnas];
-    for (uint i = 0; i < _columnas; ++i) {
+    _cols = new int[_columnas];
+    for (int i = 0; i < _columnas; ++i) {
         _cols[i] = i;
     }
 }
@@ -25,27 +23,27 @@ Matriz::Matriz() : _filas(0), _columnas(0), _matriz(NULL), _traspuesta(false), _
 
 Matriz::Matriz(const Matriz &o) {
     _crearMatriz(o._filas, o._columnas);
-    for (uint i = 0; i < _filas; ++i) {
-        for (uint j = 0; j < _columnas; ++j) {
+    for (int i = 0; i < _filas; ++i) {
+        for (int j = 0; j < _columnas; ++j) {
             (*this)(i,j) = o(i,j);
         }
     }
 }
 
-Matriz::Matriz(const uint n) {
+Matriz::Matriz(const int n) {
     _crearMatriz(n, n);
-    for (uint i = 0; i < n; ++i) {
+    for (int i = 0; i < n; ++i) {
         (*this)(i,i) = 1;
     }
 }
 
-Matriz::Matriz(const uint f, const uint c) {
+Matriz::Matriz(const int f, const int c) {
     _crearMatriz(f, c);
 }
 
-Matriz::Matriz(const uint f, const uint c, const double a[], const uint n) {
+Matriz::Matriz(const int f, const int c, const double a[], const int n) {
     _crearMatriz(f, c);
-    uint i = 0, j = 0, k = 0;
+    int i = 0, j = 0, k = 0;
     while (k < n) {
         (*this)(i,j) = a[k];
         j = (j+1) % c;
@@ -55,7 +53,7 @@ Matriz::Matriz(const uint f, const uint c, const double a[], const uint n) {
 }
 
 Matriz::~Matriz() {
-    for (uint i = 0; i < _filas; ++i) {
+    for (int i = 0; i < _filas; ++i) {
         delete[] _matriz[i];
     }
     delete[] _matriz;
@@ -70,14 +68,14 @@ Matriz& Matriz::operator=(Matriz o) {
     return *this;
 }
 
-double& Matriz::operator()(const uint i, const uint j) {
+double& Matriz::operator()(const int i, const int j) {
     if (_traspuesta)
         return _matriz[j][_cols[i]];
     else
         return _matriz[i][_cols[j]];
 }
 
-const double& Matriz::operator()(const uint i, const uint j) const {
+const double& Matriz::operator()(const int i, const int j) const {
     if (_traspuesta)
         return _matriz[j][_cols[i]];
     else
@@ -89,9 +87,9 @@ Matriz& Matriz::operator*(const Matriz &o) const {
         throw domain_error("Error: la multiplicación no esta definida estos tipos de matrices");
     }
     Matriz *res = new Matriz(filas(), o.columnas());
-    for (uint i = 0; i < filas(); ++i) {
-        for (uint j = 0; j < o.columnas(); ++j) {
-            for (uint k = 0; k < columnas(); ++k) {
+    for (int i = 0; i < filas(); ++i) {
+        for (int j = 0; j < o.columnas(); ++j) {
+            for (int k = 0; k < columnas(); ++k) {
                 (*res)(i,j) += (*this)(i,k) * o(k,j);
             }
         }
@@ -101,19 +99,19 @@ Matriz& Matriz::operator*(const Matriz &o) const {
 
 Matriz& Matriz::operator*(const double c) const {
     Matriz *res = new Matriz(filas(), columnas());
-    for (uint i = 0; i < filas(); ++i) {
-        for (uint j = 0; j < columnas(); ++j) {
+    for (int i = 0; i < filas(); ++i) {
+        for (int j = 0; j < columnas(); ++j) {
             (*res)(i,j) += (*this)(i,j) * c;
         }
     }
     return *res;
 }
 
-uint Matriz::filas() const {
+int Matriz::filas() const {
     return _traspuesta ? _columnas : _filas;
 }
 
-uint Matriz::columnas() const {
+int Matriz::columnas() const {
     return _traspuesta ? _filas : _columnas;
 }
 
@@ -126,18 +124,18 @@ void Matriz::trasponer() {
 }
 
 bool Matriz::eliminacionGaussiana(Matriz &b) {
-    uint f = 0, c = 0;
+    int f = 0, c = 0;
     bool invertible = esCuadrada();
     while (f < filas() && c < columnas()) {
-        uint i = f;
-        for (uint k = i + 1; k < filas(); ++k) {
+        int i = f;
+        for (int k = i + 1; k < filas(); ++k) {
             if (fabs((*this)(i,c)) < fabs((*this)(k,c)))
                 i = k;
         }
         if ((*this)(i,c) != 0) { // tener en cuenta error de redondeo
             b.permutarFila(f, i);
             permutarFila(f, i);
-            for (uint k = f + 1; k < filas(); ++k) {
+            for (int k = f + 1; k < filas(); ++k) {
                 if ((*this)(k,c) != 0) { // tener en cuenta error de redondeo
                     b.restarMultiploDeFila(k, f, (*this)(k,c) / (*this)(f,c));
                     restarMultiploDeFila(k, f, (*this)(k,c) / (*this)(f,c));
@@ -153,11 +151,11 @@ bool Matriz::eliminacionGaussiana(Matriz &b) {
 }
 
 bool Matriz::eliminacionGaussJordan(Matriz &b) {
-    uint f = 0, c = 0;
+    int f = 0, c = 0;
     bool invertible = esCuadrada();
     while (f < filas() && c < columnas()) {
-        uint i = f;
-        for (uint k = i + 1; k < filas(); ++k) {
+        int i = f;
+        for (int k = i + 1; k < filas(); ++k) {
             if (fabs((*this)(i,c)) < fabs((*this)(k,c)))
                 i = k;
         }
@@ -166,7 +164,7 @@ bool Matriz::eliminacionGaussJordan(Matriz &b) {
             permutarFila(f, i);
             b.multiplicarFilaPorEscalar(f, 1 / (*this)(f,c));
             multiplicarFilaPorEscalar(f, 1 / (*this)(f,c));
-            for (uint k = 0; k < filas(); ++k) {
+            for (int k = 0; k < filas(); ++k) {
                 if (k != f && (*this)(k,c) != 0) { // tener en cuenta error de redondeo
                     b.restarMultiploDeFila(k, f, (*this)(k,c));
                     restarMultiploDeFila(k, f, (*this)(k,c));
@@ -181,7 +179,7 @@ bool Matriz::eliminacionGaussJordan(Matriz &b) {
     return invertible;
 }
 
-void Matriz::permutarFila(const uint i, const uint j) {
+void Matriz::permutarFila(const int i, const int j) {
     _verificarRango(i, 0);
     _verificarRango(j, 0);
     if (_traspuesta)
@@ -190,15 +188,15 @@ void Matriz::permutarFila(const uint i, const uint j) {
         swap(_matriz[i], _matriz[j]);
 }
 
-void Matriz::multiplicarFilaPorEscalar(const uint i, const double c) {
-    for (uint j = 0; j < columnas(); ++j)
+void Matriz::multiplicarFilaPorEscalar(const int i, const double c) {
+    for (int j = 0; j < columnas(); ++j)
         (*this)(i,j) *= c;
 }
 
-void Matriz::restarMultiploDeFila(const uint i, const uint j, const double c) {
+void Matriz::restarMultiploDeFila(const int i, const int j, const double c) {
     _verificarRango(i, 0);
     _verificarRango(j, 0);
-    for (uint k = 0; k < columnas(); ++k)
+    for (int k = 0; k < columnas(); ++k)
         (*this)(i, k) -= c * (*this)(j,k);
 }
 
@@ -215,16 +213,16 @@ bool Matriz::invertir() {
 
 double Matriz::normaF() const {
     double suma = 0;
-    for (uint i = 0; i < filas(); ++i) {
-        for (uint j = 0; j < columnas(); ++j) {
+    for (int i = 0; i < filas(); ++i) {
+        for (int j = 0; j < columnas(); ++j) {
             suma += pow((*this)(i,j), 2);
         }
     }
     return pow(suma, 0.5);
 }
 
-void Matriz::_verificarRango(const uint f, const uint c) {
-    if (!(f < filas() && c < columnas()))
+void Matriz::_verificarRango(const int f, const int c) {
+    if (!(0 <= f && f < filas() && 0 <= c && c < columnas()))
         throw domain_error("Los indices de fila y/o columna estan fuera de rango.");
 }
 

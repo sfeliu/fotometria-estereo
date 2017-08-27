@@ -29,7 +29,7 @@ PPM& PPM::operator=(PPM o) {
     return *this;
 }
 
-uchar& PPM::operator()(const uint x, const uint y, const uint k) {
+uchar& PPM::operator()(const int x, const int y, const int k) {
     if(y >= height())
         throw std::runtime_error("El direccionamiento vertical no puede ser mayor a la altura.");
     if(x >= width())
@@ -41,9 +41,9 @@ uchar& PPM::operator()(const uint x, const uint y, const uint k) {
 
 uchar* PPM::data() { return _data; }
 
-uint PPM::width() { return _width; }
+int PPM::width() { return _width; }
 
-uint PPM::height() { return _height; }
+int PPM::height() { return _height; }
 
 void PPM::cargarImagen() {
     string f;
@@ -71,18 +71,18 @@ void PPM::guardarImagen(const string f) {
 }
 
 vector<PPM::punto>* PPM::generarMascara() {
-    uint y_t, y_b, x_l, x_r;
+    int y_t, y_b, x_l, x_r;
     // Busco borde superior
     for (y_t = 0; y_t < height(); ++y_t) {
-        for (uint x = 0; x < width(); ++x) {
+        for (int x = 0; x < width(); ++x) {
             if (brillo(x,y_t) != 0)
                 goto __listo_y_t;
         }
     }
     __listo_y_t:;
     // Busco borde inferior
-    for (y_b = height()-1; 0 <= (int)y_b; --y_b) {
-        for (uint x = 0; x < width(); ++x) {
+    for (y_b = height()-1; 0 <= y_b; --y_b) {
+        for (int x = 0; x < width(); ++x) {
             if (brillo(x,y_b) != 0)
                 goto __listo_y_b;
         }
@@ -90,15 +90,15 @@ vector<PPM::punto>* PPM::generarMascara() {
     __listo_y_b:;
     // Busco borde izquierdo
     for (x_l = 0; x_l < width(); ++x_l) {
-        for (uint y = 0; y < height(); ++y) {
+        for (int y = 0; y < height(); ++y) {
             if (brillo(x_l,y) != 0)
                 goto __listo_x_l;
         }
     }
     __listo_x_l:;
     // Busco borde derecho
-    for (x_r = width()-1; 0 <= (int)x_r; --x_r) {
-        for (uint y = 0; y < height(); ++y) {
+    for (x_r = width()-1; 0 <= x_r; --x_r) {
+        for (int y = 0; y < height(); ++y) {
             if (brillo(x_r,y) != 0)
                 goto __listo_x_r;
         }
@@ -126,7 +126,7 @@ bool PPM::enmascarado() {
     return _mascara != NULL;
 }
 
-double PPM::brillo(const uint x, const uint y) {
+double PPM::brillo(const int x, const int y) {
     return ((*this)(x,y,0) + (*this)(x,y,1) + (*this)(x,y,2)) / 3;
 }
 
@@ -164,7 +164,7 @@ PPM::iterador::iterador(PPM *ppm) : _ppm(ppm), _indMasc(0) {
         _pos.x = _pos.y = 0;
 }
 
-uchar& PPM::iterador::operator[](const uint k) {
+uchar& PPM::iterador::operator[](const int k) {
     return (*_ppm)(_pos.x, _pos.y, k);
 }
 
@@ -192,7 +192,7 @@ bool PPM::iterador::hayAnterior() {
 
 bool PPM::iterador::haySiguiente() {
     return _ppm->enmascarado()
-        ? _indMasc < _ppm->_mascara->size()
+        ? _indMasc < (int)_ppm->_mascara->size()
         : _pos.x < _ppm->width() && _pos.y < _ppm->height();
 }
 
