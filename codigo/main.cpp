@@ -4,6 +4,29 @@
 #include <iostream>
 #include <fstream>
 
+int sumaDeVecindad(const PPM &ppm, PPM::punto p){
+	int resultado = 0;
+	for(int i = -1; i < 2; i++){
+		resultado = resultado + ppm.brillo(p.x+i, p.y);//((*this)(x+i,y,0) + (*this)(x+i,y,1) + (*this)(x+i,y,2));
+		for(int j = -1; j < 2; j++){
+			resultado = resultado + ppm.brillo(p.x, p.y+j);//((*this)(x,y+j,0) + (*this)(x,y+j,1) + (*this)(x,y+j,2))
+		}
+	}
+	return resultado;
+}
+
+
+PPM::punto puntoDeMayorVecindad(const PPM &ppm ,vector<PPM::punto> pts){
+    PPM::punto res = pts[0];
+    for(int i = 1; i < pts.size(); i++){
+        if(sumaDeVecindad(ppm,res) < sumaDeVecindad(ppm, pts[i]) ){
+            res = pts[i];
+        }
+    }
+    return res;
+}
+
+
 PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> masc) {
     vector<PPM::punto> pts;
     pts.push_back(masc.first); // inserto un primer punto para simplificar el algoritmo que sigue
@@ -36,8 +59,7 @@ PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> m
     if (sigPos == 1) {
         return pts[0];
     } else {
-        // TODO: algoritmo para eligir un punto
-        return pts[0];
+        return puntoDeMayorVecindad(ppm, pts);
     }
 }
 
