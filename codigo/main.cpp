@@ -50,13 +50,19 @@ Matriz matrizDeIntensidades(const vector<PPM> &ppms, const int x, const int y) {
 }
 
 int main() {
-    PPM mate_masc = PPM("mate/mate.mask.ppm");
+    // 1. Calibracion del sistema
+    
+    // 1.1. Obtenencion de direcciones de iluminacion
+    PPM mate_mask_ppm = PPM("mate/mate.mask.ppm");
     PPM mates[12];
+    PPM::punto pts[12];
+    auto mate_masc = mate_mask_ppm.generarMascara();
     for (int i = 0; i < 12; ++i) {
         stringstream f;
         f << "mate/mate." << i << ".ppm";
         mates[i].cargarImagen(f.str());
-        auto pt = puntoDeMayorIntensidad(mates[i], mate_masc.generarMascara());
+        auto pt = puntoDeMayorIntensidad(mates[i], mate_masc);
+        pts[i] = pt;
         mates[i](pt.x, pt.y, 0) = 255;
         mates[i](pt.x, pt.y, 1) = 0;
         mates[i](pt.x, pt.y, 2) = 0;
@@ -64,7 +70,19 @@ int main() {
         o << "mate2/mate." << i << ".ppm";
         mates[i].guardarImagen(o.str());
     }
-    // 1. Calibracion del sistema
+    
+    // 1.2. Obtencion de coordenadas z
+    int r = (mate_masc.second.x - mate_masc.first.x + 1) / 2; // radio de la esfera
+    PPM::punto c(mate_masc.first.x + r - 1, mate_masc.first.y - 1); // centro de la esfera
+    ofstream luces;
+    luces.open("luces.txt");
+    for (int i = 0; i < 12; ++i) {
+        double z = pow(pow(r, 2) - pow(pts[i].x - c.x, 2) - pow(pts[i].y - c.y, 2), 0.5);
+        luces << (((double)pts[i].x-c.x)/r) << ' ' << (((double)pts[i].y-c.y)/r) << ' ' << (z/r) << "\n";
+    }
+    luces.close();
+    
+    
     double dirs[] = {0.403259, 0.480808, 0.778592, 0.0982272, 0.163712, 0.981606, -0.0654826, 0.180077, 0.98147};
     Matriz S = Matriz(3, 3, dirs, 9);
     S.trasponer();
