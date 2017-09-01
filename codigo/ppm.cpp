@@ -126,25 +126,6 @@ double PPM::brillo(const int x, const int y) {
     return ((*this)(x,y,0) + (*this)(x,y,1) + (*this)(x,y,2)) / 3;
 }
 
-double PPM::brilloMaximo() {
-    double max = 0;
-    for (PPM::iterador it = this->it(); it.haySiguiente(); ++it) {
-        if (max < it.brillo())
-            max = it.brillo();
-    }
-    return max;
-}
-
-vector<PPM::punto> PPM::puntosMasBrillantes() {
-    double max = brilloMaximo();
-    vector<PPM::punto> pts;
-    for (PPM::iterador it = this->it(); it.haySiguiente(); ++it) {
-        if ((int)it.brillo() == (int)max)
-            pts.push_back(it.pos());
-    }
-    return pts;
-}
-
 PPM::iterador PPM::it() {
     return iterador(this);
 }
