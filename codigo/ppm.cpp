@@ -4,14 +4,13 @@
 
 using namespace std;
 
-PPM::PPM() : _data(NULL), _mascara(NULL) {}
+PPM::PPM() : _data(NULL) {}
 
 PPM::PPM(const PPM &o) {
     cargarImagen(o._filename);
-    _mascara = o._mascara;
 }
 
-PPM::PPM(const string f) : _mascara(NULL) {
+PPM::PPM(const string f) {
     cargarImagen(f);
 }
 
@@ -25,7 +24,6 @@ PPM& PPM::operator=(PPM o) {
     swap(_width, o._width);
     swap(_height, o._height);
     swap(_pt, o._pt);
-    swap(_mascara, o._mascara);
     return *this;
 }
 
@@ -110,69 +108,6 @@ pair<PPM::punto, PPM::punto> PPM::generarMascara() {
         return make_pair(punto(x_l, y_t), punto(x_r, y_b));
 }
 
-void PPM::aplicarMascara(vector<punto> *m) {
-    _mascara = m;
-}
-
-void PPM::eliminarMascara() {
-    _mascara = NULL;
-}
-
-bool PPM::enmascarado() {
-    return _mascara != NULL;
-}
-
 double PPM::brillo(const int x, const int y) {
     return ((*this)(x,y,0) + (*this)(x,y,1) + (*this)(x,y,2)) / 3;
-}
-
-PPM::iterador PPM::it() {
-    return iterador(this);
-}
-
-PPM::punto PPM::iterador::pos() {
-    return _pos;
-}
-
-PPM::iterador::iterador(PPM *ppm) : _ppm(ppm), _indMasc(0) {
-    if (_ppm->enmascarado())
-        _pos = _ppm->_mascara->at(0);
-    else
-        _pos.x = _pos.y = 0;
-}
-
-uchar& PPM::iterador::operator[](const int k) {
-    return (*_ppm)(_pos.x, _pos.y, k);
-}
-
-void PPM::iterador::operator++() {
-    if (_ppm->enmascarado()) {
-        _pos = _ppm->_mascara->at(++_indMasc);
-    } else {
-        _pos.x = (_pos.x+1) % _ppm->width();
-        if (_pos.x == 0) ++_pos.y;
-    }
-}
-
-void PPM::iterador::operator--() {
-    if (_ppm->enmascarado()) {
-        _pos = _ppm->_mascara->at(--_indMasc);
-    } else {
-        _pos.x = _pos.x == 0 ? _ppm->width()-1 : _pos.x-1;
-        if (_pos.x == _ppm->width()-1) --_pos.y;
-    }
-}
-
-bool PPM::iterador::hayAnterior() {
-    return _ppm->enmascarado() ? _indMasc > 0 : !(_pos.x == 0 && _pos.y == 0);
-}
-
-bool PPM::iterador::haySiguiente() {
-    return _ppm->enmascarado()
-        ? _indMasc < (int)_ppm->_mascara->size()
-        : _pos.x < _ppm->width() && _pos.y < _ppm->height();
-}
-
-double PPM::iterador::brillo() {
-    return _ppm->brillo(_pos.x, _pos.y);
 }
