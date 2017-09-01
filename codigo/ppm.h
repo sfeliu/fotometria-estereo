@@ -22,17 +22,18 @@ class PPM {
 
         PPM& operator=(PPM o);
         uchar& operator()(const int i, const int j, const int k);
+        const uchar& operator()(const int i, const int j, const int k) const;
 
-        uchar* data();
-        int width();
-        int height();
+        uchar* data() const;
+        int width() const;
+        int height() const;
 
         void cargarImagen();
         void cargarImagen(const string f);
-        void guardarImagen(const string f);
-        pair<punto, punto> generarMascara();
+        void guardarImagen(const string f) const;
+        pair<punto, punto> generarMascara() const;
         
-        double brillo(const int x, const int y);
+        double brillo(const int x, const int y) const;
         
     private:
         string _filename;

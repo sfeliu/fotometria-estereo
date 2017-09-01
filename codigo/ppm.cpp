@@ -37,11 +37,21 @@ uchar& PPM::operator()(const int x, const int y, const int k) {
     return _data[y*_width*3 + x*3 + k];
 }
 
-uchar* PPM::data() { return _data; }
+const uchar& PPM::operator()(const int x, const int y, const int k) const {
+    if(y >= height())
+        throw std::runtime_error("El direccionamiento vertical no puede ser mayor a la altura.");
+    if(x >= width())
+        throw std::runtime_error("El direccionamiento horizontal no puede ser mayor al ancho.");
+    if(k >= 3)
+        throw std::runtime_error("El indice de color debe estar entre 0 y 2 inclusive.");
+    return _data[y*_width*3 + x*3 + k];
+}
 
-int PPM::width() { return _width; }
+uchar* PPM::data() const { return _data; }
 
-int PPM::height() { return _height; }
+int PPM::width() const { return _width; }
+
+int PPM::height() const { return _height; }
 
 void PPM::cargarImagen() {
     string f;
@@ -61,14 +71,14 @@ void PPM::cargarImagen(const string f) {
     }
 }
 
-void PPM::guardarImagen(const string f) {
+void PPM::guardarImagen(const string f) const {
     bool ret = SavePPMFile(f.c_str(), _data, _width, _height, _pt, NULL);
     if (!ret) {
         cout << "ERROR: no se pudo guardar el archivo" << endl;
     }
 }
 
-pair<PPM::punto, PPM::punto> PPM::generarMascara() {
+pair<PPM::punto, PPM::punto> PPM::generarMascara() const {
     int y_t, y_b, x_l, x_r;
     // Busco borde superior
     for (y_t = 0; y_t < height(); ++y_t) {
@@ -108,6 +118,6 @@ pair<PPM::punto, PPM::punto> PPM::generarMascara() {
         return make_pair(punto(x_l, y_t), punto(x_r, y_b));
 }
 
-double PPM::brillo(const int x, const int y) {
+double PPM::brillo(const int x, const int y) const {
     return ((*this)(x,y,0) + (*this)(x,y,1) + (*this)(x,y,2)) / 3;
 }

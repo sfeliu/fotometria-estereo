@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 
-PPM::punto puntoDeMayorIntensidad(PPM &ppm, pair<PPM::punto, PPM::punto> masc) {
+PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> masc) {
     vector<PPM::punto> pts;
     pts.push_back(masc.first); // inserto un primer punto para simplificar el algoritmo que sigue
     int sigPos = 1; // posicion del vector para insertar el siguiente punto
@@ -41,7 +41,7 @@ PPM::punto puntoDeMayorIntensidad(PPM &ppm, pair<PPM::punto, PPM::punto> masc) {
     }
 }
 
-Matriz matrizDeIntensidades(vector<PPM> &ppms, const int x, const int y) {
+Matriz matrizDeIntensidades(const vector<PPM> &ppms, const int x, const int y) {
     Matriz m = Matriz(ppms.size(), 1);
     for (int i = 0; i < (int)ppms.size(); ++i) {
         m(i,0) = ppms[i].brillo(x,y);
