@@ -27,6 +27,7 @@ class PPM {
         uchar* data() const;
         int width() const;
         int height() const;
+        int sumaDeVecindad(Punto p)
 
         void cargarImagen();
         void cargarImagen(const string f);

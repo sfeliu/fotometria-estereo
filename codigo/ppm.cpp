@@ -78,6 +78,17 @@ void PPM::guardarImagen(const string f) const {
     }
 }
 
+int PPM::sumaDeVecindad(Punto p){
+	int resultado = 0;
+	for(int i = -1; i < 2; i++){
+		resultado = resultado + ((*this)(x+i,y,0) + (*this)(x+i,y,1) + (*this)(x+i,y,2));
+		for(int j = -1; j < 2; j++){
+			resultado = resultado + ((*this)(x,y+j,0) + (*this)(x,y+j,1) + (*this)(x,y+j,2))
+		}
+	}
+	return resultado;
+}
+
 pair<PPM::punto, PPM::punto> PPM::generarMascara() const {
     int y_t, y_b, x_l, x_r;
     // Busco borde superior
