@@ -70,7 +70,7 @@ void PPM::guardarImagen(const string f) {
     }
 }
 
-vector<PPM::punto>* PPM::generarMascara() {
+pair<PPM::punto, PPM::punto> PPM::generarMascara() {
     int y_t, y_b, x_l, x_r;
     // Busco borde superior
     for (y_t = 0; y_t < height(); ++y_t) {
@@ -104,14 +104,10 @@ vector<PPM::punto>* PPM::generarMascara() {
         }
     }
     __listo_x_r:;
-    if (y_b < 0) return NULL; // todos los puntos tienen brillo cero
-    vector<punto> *mascara = new vector<punto>[(x_r - x_l + 1)*(y_b - y_t + 1)];
-    for (int y = y_t; y <= y_b; ++y) {
-        for (int x = x_l; x <= x_r; ++x) {
-            mascara->emplace_back(x,y);
-        }
-    }
-    return mascara;
+    if (y_b < 0) // todos los puntos tienen brillo cero
+        return make_pair(punto(0, 0), punto(width()-1, height()-1));
+    else
+        return make_pair(punto(x_l, y_t), punto(x_r, y_b));
 }
 
 void PPM::aplicarMascara(vector<punto> *m) {

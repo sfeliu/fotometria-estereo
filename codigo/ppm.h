@@ -30,7 +30,7 @@ class PPM {
         void cargarImagen();
         void cargarImagen(const string f);
         void guardarImagen(const string f);
-        vector<punto>* generarMascara();
+        pair<punto, punto> generarMascara();
         void aplicarMascara(vector<punto> *m);
         void eliminarMascara();
         bool enmascarado();

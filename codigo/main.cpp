@@ -4,12 +4,11 @@
 #include <iostream>
 #include <fstream>
 
-Matriz computarIntensidades(PPM ppms[], const uint n, const uint f, const uint c) {
-    double intensidades[n];
-    for (uint i = 0; i < n; ++i) {
-        intensidades[i] = ppms[i].brillo(f,c);
+Matriz obtenerIntensidades(vector<PPM> &ppms, const int x, const int y) {
+    Matriz m = Matriz(ppms.size(), 1);
+    for (int i = 0; i < (int)ppms.size(); ++i) {
+        m(i,0) = ppms[i].brillo(x,y);
     }
-    Matriz m = Matriz(n, 1, intensidades, n);
     return m;
 }
 
@@ -19,38 +18,44 @@ int main() {
     Matriz S = Matriz(3, 3, dirs, 9);
     S.trasponer();
     S.invertir();
-/*
-    PPM imgs[3];
-    for (uint i = 0; i < 3; ++i) {
+
+    vector<PPM> imgs(3);
+    for (int i = 0; i < 3; ++i) {
         stringstream f;
         f << "buda/buda." << i << ".ppm";
         imgs[i].cargarImagen(f.str());
     }
-    ofstream x, y, z;
-    x.open("normalesX");
-    y.open("normalesY");
-    z.open("normalesZ");
-    for (uint i = 0; i < imgs[0].width(); ++i) {
-        for (uint j = 0; j < imgs[0].height(); ++j) {
-            Matriz b = computarIntensidades(imgs, 3, i, j);
-            Matriz m = S * b;
-            if (m.normaF() != 0)
-                m = (1 / m.normaF()) * m;
-            x << m(0,0) << ',';
-            y << m(1,0) << ',';
-            z << m(2,0) << ',';
-            if (j == imgs[0].height()-1)
-                x << "\n";
+    PPM mask = PPM("buda/buda.mask.ppm");
+    auto m = mask.generarMascara();
+    ofstream xFile, yFile, zFile;
+    xFile.open("ejemplo2/normalesX.txt");
+    yFile.open("ejemplo2/normalesY.txt");
+    zFile.open("ejemplo2/normalesZ.txt");
+    int ultimoY = mask.width();
+    for (int y = m.first.y; y <= m.second.y; ++y) {
+        for (int x = m.first.x; x <= m.second.x; ++x) {
+            if (y > ultimoY) {
+                xFile << "\n";
+                yFile << "\n";
+                zFile << "\n";
+            }
+            ultimoY = y;
+            Matriz b = obtenerIntensidades(imgs, x, y);
+            Matriz n = S * b;
+            if (n.normaF() != 0)
+                n = (1 / n.normaF()) * n;
+            xFile << n(0,0) << ',';
+            yFile << n(1,0) << ',';
+            zFile << n(2,0) << ',';
         }
     }
-    x.close();
-    y.close();
-    z.close();*/
-    
+    xFile.close();
+    yFile.close();
+    zFile.close();
+    /*
     PPM mascara = PPM("mate/mate.mask.ppm");
     auto mask = mascara.generarMascara();
     for (auto it = mask->begin(); it != mask->end(); ++it) {
-        printf("%d, %d\n", (*it).x, (*it).y);
         mascara((*it).x, (*it).y, 0) = 255;
         mascara((*it).x, (*it).y, 1) = 0;
         mascara((*it).x, (*it).y, 2) = 0;
@@ -64,7 +69,7 @@ int main() {
         imgs[i].aplicarMascara(mask);
         imgs[i].eliminarMascara();
         auto v = imgs[i].puntosMasBrillantes();
-        for (uint j = 0; j < v.size(); ++j) {
+        for (int j = 0; j < v.size(); ++j) {
             imgs[i](v.at(j).x, v.at(j).y, 0) = 255;
             imgs[i](v.at(j).x, v.at(j).y, 1) = 0;
             imgs[i](v.at(j).x, v.at(j).y, 2) = 0;
@@ -72,7 +77,7 @@ int main() {
         stringstream o;
         o << "mate2/mate." << i << ".ppm";
         imgs[i].guardarImagen(o.str());
-    }
+    }*/
 
     // 2. Reconstruccion del modeo 3D
 
