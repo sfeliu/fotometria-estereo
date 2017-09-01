@@ -14,7 +14,7 @@ class PPM {
             punto(const int x, const int y) : x(x), y(y) {}
             int x, y;
         };
-        
+
         PPM();
         PPM(const PPM &o);
         PPM(const string f);
@@ -34,9 +34,9 @@ class PPM {
         void cargarImagen(const string f);
         void guardarImagen(const string f) const;
         pair<punto, punto> generarMascara() const;
-        
+
         double brillo(const int x, const int y) const;
-        
+
     private:
         string _filename;
         uchar* _data;

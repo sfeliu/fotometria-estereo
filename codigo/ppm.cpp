@@ -120,5 +120,6 @@ pair<PPM::punto, PPM::punto> PPM::generarMascara() const {
 }
 
 double PPM::brillo(const int x, const int y) const {
-    return double(((*this)(x,y,0) + (*this)(x,y,1) + (*this)(x,y,2)) )/ 3;
+    //return double(((*this)(x,y,0) + (*this)(x,y,1) + (*this)(x,y,2)) )/ 3;
+    return 0.299*(*this)(x,y,0) + 0.587*(*this)(x,y,1) + 0.114*(*this)(x,y,2);
 }

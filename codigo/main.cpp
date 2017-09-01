@@ -31,13 +31,13 @@ PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> m
     vector<PPM::punto> pts;
     pts.push_back(masc.first); // inserto un primer punto para simplificar el algoritmo que sigue
     int sigPos = 1; // posicion del vector para insertar el siguiente punto
-    int intensidadMax = -1;
+    double intensidadMax = -1;
     // Recorro la imagen (usando la mascara) y voy guardando los puntos de mayor intensidad
     for (int y = masc.first.y; y < masc.second.y; ++y) {
         for (int x = masc.first.x; x < masc.second.x; ++x) {
             // Se devuelve una suma sin promediar para evitar errores de redondeo
             // Esto no rompe las comparaciones ya que a/3 < b/3 <=> a < b
-            int intensidad = ppm(x,y,0) + ppm(x,y,1) + ppm(x,y,2);
+            double intensidad = ppm.brillo(x, y);
             if (intensidadMax == intensidad) {
                 // Si la siguiente posicion esta definida, le asigno el valor directamente
                 // Si no, hago push back
@@ -130,7 +130,22 @@ Matriz matrizDeIntensidades(const vector<PPM> &ppms, const int x, const int y) {
 
 int main() {
     // 1. Calibracion del sistema
-    
+    /*double a[] = {0.403259, 0.480808, 0.778592, -0.328606, 0.485085, 0.810377, 0.0985318, 0.0492659, 0.993914};
+    Matriz A(3, 3, a, 9);
+    A.trasponer();
+    auto invA = A;
+    invA.invertir();
+    double condA = A.normaF()*invA.normaF();
+    printf("%f\n", condA);
+
+    double b[] = {-0.127999, 0.431998, 0.892745, -0.328606, 0.485085, 0.810377, 0.12931, 0.339438, 0.931698};
+    Matriz B(3, 3, b, 9);
+    B.trasponer();
+    auto invB = B;
+    invB.invertir();
+    double condB = B.normaF()*invB.normaF();
+    printf("%f\n", condB);*/
+
     // 1.1. Obtenencion de direcciones de iluminacion
     PPM mate_mask_ppm = PPM("mate/mate.mask.ppm");
     PPM mates[12];
@@ -149,7 +164,7 @@ int main() {
         o << "mate2/mate." << i << ".ppm";
         mates[i].guardarImagen(o.str());
     }
-    
+
     // 1.2. Obtencion de coordenadas z
     int r = (mate_masc.second.x - mate_masc.first.x + 1) / 2; // radio de la esfera
     PPM::punto c(mate_masc.first.x + r - 1, mate_masc.first.y - 1); // centro de la esfera
@@ -160,20 +175,18 @@ int main() {
         luces << (((double)pts[i].x-c.x)/r) << ' ' << (((double)pts[i].y-c.y)/r) << ' ' << (z/r) << "\n";
     }
     luces.close();
-    
-    
-    double dirs[] = {0.403259, 0.480808, 0.778592, 0.0982272, 0.163712, 0.981606, -0.0654826, 0.180077, 0.98147};
+
+    double dirs[] = {0.403259, 0.480808, 0.778592, -0.328606, 0.485085, 0.810377, 0.0985318, 0.0492659, 0.993914}; // 0, 4, 10
+    //double dirs[] = {0.403259, 0.480808, 0.778592, 0.0982272, 0.163712, 0.981606, -0.0654826, 0.180077, 0.98147}; // 0, 1, 2
     Matriz S = Matriz(3, 3, dirs, 9);
     S.trasponer();
     S.invertir();
 
     vector<PPM> imgs(3);
-    for (int i = 0; i < 3; ++i) {
-        stringstream f;
-        f << "buda/buda." << i << ".ppm";
-        imgs[i].cargarImagen(f.str());
-    }
-    PPM mask = PPM("buda/buda.mask.ppm");
+    imgs.push_back(PPM("caballo/caballo.0.ppm"));
+    imgs.push_back(PPM("caballo/caballo.4.ppm"));
+    imgs.push_back(PPM("caballo/caballo.10.ppm"));
+    PPM mask = PPM("caballo/caballo.mask.ppm");
     auto m = mask.generarMascara();
     ofstream xFile, yFile, zFile;
     xFile.open("ejemplo2/normalesX.txt");
