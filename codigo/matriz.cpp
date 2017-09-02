@@ -56,6 +56,14 @@ Matriz::~Matriz() {
     delete[] _matriz;
 }
 
+Matriz Matriz::Identidad(const int n) {
+    Matriz M(n);
+    for (int i = 0; i < n; ++i) {
+        M(i,i) = 1;
+    }
+    return M;
+}
+
 Matriz& Matriz::operator=(Matriz o) {
     swap(_filas, o._filas);
     swap(_columnas, o._columnas);
@@ -100,7 +108,7 @@ Matriz& Matriz::operator*(const double c) const {
     Matriz *res = new Matriz(filas(), columnas());
     for (int i = 0; i < filas(); ++i) {
         for (int j = 0; j < columnas(); ++j) {
-            (*res)(i,j) += (*this)(i,j) * c;
+            (*res)(i,j) = (*this)(i,j) * c;
         }
     }
     return *res;
@@ -204,7 +212,7 @@ bool Matriz::invertir() {
         throw domain_error("La matriz no es cuadrada.");
     }
     Matriz A(*this);
-    Matriz b(filas());
+    Matriz b = Matriz::Identidad(filas());
     bool invertible = A.eliminacionGaussJordan(b);
     if (invertible) *this = b;
     return invertible;

@@ -16,6 +16,8 @@ class Matriz {
         Matriz(const int f, const int c); // matriz nula de fxn
         Matriz(const int f, const int c, const double a[], const int n); // construye una matriz de fxc a partir de un arreglo de tamanio n
         ~Matriz();
+        
+        static Matriz Identidad(const int n);
 
         Matriz& operator=(Matriz o);
         double& operator()(const int i, const int j);
