@@ -30,8 +30,12 @@ class Matriz {
         bool esCuadrada() const;
         void trasponer();
 
+        bool eliminacionGaussiana();
         bool eliminacionGaussiana(Matriz &b);
         bool eliminacionGaussJordan(Matriz &b);
+        void factorizacionPLU(Matriz &P, Matriz &L, Matriz &U);
+        Matriz backSubstitution(Matriz &b);
+        Matriz forwardSubstitution(Matriz &b);
         void permutarFila(const int i, const int j);
         void multiplicarFilaPorEscalar(const int i, const double c);
         void restarMultiploDeFila(const int i, const int j, const double c);
@@ -58,6 +62,7 @@ class Matriz {
 
         void _crearMatriz(const int f, const int c);
         void _verificarRango(const int f, const int c) const;
+        bool _eliminacionGaussiana(Matriz *b); // devuelve true si la matriz es no singular
 };
 
 Matriz& operator*(const double c, const Matriz &m);
