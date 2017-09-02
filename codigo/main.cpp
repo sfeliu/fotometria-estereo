@@ -4,14 +4,14 @@
 #include <iostream>
 #include <fstream>
 
-PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> masc) {
+PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> mask) {
     vector<PPM::punto> pts;
-    pts.push_back(masc.first); // inserto un primer punto para simplificar el algoritmo que sigue
+    pts.push_back(mask.first); // inserto un primer punto para simplificar el algoritmo que sigue
     int sigPos = 1; // posicion del vector para insertar el siguiente punto
     double intensidadMax = -1;
-    // Recorro la imagen (usando la mascara) y voy guardando los puntos de mayor intensidad
-    for (int y = masc.first.y; y < masc.second.y; ++y) {
-        for (int x = masc.first.x; x < masc.second.x; ++x) {
+    // Recorro la imagen (usando la maskara) y voy guardando los puntos de mayor intensidad
+    for (int y = mask.first.y; y < mask.second.y; ++y) {
+        for (int x = mask.first.x; x < mask.second.x; ++x) {
             double intensidad = ppm.intensidadEnVecindad(x, y, 4);
             //double intensidad = ppm.intensidad(x, y);
             if (eq(intensidadMax, intensidad)) {
@@ -117,22 +117,25 @@ int main() {
     if (!mate_src.is_open()) throw runtime_error("ERROR: no se pudo abrir el archivo");
     int mate_cant;
     mate_src >> mate_cant; // leo la cantidad de imagenes que no son mascara
-    PPM mates[mate_cant+1];
     mate_src.ignore(numeric_limits<std::streamsize>::max(), '\n'); // voy hasta la proxima linea
-    for (int i = 0; i <= mate_cant; ++i) {
+    vector<PPM> mate(mate_cant);
+    PPM mate_mask;
+    {
         string ruta;
-        getline(mate_src, ruta);
-        mates[i].cargarImagen(ruta);
+        for (int i = 0; i < mate_cant; ++i) {
+            getline(mate_src, ruta);
+            mate[i].cargarImagen(ruta);
+        }
+        mate_mask.cargarImagen(ruta);
     }
     
     // 1.2. Obtenencion de direcciones de iluminacion
-    pair<PPM::punto, PPM::punto> mate_mask = mates[mate_cant].generarMascara(); // obtengo puntos de la mascara
-    int radio = (mate_mask.second.x - mate_mask.first.x + 1) / 2; // radio de la esfera
-    PPM::punto centro(mate_mask.first.x + radio - 1, mate_mask.first.y + radio - 1); // centro de la esfera
-    Matriz dirsI[mate_cant];
+    pair<PPM::punto, PPM::punto> mate_mask_pts = mate_mask.generarMascara(); // obtengo puntos de la mascara
+    int radio = (mate_mask_pts.second.x - mate_mask_pts.first.x + 1) / 2; // radio de la esfera
+    PPM::punto centro(mate_mask_pts.first.x + radio - 1, mate_mask_pts.first.y + radio - 1); // centro de la esfera
+    vector<Matriz> dirsI(mate_cant, Matriz(3, 1));
     for (int i = 0; i < mate_cant; ++i) {
-        PPM::punto pt = puntoDeMayorIntensidad(mates[i], mate_mask);
-        dirsI[i] = Matriz(3, 1);
+        PPM::punto pt = puntoDeMayorIntensidad(mate[i], mate_mask_pts);
         dirsI[i](0,0) = pt.x - centro.x; // coordenada x
         dirsI[i](1,0) = pt.y - centro.y; // coordenada y
         dirsI[i](2,0) = pow(pow(radio, 2) - pow(dirsI[i](0,0), 2) - pow(dirsI[i](1,0), 2), 0.5); // coordenada z
@@ -144,6 +147,12 @@ int main() {
     
     // 2.1. Eleccion de direcciones de iluminacion
     int elecDirsI[4] = {0, 4, 10};
+    Matriz S(3); // matriz de direcciones de iluminacion
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            S(i,j) = dirsI[elecDirsI[i]](j,0);
+        }
+    }
     
     // 2.2. Lectura de imagenes del modelo a reconstruir
     cout << "Reconstruccion del modelo 3D" << endl;
@@ -153,7 +162,8 @@ int main() {
     modelo_src_path = "caballo.txt"; cout << endl;
     ifstream modelo_src(modelo_src_path);
     if (!modelo_src.is_open()) throw runtime_error("ERROR: no se pudo abrir el archivo");
-    PPM modelo[4];
+    vector<PPM> modelo(3);
+    PPM modelo_mask;
     {
         int modelo_cant;
         modelo_src >> modelo_cant; // leo la cantidad de imagenes que no son mascara
@@ -168,15 +178,74 @@ int main() {
                 ++j;
             }
         }
-        modelo[3].cargarImagen(ruta); // cargar mascara
+        modelo_mask.cargarImagen(ruta); // cargar mascara
     }
     
-
     // 2.3. Construccion del campo normal
+    S.invertir();
+    pair<PPM::punto, PPM::punto> modelo_mask_pts = modelo_mask.generarMascara(); // obtengo puntos de la mascara
+    ofstream txt_x, txt_y, txt_z;
+    txt_x.open("ejemplo2/normalesX.txt");
+    txt_y.open("ejemplo2/normalesY.txt");
+    txt_z.open("ejemplo2/normalesZ.txt");
+    for (int y = modelo_mask_pts.first.y; y < modelo_mask_pts.second.y; ++y) {
+        for (int x = modelo_mask_pts.first.x; x < modelo_mask_pts.second.x; ++x) {
+            Matriz M = S * matrizDeIntensidades(modelo, x, y);
+            double norma2 = M.normaF();
+            if (!eq(norma2, 0))
+                M = (1/norma2) * M;
+            txt_x << M(0,0) << ',';
+            txt_y << M(1,0) << ',';
+            txt_z << M(2,0) << ',';
+            if (x == modelo_mask_pts.second.x - 1) {
+                txt_x << endl;
+                txt_y << endl;
+                txt_z << endl;
+            }
+        }
+    }
+    txt_x.close();
+    txt_y.close();
+    txt_z.close();
 
     // 2.4. Estimacion de la profundidad
 }
     return 0;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     // direcciones de labo
     double dirLab[12][2] = {
