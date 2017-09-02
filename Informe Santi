@@ -1,0 +1,33 @@
+Otra teoría de la cual nos vamos a apoyar, es la de número de condición. Esta ecuación, que notaremos cómo K(A), toma como parámetro una matríz y nos devuelve un número como resultado. El cual nos proporciona una indicación de la conexión entre el vector residual y la exactitud de la aproximación. Como dice el libro¹. Utilizaremos como hipótesis que con la ayuda de este número de condición, conseguiremos la mejor conmbinación de fuentes de luz, para minimizar el error de aproximación.			
+	el numero de concicion nos da una medida de cuan mala es una amtriz en cuanto a la propagación de los errores relativo, si este numero es grande se dice que la matriz esta mal condicionada.
+	
+ que tan probable es el error que se puede obtener al utilizar esta matríz como función.
+
+
+La factorización de Cholesky es una descomposición que nos devueve algo del estilo A = LL* donde L es triangular inferior, esto quiere decir que para resolver Ax = b, al resolverlo con LL* es el doble de veloz que con LU, ya que se tiene la misma matriz dos veces.
+
+
+
+DESARROLLO::
+
+** Eliminación Gaussiana vs Cholesky:
+
+** Elección de direcciones de luz (Número de condición):
+
+Hipotesis: Al momento de elegir las tres direcciones de luz para obtener las normales se nos ocurrio elegir aquella combinacion que tengan el menor número de condición. Pensamos que por como está definido el método ayudara a encontrar las luces mas aptas, ya que deseamos que las luces esten lo mas separadas entre sí.
+Con esto buscamos comprobar de que manera influye las direcciones de luz al momento de calcular las normales.
+
+El procedimiento lo hicimos en parte por C++ y parte en Octave.
+En C++ obtuvimos todas las combinaciones posibles sin tener ninguna combinación similar que la otra (definiendo similar como dos matrices con las mismas filas, no necesariamente en el mismo orden). De esta manera contando las posibles combinaciones con 12 filas, obtuvimos 220 matrices diferentes las  cuales se guardaron en un .txt para luego leerlo desde Octave.
+En Octave se hizo una simple busqueda de máximo y de mínimo, con la funcion de cond() que provee. Pensamos en buscar tanto máximo como mínimo así podiamos comparar las diferencias y corroborar que realmente se encuentra mejor el que obtenga el mínimo número de condición.
+Luego de este procedimiento se obtuvo las combinaciones mínimo {0,4,10} y máximo{3,4,8} donde los resultados se pueden ver debajo.
+
+********************************************************
+
+** Calibración:
+En este trabajo practico la calibracion del procedimiento de digitalizacion de imagnes 3D  consistio en encontrar el punto mas brillante de 12 imagenes de una esfera y utilizar esa informcion junto con la ecuacion de la esfera para poder encontrar la direccion de la luz incidente a ella.
+Teniendo en cuenta, que la normal en el punto mas brillante de una esfera es la dirección de iluminación, utilizamos la ecuación de la esfera r²=(x-x0)² + (y-y0)² + (z-z0)². De esta ecuacion los parametros conodidos por nosotros son las coordenadas (x0,y0) del centro, el radio r y las cordenadas del pixel que consideramos mas brillante (x, y). 
+Para encontrar el punto mas brillante, empezamos pensando que solo debiamos considerar un pixel, el cual nos trajo inconvenientes. Luego se penso en que el brillo forma una aureola y que la esfera tiene algunas irregularidades sobre su superficie, entonces no alcanza con buscar el pixel mas brillante, por lo tanto se utilizo ver las vecindades, para lograr agrandar el espectro. Los resultados se pueden ver a continuación.
+
+conociendo la ecuación de la esfera podemos encontrar las coordenadas del punto mas brillante en R³
+
