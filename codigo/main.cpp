@@ -106,28 +106,41 @@ Matriz matrizDeIntensidades(const vector<PPM> &ppms, const int x, const int y) {
 
 int main() {
     // 1. Calibracion del sistema
-    
+    {
     // 1.1. Lectura de imagenes mate
     string mate_src_path;
     cout << "Calibracion del sistema" << endl;
     cout << "Ingrese la ruta del archivo de texto fuente para las imagenes mate: ";
-    cin >> mate_src_path;
+    //cin >> mate_src_path;
+    mate_src_path = "mate.txt";
     ifstream mate_src(mate_src_path);
     if (!mate_src.is_open()) throw runtime_error("ERROR: no se pudo abrir el archivo");
     int mate_cant;
     mate_src >> mate_cant; // leo la cantidad de imagenes que no son mascara
-    PPM mate[mate_cant+1];
+    PPM mates[mate_cant+1];
     mate_src.ignore(numeric_limits<std::streamsize>::max(), '\n'); // ir hasta la proxima linea
     for (int i = 0; i <= mate_cant; ++i) {
         string ruta;
         getline(mate_src, ruta);
-        mate[i].cargarImagen(ruta);
+        mates[i].cargarImagen(ruta);
     }
     
-    return 0;
-    
-
     // 1.2. Obtenencion de direcciones de iluminacion
+    pair<PPM::punto, PPM::punto> mate_mask = mates[mate_cant].generarMascara(); // obtengo puntos de la mascara
+    int radio = (mate_mask.second.x - mate_mask.first.x + 1) / 2; // radio de la esfera
+    PPM::punto centro(mate_mask.first.x + radio - 1, mate_mask.first.y + radio - 1); // centro de la esfera
+    Matriz direc_ilum[mate_cant];
+    for (int i = 0; i < mate_cant; ++i) {
+        PPM::punto pt = puntoDeMayorIntensidad(mates[i], mate_mask);
+        direc_ilum[i] = Matriz(3, 1);
+        direc_ilum[i](0,0) = pt.x - centro.x; // coordenada x
+        direc_ilum[i](1,0) = pt.y - centro.y; // coordenada y
+        direc_ilum[i](2,0) = pow(pow(radio, 2) - pow(direc_ilum[i](0,0), 2) - pow(direc_ilum[i](1,0), 2), 0.5); // coordenada z
+        direc_ilum[i] = direc_ilum[i] * (1 / (double)radio); // normalizo el vector
+    }
+    
+}
+    return 0;
 
     // direcciones de labo
     double dirLab[12][2] = {
