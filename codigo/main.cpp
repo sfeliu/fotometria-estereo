@@ -106,19 +106,19 @@ Matriz matrizDeIntensidades(const vector<PPM> &ppms, const int x, const int y) {
 
 int main() {
     // 1. Calibracion del sistema
-    {
+{
     // 1.1. Lectura de imagenes mate
-    string mate_src_path;
     cout << "Calibracion del sistema" << endl;
-    cout << "Ingrese la ruta del archivo de texto fuente para las imagenes mate: ";
+    cout << "Ingrese el archivo de texto de rutas del modelo mate: ";
+    string mate_src_path;
     //cin >> mate_src_path;
-    mate_src_path = "mate.txt";
+    mate_src_path = "mate.txt"; cout << endl;
     ifstream mate_src(mate_src_path);
     if (!mate_src.is_open()) throw runtime_error("ERROR: no se pudo abrir el archivo");
     int mate_cant;
     mate_src >> mate_cant; // leo la cantidad de imagenes que no son mascara
     PPM mates[mate_cant+1];
-    mate_src.ignore(numeric_limits<std::streamsize>::max(), '\n'); // ir hasta la proxima linea
+    mate_src.ignore(numeric_limits<std::streamsize>::max(), '\n'); // voy hasta la proxima linea
     for (int i = 0; i <= mate_cant; ++i) {
         string ruta;
         getline(mate_src, ruta);
@@ -129,16 +129,52 @@ int main() {
     pair<PPM::punto, PPM::punto> mate_mask = mates[mate_cant].generarMascara(); // obtengo puntos de la mascara
     int radio = (mate_mask.second.x - mate_mask.first.x + 1) / 2; // radio de la esfera
     PPM::punto centro(mate_mask.first.x + radio - 1, mate_mask.first.y + radio - 1); // centro de la esfera
-    Matriz direc_ilum[mate_cant];
+    Matriz dirsI[mate_cant];
     for (int i = 0; i < mate_cant; ++i) {
         PPM::punto pt = puntoDeMayorIntensidad(mates[i], mate_mask);
-        direc_ilum[i] = Matriz(3, 1);
-        direc_ilum[i](0,0) = pt.x - centro.x; // coordenada x
-        direc_ilum[i](1,0) = pt.y - centro.y; // coordenada y
-        direc_ilum[i](2,0) = pow(pow(radio, 2) - pow(direc_ilum[i](0,0), 2) - pow(direc_ilum[i](1,0), 2), 0.5); // coordenada z
-        direc_ilum[i] = direc_ilum[i] * (1 / (double)radio); // normalizo el vector
+        dirsI[i] = Matriz(3, 1);
+        dirsI[i](0,0) = pt.x - centro.x; // coordenada x
+        dirsI[i](1,0) = pt.y - centro.y; // coordenada y
+        dirsI[i](2,0) = pow(pow(radio, 2) - pow(dirsI[i](0,0), 2) - pow(dirsI[i](1,0), 2), 0.5); // coordenada z
+        dirsI[i] = dirsI[i] * (1 / (double)radio); // normalizo el vector
+    }
+
+
+    // 2. Reconstruccion del modelo 3D
+    
+    // 2.1. Eleccion de direcciones de iluminacion
+    int elecDirsI[4] = {0, 4, 10};
+    
+    // 2.2. Lectura de imagenes del modelo a reconstruir
+    cout << "Reconstruccion del modelo 3D" << endl;
+    cout << "Ingrese el archivo de texto de rutas del modelo a reconstruir: ";
+    string modelo_src_path;
+    //cin >> modelo_src_path;
+    modelo_src_path = "caballo.txt"; cout << endl;
+    ifstream modelo_src(modelo_src_path);
+    if (!modelo_src.is_open()) throw runtime_error("ERROR: no se pudo abrir el archivo");
+    PPM modelo[4];
+    {
+        int modelo_cant;
+        modelo_src >> modelo_cant; // leo la cantidad de imagenes que no son mascara
+        modelo_src.ignore(numeric_limits<std::streamsize>::max(), '\n'); // voy hasta la proxima linea
+        int j = 0;
+        string ruta;
+        // Leo imagenes que corresponden a las direcciones de luz elegidas unicamente
+        for (int i = 0; i <= modelo_cant; ++i) {
+            getline(modelo_src, ruta);
+            if (j < 3 && i == elecDirsI[j]) {
+                modelo[j].cargarImagen(ruta);
+                ++j;
+            }
+        }
+        modelo[3].cargarImagen(ruta); // cargar mascara
     }
     
+
+    // 2.3. Construccion del campo normal
+
+    // 2.4. Estimacion de la profundidad
 }
     return 0;
 
@@ -256,12 +292,6 @@ int main() {
         yFile.close();
         zFile.close();
     }
-
-    // 2. Reconstruccion del modeo 3D
-
-    // 2.1. Construccion del campo normal
-
-    // 2.2. Estimacion de la profundidad
 
     return 0;
 }
