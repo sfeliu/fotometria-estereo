@@ -1,4 +1,5 @@
 #include "matriz.h"
+#include "fputils.h"
 
 using namespace std;
 

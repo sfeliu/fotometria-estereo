@@ -1,9 +1,33 @@
 #include "matriz.h"
 #include "ppm.h"
 #include "fputils.h"
+//#include "utils.h"
+//#include "chol_alu.h"
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <iomanip>
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
+#include <ctime>
+#include <stdexcept>
+
+double random01(){
+    return ((double) rand() / RAND_MAX);
+}
+
+Matriz randomMatriz(int n){
+    int tamano = n*n;
+    double matrizRandom[tamano];
+    for(int i=0; i<n; i++){
+        for(int j=0; j<n; j++){
+            matrizRandom[i+j] = random01();
+        }
+    }
+    Matriz r(n,n,matrizRandom,tamano);
+    return r;
+}
 
 PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> mask) {
     vector<PPM::punto> pts;
@@ -106,14 +130,23 @@ Matriz matrizDeIntensidades(const vector<PPM> &ppms, const int x, const int y) {
 }
 
 int main() {
+    Matriz random = randomMatriz(1000);
+    Matriz b(1000);
+    clock_t start = clock();
+    random.eliminacionGaussJordan(b);
+    clock_t end = clock();
+    double segs = (double) (end - start) / CLOCKS_PER_SEC;
+    cout << "Pasaron " << segs << " segundos.\n";
+    return 0;
+    /*
     // 1. Calibracion del sistema
-
+{
     // 1.1. Lectura de imagenes mate
     cout << "Calibracion del sistema" << endl;
     cout << "Ingrese el archivo de texto de rutas del modelo mate: ";
     string mate_src_path;
     //cin >> mate_src_path;
-    mate_src_path = "/Users/pablo2martin/MetNum/Metodos_TP1/codigo/mate.txt"; cout << endl;
+    mate_src_path = "mate.txt"; cout << endl;
     ifstream mate_src(mate_src_path);
     if (!mate_src.is_open()) throw runtime_error("ERROR: no se pudo abrir el archivo");
     int mate_cant;
@@ -129,7 +162,7 @@ int main() {
         }
         mate_mask.cargarImagen(ruta);
     }
-
+    
     // 1.2. Obtenencion de direcciones de iluminacion
     pair<PPM::punto, PPM::punto> mate_mask_pts = mate_mask.generarMascara(); // obtengo puntos de la mascara
     int radio = (mate_mask_pts.second.x - mate_mask_pts.first.x + 1) / 2; // radio de la esfera
@@ -145,22 +178,23 @@ int main() {
 
 
     // 2. Reconstruccion del modelo 3D
-
+    
     // 2.1. Eleccion de direcciones de iluminacion
-    int elecDirsI[4] = {0, 4, 10};
+  //  int elecDirsI[4] = {0, 4, 10}; // menor numero de condición
+    int elecDirsI[4] = {3, 4, 8}; // mayor número de condición
     Matriz S(3); // matriz de direcciones de iluminacion
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
             S(i,j) = dirsI[elecDirsI[i]](j,0);
         }
     }
-
+    
     // 2.2. Lectura de imagenes del modelo a reconstruir
     cout << "Reconstruccion del modelo 3D" << endl;
     cout << "Ingrese el archivo de texto de rutas del modelo a reconstruir: ";
     string modelo_src_path;
     //cin >> modelo_src_path;
-    modelo_src_path = "/Users/pablo2martin/MetNum/Metodos_TP1/codigo/caballo.txt"; cout << endl;
+    modelo_src_path = "caballo.txt"; cout << endl;
     ifstream modelo_src(modelo_src_path);
     if (!modelo_src.is_open()) throw runtime_error("ERROR: no se pudo abrir el archivo");
     vector<PPM> modelo(3);
@@ -181,67 +215,188 @@ int main() {
         }
         modelo_mask.cargarImagen(ruta); // cargar mascara
     }
-
+    
     // 2.3. Construccion del campo normal
     S.invertir();
     pair<PPM::punto, PPM::punto> modelo_mask_pts = modelo_mask.generarMascara(); // obtengo puntos de la mascara
     ofstream txt_x, txt_y, txt_z;
-    txt_x.open("/Users/pablo2martin/MetNum/Metodos_TP1/ejemplo2/normalesX.txt");
-    txt_y.open("/Users/pablo2martin/MetNum/Metodos_TP1/ejemplo2/normalesY.txt");
-    txt_z.open("/Users/pablo2martin/MetNum/Metodos_TP1/ejemplo2/normalesZ.txt");
-    int w = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1;
-    int h = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1;
-    int N = w * h;
-    Matriz M(2*N, N);
-    int f = 0;
-    Matriz b(2*N, 1);
+    txt_x.open("ejemplo2/normalesPeoresX.txt");
+    txt_y.open("ejemplo2/normalesPeoresY.txt");
+    txt_z.open("ejemplo2/normalesPeoresZ.txt");
     for (int y = modelo_mask_pts.first.y; y < modelo_mask_pts.second.y; ++y) {
         for (int x = modelo_mask_pts.first.x; x < modelo_mask_pts.second.x; ++x) {
-            //printf("%d %d\n", x, y);
-            Matriz n = S * matrizDeIntensidades(modelo, x, y);
-            double norma2 = n.normaF();
+            Matriz M = S * matrizDeIntensidades(modelo, x, y);
+            double norma2 = M.normaF();
             if (!eq(norma2, 0))
-                n = (1/norma2) * n;
-            txt_x << n(0,0) << ',';
-            txt_y << n(1,0) << ',';
-            txt_z << n(2,0) << ',';
+                M = (1/norma2) * M;
+            txt_x << M(0,0) << ',';
+            txt_y << M(1,0) << ',';
+            txt_z << M(2,0) << ',';
             if (x == modelo_mask_pts.second.x - 1) {
                 txt_x << endl;
                 txt_y << endl;
                 txt_z << endl;
             }
-            // Sistema para profundidades
-            int c_xy = (y - modelo_mask_pts.first.y) * w + (x - modelo_mask_pts.first.x);
-            int c_x1y = (y - modelo_mask_pts.first.y) * w + (x + 1 - modelo_mask_pts.first.x);
-            int c_xy1 = (y + 1 - modelo_mask_pts.first.y) * w + (x - modelo_mask_pts.first.x);
-            cout << c_xy << endl;
-            M(f, c_xy) = -n(2,0);
-            if (x < w-1) M(f, c_x1y) = n(2,0);
-            b(f,0) = -n(0,0);
-            ++f;
-            M(f, c_xy) = -n(2,0);
-            if (y < h-1) M(f, c_xy1) = n(2,0);
-            b(f,0) = -n(0,0);
-            ++f;
         }
     }
-    cout << "Termine de armar la matriz M" << endl;
     txt_x.close();
     txt_y.close();
     txt_z.close();
-    Matriz M_t = M;
-    M_t.trasponer();
-    cout << "Termine de trasponer la matriz" << endl;
-    Matriz A = M_t * M;
-    cout << "Termine de armar la matriz A" << endl;
-    b = M_t * b;
-    cout << "Termine de multiplicar la matriz b" << endl;
-    A.invertir();
-    cout << "Termine de invertir A" << endl;
-    Matriz x = A * b;
-    //x.print();
 
     // 2.4. Estimacion de la profundidad
+}
+    return 0;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    // direcciones de labo
+    double dirLab[12][2] = {
+        {0.403259, 0.480808},
+        {0.0982272, 0.163712},
+        {-0.0654826, 0.180077},
+        {-0.127999, 0.431998},
+        {-0.328606, 0.485085},
+        {-0.110339, 0.53593},
+        {0.239071, 0.41439},
+        {0.0642302, 0.417497},
+        {0.12931, 0.339438},
+        {0.0323953, 0.340151},
+        {0.0985318, 0.0492659},
+        {-0.16119, 0.35461}
+    };
+
+    // Test de puntos de maxima intensidad
+    PPM mate_mask_ppm = PPM("mate/mate.mask.ppm");
+    PPM mates[12];
+    PPM::punto pts[12];
+    auto mate_masc = mate_mask_ppm.generarMascara();
+    
+    // ---------------
+    int r = (mate_masc.second.x - mate_masc.first.x + 1) / 2; // radio de la esfera
+    PPM::punto c(mate_masc.first.x + r - 1, mate_masc.first.y + r - 1); // centro de la esfera
+    mate_mask_ppm.guardarImagen("mate2/mate.mask.ppm");
+    // ---------------
+    
+    for (int i = 0; i < 12; ++i) {
+        stringstream f;
+        f << "mate/mate." << i << ".ppm";
+        mates[i].cargarImagen(f.str());
+        auto pt = puntoDeMayorIntensidad(mates[i], mate_masc);
+        pts[i] = pt;
+        mates[i](pt.x, pt.y, 0) = 255;
+        mates[i](pt.x, pt.y, 1) = 0;
+        mates[i](pt.x, pt.y, 2) = 0;
+        stringstream o;
+        o << "mate2/mate." << i << ".ppm";
+        // marco puntos del labo
+        int sx = dirLab[i][0] * r + c.x;
+        int sy = -dirLab[i][1] * r + c.y; // el labo toma y negativo
+        printf("%d, %d\n", sx, sy);
+        mates[i](sx, sy, 0) = 0;
+        mates[i](sx, sy, 1) = 255;
+        mates[i](sx, sy, 2) = 0;
+        // marco centro
+        mates[i](c.x, c.y, 0) = 0;
+        mates[i](c.x, c.y, 1) = 0;
+        mates[i](c.x, c.y, 2) = 255;
+        mates[i].guardarImagen(o.str());
+    }
+    double dirs[12][3];
+    
+    // 1.2. Obtencion de coordenadas z
+    ofstream luces;
+    luces.open("luces.txt");
+    for (int i = 0; i < 12; ++i) {
+        double x = pts[i].x - c.x;
+        double y = pts[i].y - c.y;
+        double z = pow(pow(r, 2) - pow(x, 2) - pow(y, 2), 0.5) / r;
+        x /= r;
+        y /= r;
+        luces << x << ' ' << -y << ' ' << z << "\n"; // el labo toma y negativo
+        dirs[i][0] = x;
+        dirs[i][1] = y;
+        dirs[i][2] = z;
+    }
+    luces.close();
+
+    // Test de normales
+    {
+        //double dirs[] = {0.403259, 0.480808, 0.778592, -0.328606, 0.485085, 0.810377, 0.0985318, 0.0492659, 0.993914}; // 0, 4, 10
+        //double dirs[] = {0.403259, 0.480808, 0.778592, 0.0982272, 0.163712, 0.981606, -0.0654826, 0.180077, 0.98147}; // 0, 1, 2
+        Matriz S = Matriz(3, 3);
+        S(0,0) = dirs[0][0]; S(0,1) = dirs[0][1]; S(0, 2) = dirs[0][2];
+        S(1,0) = dirs[1][0]; S(1,1) = dirs[1][1]; S(1, 2) = dirs[1][2];
+        S(2,0) = dirs[2][0]; S(2,1) = dirs[2][1]; S(2, 2) = dirs[2][2];
+        //Matriz S = Matriz(3, 3, dirs, 9);
+        S.invertir();
+
+        vector<PPM> imgs(3);
+        PPM asd = PPM("caballo/caballo.0.ppm");
+        imgs[0].cargarImagen("caballo/caballo.0.ppm");
+        imgs[1].cargarImagen("caballo/caballo.4.ppm");
+        imgs[2].cargarImagen("caballo/caballo.10.ppm");
+        PPM mask = PPM("caballo/caballo.mask.ppm");
+        auto m = mask.generarMascara();
+        ofstream xFile, yFile, zFile;
+        xFile.open("ejemplo2/normalesX.txt");
+        yFile.open("ejemplo2/normalesY.txt");
+        zFile.open("ejemplo2/normalesZ.txt");
+        int ultimoY = mask.width();
+        for (int y = m.first.y; y <= m.second.y; ++y) {
+            for (int x = m.first.x; x <= m.second.x; ++x) {
+                if (y > ultimoY) {
+                    xFile << "\n";
+                    yFile << "\n";
+                    zFile << "\n";
+                }
+                ultimoY = y;
+                Matriz b = matrizDeIntensidades(imgs, x, y);
+                Matriz n = S * b;
+                if (n(0,0) + n(1,0) + n(2,0) != 0)
+                    n = (1 / n.normaF()) * n;
+                xFile << n(0,0) << ',';
+                yFile << -n(1,0) << ','; // el labo toma y negativo
+                zFile << n(2,0) << ',';
+            }
+        }
+        xFile.close();
+        yFile.close();
+        zFile.close();
+    }
 
     return 0;
+     */
 }
