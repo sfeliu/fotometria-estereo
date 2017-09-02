@@ -106,23 +106,28 @@ Matriz matrizDeIntensidades(const vector<PPM> &ppms, const int x, const int y) {
 
 int main() {
     // 1. Calibracion del sistema
-    /*double a[] = {0.403259, 0.480808, 0.778592, -0.328606, 0.485085, 0.810377, 0.0985318, 0.0492659, 0.993914};
-    Matriz A(3, 3, a, 9);
-    A.trasponer();
-    auto invA = A;
-    invA.invertir();
-    double condA = A.normaF()*invA.normaF();
-    printf("%f\n", condA);
+    
+    // 1.1. Lectura de imagenes mate
+    string mate_src_path;
+    cout << "Calibracion del sistema" << endl;
+    cout << "Ingrese la ruta del archivo de texto fuente para las imagenes mate: ";
+    cin >> mate_src_path;
+    ifstream mate_src(mate_src_path);
+    if (!mate_src.is_open()) throw runtime_error("ERROR: no se pudo abrir el archivo");
+    int mate_cant;
+    mate_src >> mate_cant; // leo la cantidad de imagenes que no son mascara
+    PPM mate[mate_cant+1];
+    mate_src.ignore(numeric_limits<std::streamsize>::max(), '\n'); // ir hasta la proxima linea
+    for (int i = 0; i <= mate_cant; ++i) {
+        string ruta;
+        getline(mate_src, ruta);
+        mate[i].cargarImagen(ruta);
+    }
+    
+    return 0;
+    
 
-    double b[] = {-0.127999, 0.431998, 0.892745, -0.328606, 0.485085, 0.810377, 0.12931, 0.339438, 0.931698};
-    Matriz B(3, 3, b, 9);
-    B.trasponer();
-    auto invB = B;
-    invB.invertir();
-    double condB = B.normaF()*invB.normaF();
-    printf("%f\n", condB);*/
-
-    // 1.1. Obtenencion de direcciones de iluminacion
+    // 1.2. Obtenencion de direcciones de iluminacion
 
     // direcciones de labo
     double dirLab[12][2] = {
