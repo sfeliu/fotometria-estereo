@@ -4,29 +4,6 @@
 #include <iostream>
 #include <fstream>
 
-int sumaDeVecindad(const PPM &ppm, PPM::punto p){
-	int resultado = 0;
-	for(int i = -1; i < 2; i++){
-		resultado = resultado + ppm.intensidad(p.x+i, p.y);//((*this)(x+i,y,0) + (*this)(x+i,y,1) + (*this)(x+i,y,2));
-		for(int j = -1; j < 2; j++){
-			resultado = resultado + ppm.intensidad(p.x, p.y+j);//((*this)(x,y+j,0) + (*this)(x,y+j,1) + (*this)(x,y+j,2))
-		}
-	}
-	return resultado;
-}
-
-
-PPM::punto puntoDeMayorVecindad(const PPM &ppm ,vector<PPM::punto> pts){
-    PPM::punto res = pts[0];
-    for(int i = 1; i < pts.size(); i++){
-        if(sumaDeVecindad(ppm,res) < sumaDeVecindad(ppm, pts[i]) ){
-            res = pts[i];
-        }
-    }
-    return res;
-}
-
-
 PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> masc) {
     vector<PPM::punto> pts;
     pts.push_back(masc.first); // inserto un primer punto para simplificar el algoritmo que sigue
@@ -37,7 +14,7 @@ PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> m
         for (int x = masc.first.x; x < masc.second.x; ++x) {
             double intensidad = ppm.intensidadEnVecindad(x, y, 4);
             //double intensidad = ppm.intensidad(x, y);
-            if (intensidadMax == intensidad) {
+            if (eq(intensidadMax, intensidad)) {
                 // Si la siguiente posicion esta definida, le asigno el valor directamente
                 // Si no, hago push back
                 if (sigPos < (int)pts.size())
@@ -45,7 +22,7 @@ PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> m
                 else
                     pts.push_back(PPM::punto(x,y));
                 ++sigPos;
-            } else if (intensidadMax < intensidad) {
+            } else if (lt(intensidadMax, intensidad)) {
                 // "Vacio" el vector y pongo al punto como primer elemento
                 pts[0] = PPM::punto(x,y);
                 sigPos = 1;
@@ -58,8 +35,7 @@ PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> m
     if (sigPos == 1) {
         return pts[0];
     } else {
-        printf("%d\n", sigPos);
-        return puntoDeMayorVecindad(ppm, pts);
+        return pts[0];
     }
 }
 
@@ -148,14 +124,37 @@ int main() {
 
     // 1.1. Obtenencion de direcciones de iluminacion
 
+    // direcciones de labo
+    double dirLab[12][2] = {
+        {0.403259, 0.480808},
+        {0.0982272, 0.163712},
+        {-0.0654826, 0.180077},
+        {-0.127999, 0.431998},
+        {-0.328606, 0.485085},
+        {-0.110339, 0.53593},
+        {0.239071, 0.41439},
+        {0.0642302, 0.417497},
+        {0.12931, 0.339438},
+        {0.0323953, 0.340151},
+        {0.0985318, 0.0492659},
+        {-0.16119, 0.35461}
+    };
+
     // Test de puntos de maxima intensidad
-    PPM mate_mask_ppm = PPM("cromada/cromada.mask.ppm");
+    PPM mate_mask_ppm = PPM("mate/mate.mask.ppm");
     PPM mates[12];
     PPM::punto pts[12];
     auto mate_masc = mate_mask_ppm.generarMascara();
+    
+    // ---------------
+    int r = (mate_masc.second.x - mate_masc.first.x + 1) / 2; // radio de la esfera
+    PPM::punto c(mate_masc.first.x + r - 1, mate_masc.first.y + r - 1); // centro de la esfera
+    mate_mask_ppm.guardarImagen("mate2/mate.mask.ppm");
+    // ---------------
+    
     for (int i = 0; i < 12; ++i) {
         stringstream f;
-        f << "cromada/cromada." << i << ".ppm";
+        f << "mate/mate." << i << ".ppm";
         mates[i].cargarImagen(f.str());
         auto pt = puntoDeMayorIntensidad(mates[i], mate_masc);
         pts[i] = pt;
@@ -163,14 +162,23 @@ int main() {
         mates[i](pt.x, pt.y, 1) = 0;
         mates[i](pt.x, pt.y, 2) = 0;
         stringstream o;
-        o << "cromada2/cromada." << i << ".ppm";
+        o << "mate2/mate." << i << ".ppm";
+        // marco puntos del labo
+        int sx = dirLab[i][0] * r + c.x;
+        int sy = -dirLab[i][1] * r + c.y; // el labo toma y negativo
+        printf("%d, %d\n", sx, sy);
+        mates[i](sx, sy, 0) = 0;
+        mates[i](sx, sy, 1) = 255;
+        mates[i](sx, sy, 2) = 0;
+        // marco centro
+        mates[i](c.x, c.y, 0) = 0;
+        mates[i](c.x, c.y, 1) = 0;
+        mates[i](c.x, c.y, 2) = 255;
         mates[i].guardarImagen(o.str());
     }
     double dirs[12][3];
+    
     // 1.2. Obtencion de coordenadas z
-    int r = (mate_masc.second.x - mate_masc.first.x + 1) / 2; // radio de la esfera
-    PPM::punto c(mate_masc.first.x + r - 1, mate_masc.first.y + r - 1); // centro de la esfera
-    mate_mask_ppm.guardarImagen("cromada2/cromada.mask.ppm");
     ofstream luces;
     luces.open("luces.txt");
     for (int i = 0; i < 12; ++i) {
@@ -179,7 +187,7 @@ int main() {
         double z = pow(pow(r, 2) - pow(x, 2) - pow(y, 2), 0.5) / r;
         x /= r;
         y /= r;
-        luces << x << ' ' << y << ' ' << z << "\n";
+        luces << x << ' ' << -y << ' ' << z << "\n"; // el labo toma y negativo
         dirs[i][0] = x;
         dirs[i][1] = y;
         dirs[i][2] = z;
@@ -195,7 +203,6 @@ int main() {
         S(1,0) = dirs[1][0]; S(1,1) = dirs[1][1]; S(1, 2) = dirs[1][2];
         S(2,0) = dirs[2][0]; S(2,1) = dirs[2][1]; S(2, 2) = dirs[2][2];
         //Matriz S = Matriz(3, 3, dirs, 9);
-        //S.trasponer();
         S.invertir();
 
         vector<PPM> imgs(3);
@@ -223,7 +230,7 @@ int main() {
                 if (n(0,0) + n(1,0) + n(2,0) != 0)
                     n = (1 / n.normaF()) * n;
                 xFile << n(0,0) << ',';
-                yFile << n(1,0) << ',';
+                yFile << -n(1,0) << ','; // el labo toma y negativo
                 zFile << n(2,0) << ',';
             }
         }

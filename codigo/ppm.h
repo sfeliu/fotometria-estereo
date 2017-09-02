@@ -1,3 +1,6 @@
+#ifndef __PPM_H__
+#define __PPM_H__
+
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -27,15 +30,14 @@ class PPM {
         uchar* data() const;
         int width() const;
         int height() const;
-        //int sumaDeVecindad(punto p);
-        //PPM::punto puntoDeMayorVecindad(vector<PPM::punto> pts);
 
         void cargarImagen();
         void cargarImagen(const string f);
         void guardarImagen(const string f) const;
         pair<punto, punto> generarMascara() const;
 
-        double brillo(const int x, const int y) const;
+        double intensidad(const int x, const int y) const;
+        double intensidadEnVecindad(const int x, const int y, const int grado) const;
 
     private:
         string _filename;
@@ -44,3 +46,5 @@ class PPM {
         int _height;
         PPM_LOADER_PIXEL_TYPE _pt;
 };
+
+#endif //__PPM_H__

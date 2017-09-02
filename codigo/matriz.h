@@ -1,6 +1,7 @@
 #ifndef __MATRIZ_H__
 #define __MATRIZ_H__
 
+#include "fputils.h"
 #include <stdio.h>
 #include <algorithm>
 #include <string>
@@ -54,7 +55,7 @@ class Matriz {
         int *_cols;
 
         void _crearMatriz(const int f, const int c);
-        void _verificarRango(const int f, const int c);
+        void _verificarRango(const int f, const int c) const;
 };
 
 Matriz& operator*(const double c, const Matriz &m);

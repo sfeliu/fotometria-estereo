@@ -69,6 +69,7 @@ Matriz& Matriz::operator=(Matriz o) {
 }
 
 double& Matriz::operator()(const int i, const int j) {
+    _verificarRango(i,j);
     if (_traspuesta)
         return _matriz[j][_cols[i]];
     else
@@ -76,6 +77,7 @@ double& Matriz::operator()(const int i, const int j) {
 }
 
 const double& Matriz::operator()(const int i, const int j) const {
+    _verificarRango(i,j);
     if (_traspuesta)
         return _matriz[j][_cols[i]];
     else
@@ -84,7 +86,7 @@ const double& Matriz::operator()(const int i, const int j) const {
 
 Matriz& Matriz::operator*(const Matriz &o) const {
     if (columnas() != o.filas()) {
-        throw domain_error("Error: la multiplicación no esta definida estos tipos de matrices");
+        throw domain_error("Error: la multiplicación no esta definida para matrices de estas dimensiones");
     }
     Matriz *res = new Matriz(filas(), o.columnas());
     for (int i = 0; i < filas(); ++i) {
@@ -132,11 +134,11 @@ bool Matriz::eliminacionGaussiana(Matriz &b) {
             if (fabs((*this)(i,c)) < fabs((*this)(k,c)))
                 i = k;
         }
-        if ((*this)(i,c) != 0) { // tener en cuenta error de redondeo
+        if (!eq((*this)(i,c), 0)) {
             b.permutarFila(f, i);
             permutarFila(f, i);
             for (int k = f + 1; k < filas(); ++k) {
-                if ((*this)(k,c) != 0) { // tener en cuenta error de redondeo
+                if (!eq((*this)(k,c), 0)) {
                     b.restarMultiploDeFila(k, f, (*this)(k,c) / (*this)(f,c));
                     restarMultiploDeFila(k, f, (*this)(k,c) / (*this)(f,c));
                 }
@@ -159,13 +161,13 @@ bool Matriz::eliminacionGaussJordan(Matriz &b) {
             if (fabs((*this)(i,c)) < fabs((*this)(k,c)))
                 i = k;
         }
-        if ((*this)(i,c) != 0) { // tener en cuenta error de redondeo
+        if (!eq((*this)(i,c), 0)) { // tener en cuenta error de redondeo
             b.permutarFila(f, i);
             permutarFila(f, i);
             b.multiplicarFilaPorEscalar(f, 1 / (*this)(f,c));
             multiplicarFilaPorEscalar(f, 1 / (*this)(f,c));
             for (int k = 0; k < filas(); ++k) {
-                if (k != f && (*this)(k,c) != 0) { // tener en cuenta error de redondeo
+                if (k != f && !eq((*this)(k,c), 0)) { // tener en cuenta error de redondeo
                     b.restarMultiploDeFila(k, f, (*this)(k,c));
                     restarMultiploDeFila(k, f, (*this)(k,c));
                 }
@@ -221,7 +223,7 @@ double Matriz::normaF() const {
     return pow(suma, 0.5);
 }
 
-void Matriz::_verificarRango(const int f, const int c) {
+void Matriz::_verificarRango(const int f, const int c) const {
     if (!(0 <= f && f < filas() && 0 <= c && c < columnas()))
         throw domain_error("Los indices de fila y/o columna estan fuera de rango.");
 }
