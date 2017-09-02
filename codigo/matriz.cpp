@@ -32,9 +32,6 @@ Matriz::Matriz(const Matriz &o) {
 
 Matriz::Matriz(const int n) {
     _crearMatriz(n, n);
-    for (int i = 0; i < n; ++i) {
-        (*this)(i,i) = 1;
-    }
 }
 
 Matriz::Matriz(const int f, const int c) {

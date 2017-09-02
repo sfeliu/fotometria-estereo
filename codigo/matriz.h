@@ -12,7 +12,7 @@ class Matriz {
     public:
         Matriz();
         Matriz(const Matriz &o); // constructor por copia
-        Matriz(const int n); // matriz identidad de nxn
+        Matriz(const int n); // matriz nula de nxn
         Matriz(const int f, const int c); // matriz nula de fxn
         Matriz(const int f, const int c, const double a[], const int n); // construye una matriz de fxc a partir de un arreglo de tamanio n
         ~Matriz();
