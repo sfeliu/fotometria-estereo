@@ -7,9 +7,9 @@
 int sumaDeVecindad(const PPM &ppm, PPM::punto p){
 	int resultado = 0;
 	for(int i = -1; i < 2; i++){
-		resultado = resultado + ppm.brillo(p.x+i, p.y);//((*this)(x+i,y,0) + (*this)(x+i,y,1) + (*this)(x+i,y,2));
+		resultado = resultado + ppm.intensidad(p.x+i, p.y);//((*this)(x+i,y,0) + (*this)(x+i,y,1) + (*this)(x+i,y,2));
 		for(int j = -1; j < 2; j++){
-			resultado = resultado + ppm.brillo(p.x, p.y+j);//((*this)(x,y+j,0) + (*this)(x,y+j,1) + (*this)(x,y+j,2))
+			resultado = resultado + ppm.intensidad(p.x, p.y+j);//((*this)(x,y+j,0) + (*this)(x,y+j,1) + (*this)(x,y+j,2))
 		}
 	}
 	return resultado;
@@ -35,9 +35,8 @@ PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> m
     // Recorro la imagen (usando la mascara) y voy guardando los puntos de mayor intensidad
     for (int y = masc.first.y; y < masc.second.y; ++y) {
         for (int x = masc.first.x; x < masc.second.x; ++x) {
-            // Se devuelve una suma sin promediar para evitar errores de redondeo
-            // Esto no rompe las comparaciones ya que a/3 < b/3 <=> a < b
-            double intensidad = ppm.brillo(x, y);
+            double intensidad = ppm.intensidadEnVecindad(x, y, 4);
+            //double intensidad = ppm.intensidad(x, y);
             if (intensidadMax == intensidad) {
                 // Si la siguiente posicion esta definida, le asigno el valor directamente
                 // Si no, hago push back
@@ -59,6 +58,7 @@ PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> m
     if (sigPos == 1) {
         return pts[0];
     } else {
+        printf("%d\n", sigPos);
         return puntoDeMayorVecindad(ppm, pts);
     }
 }
@@ -123,7 +123,7 @@ void conseguir_Todas_Posibilidades(){
 Matriz matrizDeIntensidades(const vector<PPM> &ppms, const int x, const int y) {
     Matriz m = Matriz(ppms.size(), 1);
     for (int i = 0; i < (int)ppms.size(); ++i) {
-        m(i,0) = ppms[i].brillo(x,y);
+        m(i,0) = ppms[i].intensidad(x,y);
     }
     return m;
 }
@@ -147,13 +147,15 @@ int main() {
     printf("%f\n", condB);*/
 
     // 1.1. Obtenencion de direcciones de iluminacion
-    PPM mate_mask_ppm = PPM("mate/mate.mask.ppm");
+
+    // Test de puntos de maxima intensidad
+    PPM mate_mask_ppm = PPM("cromada/cromada.mask.ppm");
     PPM mates[12];
     PPM::punto pts[12];
     auto mate_masc = mate_mask_ppm.generarMascara();
     for (int i = 0; i < 12; ++i) {
         stringstream f;
-        f << "mate/mate." << i << ".ppm";
+        f << "cromada/cromada." << i << ".ppm";
         mates[i].cargarImagen(f.str());
         auto pt = puntoDeMayorIntensidad(mates[i], mate_masc);
         pts[i] = pt;
@@ -161,84 +163,74 @@ int main() {
         mates[i](pt.x, pt.y, 1) = 0;
         mates[i](pt.x, pt.y, 2) = 0;
         stringstream o;
-        o << "mate2/mate." << i << ".ppm";
+        o << "cromada2/cromada." << i << ".ppm";
         mates[i].guardarImagen(o.str());
     }
-
+    double dirs[12][3];
     // 1.2. Obtencion de coordenadas z
     int r = (mate_masc.second.x - mate_masc.first.x + 1) / 2; // radio de la esfera
-    PPM::punto c(mate_masc.first.x + r - 1, mate_masc.first.y - 1); // centro de la esfera
+    PPM::punto c(mate_masc.first.x + r - 1, mate_masc.first.y + r - 1); // centro de la esfera
+    mate_mask_ppm.guardarImagen("cromada2/cromada.mask.ppm");
     ofstream luces;
     luces.open("luces.txt");
     for (int i = 0; i < 12; ++i) {
-        double z = pow(pow(r, 2) - pow(pts[i].x - c.x, 2) - pow(pts[i].y - c.y, 2), 0.5);
-        luces << (((double)pts[i].x-c.x)/r) << ' ' << (((double)pts[i].y-c.y)/r) << ' ' << (z/r) << "\n";
+        double x = pts[i].x - c.x;
+        double y = pts[i].y - c.y;
+        double z = pow(pow(r, 2) - pow(x, 2) - pow(y, 2), 0.5) / r;
+        x /= r;
+        y /= r;
+        luces << x << ' ' << y << ' ' << z << "\n";
+        dirs[i][0] = x;
+        dirs[i][1] = y;
+        dirs[i][2] = z;
     }
     luces.close();
 
-    double dirs[] = {0.403259, 0.480808, 0.778592, -0.328606, 0.485085, 0.810377, 0.0985318, 0.0492659, 0.993914}; // 0, 4, 10
-    //double dirs[] = {0.403259, 0.480808, 0.778592, 0.0982272, 0.163712, 0.981606, -0.0654826, 0.180077, 0.98147}; // 0, 1, 2
-    Matriz S = Matriz(3, 3, dirs, 9);
-    S.trasponer();
-    S.invertir();
+    // Test de normales
+    {
+        //double dirs[] = {0.403259, 0.480808, 0.778592, -0.328606, 0.485085, 0.810377, 0.0985318, 0.0492659, 0.993914}; // 0, 4, 10
+        //double dirs[] = {0.403259, 0.480808, 0.778592, 0.0982272, 0.163712, 0.981606, -0.0654826, 0.180077, 0.98147}; // 0, 1, 2
+        Matriz S = Matriz(3, 3);
+        S(0,0) = dirs[0][0]; S(0,1) = dirs[0][1]; S(0, 2) = dirs[0][2];
+        S(1,0) = dirs[1][0]; S(1,1) = dirs[1][1]; S(1, 2) = dirs[1][2];
+        S(2,0) = dirs[2][0]; S(2,1) = dirs[2][1]; S(2, 2) = dirs[2][2];
+        //Matriz S = Matriz(3, 3, dirs, 9);
+        //S.trasponer();
+        S.invertir();
 
-    vector<PPM> imgs(3);
-    imgs.push_back(PPM("caballo/caballo.0.ppm"));
-    imgs.push_back(PPM("caballo/caballo.4.ppm"));
-    imgs.push_back(PPM("caballo/caballo.10.ppm"));
-    PPM mask = PPM("caballo/caballo.mask.ppm");
-    auto m = mask.generarMascara();
-    ofstream xFile, yFile, zFile;
-    xFile.open("ejemplo2/normalesX.txt");
-    yFile.open("ejemplo2/normalesY.txt");
-    zFile.open("ejemplo2/normalesZ.txt");
-    int ultimoY = mask.width();
-    for (int y = m.first.y; y <= m.second.y; ++y) {
-        for (int x = m.first.x; x <= m.second.x; ++x) {
-            if (y > ultimoY) {
-                xFile << "\n";
-                yFile << "\n";
-                zFile << "\n";
+        vector<PPM> imgs(3);
+        PPM asd = PPM("caballo/caballo.0.ppm");
+        imgs[0].cargarImagen("caballo/caballo.0.ppm");
+        imgs[1].cargarImagen("caballo/caballo.4.ppm");
+        imgs[2].cargarImagen("caballo/caballo.10.ppm");
+        PPM mask = PPM("caballo/caballo.mask.ppm");
+        auto m = mask.generarMascara();
+        ofstream xFile, yFile, zFile;
+        xFile.open("ejemplo2/normalesX.txt");
+        yFile.open("ejemplo2/normalesY.txt");
+        zFile.open("ejemplo2/normalesZ.txt");
+        int ultimoY = mask.width();
+        for (int y = m.first.y; y <= m.second.y; ++y) {
+            for (int x = m.first.x; x <= m.second.x; ++x) {
+                if (y > ultimoY) {
+                    xFile << "\n";
+                    yFile << "\n";
+                    zFile << "\n";
+                }
+                ultimoY = y;
+                Matriz b = matrizDeIntensidades(imgs, x, y);
+                Matriz n = S * b;
+                if (n(0,0) + n(1,0) + n(2,0) != 0)
+                    n = (1 / n.normaF()) * n;
+                xFile << n(0,0) << ',';
+                yFile << n(1,0) << ',';
+                zFile << n(2,0) << ',';
             }
-            ultimoY = y;
-            Matriz b = matrizDeIntensidades(imgs, x, y);
-            Matriz n = S * b;
-            if (n.normaF() != 0)
-                n = (1 / n.normaF()) * n;
-            xFile << n(0,0) << ',';
-            yFile << n(1,0) << ',';
-            zFile << n(2,0) << ',';
         }
+        xFile.close();
+        yFile.close();
+        zFile.close();
     }
-    xFile.close();
-    yFile.close();
-    zFile.close();
-    /*
-    PPM mascara = PPM("mate/mate.mask.ppm");
-    auto mask = mascara.generarMascara();
-    for (auto it = mask->begin(); it != mask->end(); ++it) {
-        mascara((*it).x, (*it).y, 0) = 255;
-        mascara((*it).x, (*it).y, 1) = 0;
-        mascara((*it).x, (*it).y, 2) = 0;
-    }
-    mascara.guardarImagen("mate2/mate.mask.ppm");
-    PPM imgs[12];
-    for (int i = 0; i < 12; ++i) {
-        stringstream f;
-        f << "mate/mate." << i << ".ppm";
-        imgs[i].cargarImagen(f.str());
-        imgs[i].aplicarMascara(mask);
-        imgs[i].eliminarMascara();
-        auto v = imgs[i].puntosMasBrillantes();
-        for (int j = 0; j < v.size(); ++j) {
-            imgs[i](v.at(j).x, v.at(j).y, 0) = 255;
-            imgs[i](v.at(j).x, v.at(j).y, 1) = 0;
-            imgs[i](v.at(j).x, v.at(j).y, 2) = 0;
-        }
-        stringstream o;
-        o << "mate2/mate." << i << ".ppm";
-        imgs[i].guardarImagen(o.str());
-    }*/
 
     // 2. Reconstruccion del modeo 3D
 

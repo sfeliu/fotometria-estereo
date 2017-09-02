@@ -84,7 +84,7 @@ pair<PPM::punto, PPM::punto> PPM::generarMascara() const {
     // Busco borde superior
     for (y_t = 0; y_t < height(); ++y_t) {
         for (int x = 0; x < width(); ++x) {
-            if (brillo(x,y_t) != 0)
+            if (intensidad(x,y_t) != 0)
                 goto __listo_y_t;
         }
     }
@@ -92,7 +92,7 @@ pair<PPM::punto, PPM::punto> PPM::generarMascara() const {
     // Busco borde inferior
     for (y_b = height()-1; 0 <= y_b; --y_b) {
         for (int x = 0; x < width(); ++x) {
-            if (brillo(x,y_b) != 0)
+            if (intensidad(x,y_b) != 0)
                 goto __listo_y_b;
         }
     }
@@ -100,7 +100,7 @@ pair<PPM::punto, PPM::punto> PPM::generarMascara() const {
     // Busco borde izquierdo
     for (x_l = 0; x_l < width(); ++x_l) {
         for (int y = 0; y < height(); ++y) {
-            if (brillo(x_l,y) != 0)
+            if (intensidad(x_l,y) != 0)
                 goto __listo_x_l;
         }
     }
@@ -108,18 +108,33 @@ pair<PPM::punto, PPM::punto> PPM::generarMascara() const {
     // Busco borde derecho
     for (x_r = width()-1; 0 <= x_r; --x_r) {
         for (int y = 0; y < height(); ++y) {
-            if (brillo(x_r,y) != 0)
+            if (intensidad(x_r,y) != 0)
                 goto __listo_x_r;
         }
     }
     __listo_x_r:;
-    if (y_b < 0) // todos los puntos tienen brillo cero
+    if (y_b < 0) // todos los puntos tienen intensidad cero
         return make_pair(punto(0, 0), punto(width()-1, height()-1));
     else
         return make_pair(punto(x_l, y_t), punto(x_r, y_b));
 }
 
-double PPM::brillo(const int x, const int y) const {
-    //return double(((*this)(x,y,0) + (*this)(x,y,1) + (*this)(x,y,2)) )/ 3;
+double PPM::intensidad(const int x, const int y) const {
     return 0.299*(*this)(x,y,0) + 0.587*(*this)(x,y,1) + 0.114*(*this)(x,y,2);
+}
+
+double PPM::intensidadEnVecindad(const int x, const int y, const int grado) const {
+    double suma = 0;
+    int cuenta = 0;
+    for (int ix = max(0, x - grado - 1); ix <= min(width()-1, x + grado); ++ix) {
+        for (int iy = max(0, y - grado - 1); iy <= min(height()-1, y + grado); ++iy) {
+            suma += intensidad(ix, iy);
+            ++cuenta;
+            //printf("(%d, %d) ", ix, iy);
+        }
+        //printf("\n");
+    }
+    if (cuenta == 0)  printf("aaaaaaaaaaaaaaaaaaaa\n");
+        //printf("\n");
+    return suma/cuenta;
 }
