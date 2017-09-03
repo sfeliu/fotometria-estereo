@@ -36,12 +36,12 @@ class Matriz {
         void factorizacionPLU(Matriz &P, Matriz &L, Matriz &U);
         Matriz backwardSubstitution(Matriz &b);
         Matriz forwardSubstitution(Matriz &b);
+        Matriz factorizacionCholesky() const;
         void permutarFila(const int i, const int j);
         void multiplicarFilaPorEscalar(const int i, const double c);
         void restarMultiploDeFila(const int i, const int j, const double c);
         void dividirFilaPorEscalar(const int i, const double c);
         bool invertir();
-        Matriz matrizLU();
 
         double normaF() const;
 
