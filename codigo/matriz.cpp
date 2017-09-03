@@ -198,23 +198,25 @@ void Matriz::factorizacionPLU(Matriz &P, Matriz &L, Matriz &U) {
     }
 }
 
-Matriz Matriz::backSubstitution(Matriz &b) {
+Matriz Matriz::backwardSubstitution(Matriz &b) {
     if (b.filas() != filas())
         throw domain_error("La cantidad de filas de la matriz parametro debe coincidicar con la de la matriz.");
-    Matriz x(columnas(), 1);
+    Matriz x(columnas(), b.columnas());
     for (int i = x.filas()-1; i >= 0; --i) {
-        double suma = 0;
-        for (int j = x.filas()-1; j > i; --j) {
-            suma += (*this)(i,j) * x(j,0);
+        for (int k = 0; k < b.columnas(); ++k) {
+            x(i,k) = b(i,k);
+            for (int j = i + 1; j < x.filas(); ++j) {
+                x(i,k) -= (*this)(i,j) * x(j,k);
+            }
+            x(i,k) /= (*this)(i,i);
         }
-        x(i,0) = b(i,0) / (*this)(i,i) - suma;
     }
     return x;
 }
 
 Matriz Matriz::forwardSubstitution(Matriz &b) {
     trasponer();
-    Matriz x = backSubstitution(b);
+    Matriz x = backwardSubstitution(b);
     trasponer();
     return x;
 }
