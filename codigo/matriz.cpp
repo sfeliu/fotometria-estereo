@@ -201,10 +201,10 @@ void Matriz::factorizacionPLU(Matriz &P, Matriz &L, Matriz &U) {
     }
 }
 
-Matriz Matriz::backwardSubstitution(Matriz &b) {
+Matriz& Matriz::backwardSubstitution(Matriz &x, const Matriz &b) {
     if (b.filas() != filas())
         throw domain_error("La cantidad de filas de la matriz parametro debe coincidicar con la de la matriz.");
-    Matriz x(columnas(), b.columnas());
+    x = Matriz(columnas(), b.columnas());
     for (int i = x.filas()-1; i >= 0; --i) {
         for (int k = 0; k < b.columnas(); ++k) {
             x(i,k) = b(i,k);
@@ -217,18 +217,27 @@ Matriz Matriz::backwardSubstitution(Matriz &b) {
     return x;
 }
 
-Matriz Matriz::forwardSubstitution(Matriz &b) {
-    trasponer();
-    Matriz x = backwardSubstitution(b);
-    trasponer();
+Matriz& Matriz::forwardSubstitution(Matriz &x, const Matriz &b) {
+    if (b.filas() != filas())
+        throw domain_error("La cantidad de filas de la matriz parametro debe coincidicar con la de la matriz.");
+    x = Matriz(columnas(), b.columnas());
+    for (int i = 0; i < x.filas(); ++i) {
+        for (int k = 0; k < b.columnas(); ++k) {
+            x(i,k) = b(i,k);
+            for (int j = 0; j < i; ++j) {
+                x(i,k) -= (*this)(i,j) * x(j,k);
+            }
+            x(i,k) /= (*this)(i,i);
+        }
+    }
     return x;
 }
 
-Matriz Matriz::factorizacionCholesky() const {
+Matriz& Matriz::factorizacionCholesky(Matriz &L) const {
     if (!esCuadrada())
         throw domain_error("La matriz debe ser cuadrada.");
     int n = filas();
-    Matriz L(n);
+    L = Matriz(n);
     for (int j = 0; j < n; ++j) {
         L(j,j) = (*this)(j,j);
         for (int k = 0; k < j; ++k)
