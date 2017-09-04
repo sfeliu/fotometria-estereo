@@ -177,24 +177,21 @@ bool Matriz::eliminacionGaussJordan(Matriz &b) {
 void Matriz::factorizacionPLU(Matriz &P, Matriz &L, Matriz &U) {
     if (!esCuadrada())
         throw domain_error("La matriz debe ser cuadrada.");
-    if (!P.esCuadrada() || !L.esCuadrada() || U.esCuadrada() ||
-        P.filas() != filas() || L.filas() != filas() || U.filas() != filas())
-        throw domain_error("P, L y U deben tener la misma dimension que la matriz.");
     P = L = Identidad(filas());
     U = *this;
     int f = 0, c = 0; // fila y columna del pivote
-    while (f < filas() && c < columnas()) {
+    while (f < U.filas() && c < U.columnas()) {
         int m = f; // filate del pivote de maximo valor absoluto
-        for (int i = m + 1; i < filas(); ++i) {
-            if (fabs((*this)(m,c)) < fabs((*this)(i,c)))
+        for (int i = m + 1; i < U.filas(); ++i) {
+            if (fabs(U(m,c)) < fabs(U(i,c)))
                 m = i;
         }
-        if (!eq((*this)(m,c), 0)) {
+        if (!eq(U(m,c), 0)) {
             U.permutarFila(f, m);
             P.permutarFila(f, m);
-            for (int i = f + 1; i < filas(); ++i) {
-                if (!eq((*this)(i,c), 0)) {
-                    L(i,c) = (*this)(i,c) / (*this)(f,c);
+            for (int i = f + 1; i < U.filas(); ++i) {
+                if (!eq(U(i,c), 0)) {
+                    L(i,c) = U(i,c) / U(f,c);
                     U.restarMultiploDeFila(i, f, L(i,c));
                 }
             }
