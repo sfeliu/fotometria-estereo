@@ -34,7 +34,7 @@ class Matriz {
         bool eliminacionGaussiana(Matriz &b);
         bool eliminacionGaussJordan(Matriz &b);
         void factorizacionPLU(Matriz &P, Matriz &L, Matriz &U);
-        Matriz backSubstitution(Matriz &b);
+        Matriz backwardSubstitution(Matriz &b);
         Matriz forwardSubstitution(Matriz &b);
         void permutarFila(const int i, const int j);
         void multiplicarFilaPorEscalar(const int i, const double c);
