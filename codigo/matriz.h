@@ -19,6 +19,7 @@ class Matriz {
         
         static Matriz Identidad(const int n);
 
+        void swap(Matriz &o);
         Matriz& operator=(Matriz o);
         double& operator()(const int i, const int j);
         const double& operator()(const int i, const int j) const;

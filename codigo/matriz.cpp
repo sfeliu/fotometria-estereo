@@ -65,12 +65,16 @@ Matriz Matriz::Identidad(const int n) {
     return M;
 }
 
+void Matriz::swap(Matriz &o) {
+    std::swap(_filas, o._filas);
+    std::swap(_columnas, o._columnas);
+    std::swap(_traspuesta, o._traspuesta);
+    std::swap(_matriz, o._matriz);
+    std::swap(_cols, o._cols);
+}
+
 Matriz& Matriz::operator=(Matriz o) {
-    swap(_filas, o._filas);
-    swap(_columnas, o._columnas);
-    swap(_traspuesta, o._traspuesta);
-    swap(_matriz, o._matriz);
-    swap(_cols, o._cols);
+    swap(o);
     return *this;
 }
 
@@ -146,7 +150,7 @@ Matriz& Matriz::multiplicarPorTraspuesta() {
             A(j,i) = A(i,j);
         }
     }
-    *this = A;
+    swap(A);
     return *this;
 }
 
@@ -272,9 +276,9 @@ void Matriz::permutarFila(const int i, const int j) {
     _verificarRango(i, 0);
     _verificarRango(j, 0);
     if (_traspuesta)
-        swap(_cols[i], _cols[j]);
+        std::swap(_cols[i], _cols[j]);
     else
-        swap(_matriz[i], _matriz[j]);
+        std::swap(_matriz[i], _matriz[j]);
 }
 
 void Matriz::multiplicarFilaPorEscalar(const int i, const double c) {
