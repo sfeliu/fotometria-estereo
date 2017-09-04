@@ -28,7 +28,8 @@ class Matriz {
         int filas() const;
         int columnas() const;
         bool esCuadrada() const;
-        void trasponer();
+        Matriz& trasponer();
+        Matriz traspuesta() const;
 
         bool eliminacionGaussiana();
         bool eliminacionGaussiana(Matriz &b);

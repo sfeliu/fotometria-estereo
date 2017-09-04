@@ -127,8 +127,14 @@ bool Matriz::esCuadrada() const {
     return _filas == _columnas;
 }
 
-void Matriz::trasponer() {
+Matriz& Matriz::trasponer() {
     _traspuesta = !_traspuesta;
+    return *this;
+}
+
+Matriz Matriz::traspuesta() const {
+    Matriz A(*this);
+    return A.trasponer();
 }
 
 bool Matriz::eliminacionGaussiana() {
