@@ -262,9 +262,8 @@ int main() {
     Matriz P, L, U;
     S.factorizacionPLU(P, L, U); // PS = LU
     //S.invertir();
-    
-    for (int y = modelo_mask_pts.first.y; y < modelo_mask_pts.second.y; ++y) {
-        for (int x = modelo_mask_pts.first.x; x < modelo_mask_pts.second.x; ++x) {
+    for (int y = modelo_mask_pts.first.y; y <= modelo_mask_pts.second.y; ++y) {
+        for (int x = modelo_mask_pts.first.x; x <= modelo_mask_pts.second.x; ++x) {
             // Resolucion de ecuacion Sn = b <=> PSn = Pb <=> LUn = Pb
             Matriz Pb = P * matrizDeIntensidades(modelo, x, y);
             Matriz m; L.forwardSubstitution(m, Pb); // resuelvo ecuacion Lm = Pb (m = Un)
@@ -294,7 +293,7 @@ int main() {
             // Ecuacion 12
             M(f, c_xy) = -n(2,0);
             if (c_xy1 < N) M(f, c_xy1) = n(2,0);
-            v(f,0) = -n(0,0);
+            v(f,0) = n(1,0);
             ++f;
         }
     }
