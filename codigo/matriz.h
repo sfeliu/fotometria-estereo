@@ -30,6 +30,7 @@ class Matriz {
         bool esCuadrada() const;
         Matriz& trasponer();
         Matriz traspuesta() const;
+        Matriz& multiplicarPorTraspuesta();
 
         bool eliminacionGaussiana();
         bool eliminacionGaussiana(Matriz &b);

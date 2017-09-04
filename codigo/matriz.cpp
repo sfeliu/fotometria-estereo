@@ -137,6 +137,19 @@ Matriz Matriz::traspuesta() const {
     return A.trasponer();
 }
 
+Matriz& Matriz::multiplicarPorTraspuesta() {
+    Matriz A(filas(), filas());
+    for (int i = 0; i < A.filas(); ++i) {
+        for (int j = i; j < A.columnas(); ++j) {
+            for (int k = 0; k < columnas(); ++k)
+                A(i,j) += (*this)(i,k) * (*this)(j,k);
+            A(j,i) = A(i,j);
+        }
+    }
+    *this = A;
+    return *this;
+}
+
 bool Matriz::eliminacionGaussiana() {
     return _eliminacionGaussiana(NULL);
 }
