@@ -60,6 +60,7 @@ PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> m
     if (sigPos == 1) {
         return pts[0];
     } else {
+        // TODO
         return pts[0];
     }
 }
@@ -284,7 +285,7 @@ int main() {
             // Ecuacion 12
             M(f, c_xy) = -n(2,0);
             if (c_xy1 < N) M(f, c_xy1) = n(2,0);
-            v(f,0) = n(1,0);
+            v(f,0) = -n(1,0);
             ++f;
         }
     }
