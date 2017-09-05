@@ -26,6 +26,7 @@ class Matriz {
         bool operator==(const Matriz &o) const;
         bool operator!=(const Matriz &o) const;
         Matriz& operator*(const Matriz &o) const;
+        Matriz& operator+(const Matriz &o) const;
         Matriz& operator*(const double c) const;
 
         int filas() const;

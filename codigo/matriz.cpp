@@ -125,6 +125,19 @@ Matriz& Matriz::operator*(const Matriz &o) const {
     return *res;
 }
 
+Matriz& Matriz::operator+(const Matriz &o) const {
+    if ((columnas() != o.columnas()) or (filas() != o.filas())) {
+        throw domain_error("Error: la multiplicación no esta definida para matrices de estas dimensiones");
+    }
+    Matriz *res = new Matriz(filas(), o.columnas());
+    for (int i = 0; i < filas(); ++i) {
+        for (int j = 0; j < o.columnas(); ++j) {
+            (*res)(i,j) = (*this)(i,j) + o(i,j);
+        }
+    }
+    return *res;
+}
+
 Matriz& Matriz::operator*(const double c) const {
     Matriz *res = new Matriz(filas(), columnas());
     for (int i = 0; i < filas(); ++i) {

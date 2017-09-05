@@ -4,6 +4,8 @@
 //#include "utils.h"
 //#include "chol_alu.h"
 #include <sstream>
+#include <random>
+#include <chrono>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -14,19 +16,64 @@
 #include <stdexcept>
 
 double random01(){
-    return ((double) rand() / RAND_MAX);
+    return ((double) rand() / (RAND_MAX));
 }
 
-Matriz randomMatriz(int n){
-    int tamano = n*n;
-    double matrizRandom[tamano];
-    for(int i=0; i<n; i++){
-        for(int j=0; j<n; j++){
-            matrizRandom[i+j] = random01();
+double random02(){
+    std::mt19937_64 rng;
+    // initialize the random number generator with time-dependent seed
+    uint64_t timeSeed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    std::seed_seq ss{uint32_t(timeSeed & 0xffffffff), uint32_t(timeSeed>>32)};
+    rng.seed(ss);
+    // initialize a uniform distribution between 0 and 1
+    std::uniform_real_distribution<double> unif(0, 1);
+    // ready to generate random numbers
+    const int nSimulations = 10;
+    double randomNumber;
+    for (int i = 0; i < nSimulations; i++)
+    {
+        double currentRandomNumber = unif(rng);
+        randomNumber = currentRandomNumber;
+    }
+    return randomNumber;
+}
+
+/*
+Matriz multiplicarPorTraspuesta(const Matriz &A) {
+    Matriz R(filas(A), vector<double>(filas(A), 0));
+    int N = filas(A);
+    int M = columnas(A);
+    for(int i=0; i<N; i++){
+        for(int j=0; j<=i; j++){
+            for(int k=0; k<j; k++) R[i][j] += A[i][k]*A[j][k];
         }
     }
-    Matriz r(n,n,matrizRandom,tamano);
+}*/
+
+Matriz randomMatriz(int f, int c){
+    int tamano = f*c;
+    double matrizRandom[tamano];
+    for(int i=0; i<tamano; i++) {
+        matrizRandom[i] = random02();
+    }
+    Matriz r(f,c,matrizRandom,tamano);
     return r;
+}
+
+Matriz randomMatrizSDP(int n){
+    Matriz r1 = randomMatriz(n,n);
+    //r1.print();
+    Matriz r2 = r1.traspuesta();
+    //r2.print();
+    r1 = r1*r2;
+    //r1.print();
+    Matriz i = Matriz::Identidad(n);
+    //i.print();
+    i = i*n*n;
+    //i.print();
+    r1 = r1+i;
+    //r1.print();
+    return r1;
 }
 
 PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> mask) {
@@ -74,10 +121,25 @@ Matriz matrizDeIntensidades(const vector<PPM> &ppms, const int x, const int y) {
 }
 
 int main() {
-    /*Matriz random = randomMatriz(1000);
-    Matriz b(1000);
+    /*int tamano = 50000;
+    vector<Matriz> terminosIndependientes;
+    for(int i=0; i<tamano; i++){
+        Matriz temporal = Matriz(3,1);
+        temporal(0,0) = random02();
+        temporal(1,0) = random02();
+        temporal(2,0) = random02();
+        terminosIndependientes.push_back(temporal);
+    }
+    Matriz random = randomMatrizSDP(3);
+    //random.print();
+    //random.print();
+    Matriz b(3);
+    Matriz p = Matriz(3);
+    p(0,0) = 20;
     clock_t start = clock();
-    random.eliminacionGaussJordan(b);
+    for(int i=0;i<tamano;i++){
+        random.eliminacionGaussiana(b);
+    }
     clock_t end = clock();
     double segs = (double) (end - start) / CLOCKS_PER_SEC;
     cout << "Pasaron " << segs << " segundos.\n";
@@ -111,7 +173,7 @@ int main() {
     //cin >> mate_src_path;
     mate_src_path = "mate.txt"; cout << endl;
     cout << "Cargando imagenes... " << flush;
-    
+
     ifstream mate_src(mate_src_path);
     if (!mate_src.is_open()) throw runtime_error("ERROR: no se pudo abrir el archivo");
     
@@ -128,12 +190,12 @@ int main() {
         mate_mask.cargarImagen(ruta);
     }
     cout << "listo" << endl;
-    
+
     
     // 1.2. Obtenencion de direcciones de iluminacion
     
     cout << "Obteniendo direcciones de iluminacion... " << flush;
-    
+
     pair<PPM::punto, PPM::punto> mate_mask_pts = mate_mask.generarMascara(); // obtengo puntos de la mascara
     int radio = (mate_mask_pts.second.x - mate_mask_pts.first.x + 1) / 2; // radio de la esfera
     PPM::punto centro(mate_mask_pts.first.x + radio - 1, mate_mask_pts.first.y + radio - 1); // centro de la esfera
@@ -149,12 +211,12 @@ int main() {
     }
     
     cout << "listo" << endl;
-    
-    
+
+
     // 1.3. Eleccion de direcciones de iluminacion
     
     cout << "Seleccionando direcciones optimas... " << flush;
-    
+
     // Elijo las direcciones que formen la matriz con menor numero de condicion para minimizar errores de estimacion
     double min_num_cond = INFINITY;
     for (int i = 0; i < dirs_cant-2; ++i) {
@@ -186,7 +248,7 @@ int main() {
     }
     
     cout << "listo" << endl;
-    
+
     // Defino matriz S
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) S(i,j) = dirsI[elecDirsI[i]](j,0);
@@ -208,7 +270,7 @@ int main() {
     calibracion_out.close();
     
     cout << "listo" << endl;
-    
+
     cout << "Sistema calibrado existosamente" << endl << endl;
 
     }
