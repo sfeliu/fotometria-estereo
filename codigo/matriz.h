@@ -32,6 +32,7 @@ class Matriz {
         Matriz& trasponer();
         Matriz traspuesta() const;
         Matriz& multiplicarPorTraspuesta();
+        Matriz& multiplicarBandaPorTraspuesta(const int p, const int q);
 
         bool eliminacionGaussiana();
         bool eliminacionGaussiana(Matriz &b);
@@ -65,6 +66,7 @@ class Matriz {
 
         void _crearMatriz(const int f, const int c);
         void _verificarRango(const int f, const int c) const;
+        void _verificarBanda(const int p, const int q) const;
         bool _eliminacionGaussiana(Matriz *b); // devuelve true si la matriz es no singular
 };
 

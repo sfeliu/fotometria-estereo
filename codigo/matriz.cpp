@@ -142,10 +142,15 @@ Matriz Matriz::traspuesta() const {
 }
 
 Matriz& Matriz::multiplicarPorTraspuesta() {
+    return multiplicarBandaPorTraspuesta(columnas()-1, filas()-1);
+}
+
+Matriz& Matriz::multiplicarBandaPorTraspuesta(const int p, const int q) {
+    _verificarBanda(p, q);
     Matriz A(filas(), filas());
     for (int i = 0; i < A.filas(); ++i) {
         for (int j = i; j < A.columnas(); ++j) {
-            for (int k = 0; k < columnas(); ++k)
+            for (int k = max(0, max(i,j)-q); k < min(columnas(), min(i,j)+p); ++k)
                 A(i,j) += (*this)(i,k) * (*this)(j,k);
             A(j,i) = A(i,j);
         }
@@ -317,6 +322,11 @@ double Matriz::normaF() const {
 void Matriz::_verificarRango(const int f, const int c) const {
     if (!(0 <= f && f < filas() && 0 <= c && c < columnas()))
         throw domain_error("Los indices de fila y/o columna estan fuera de rango.");
+}
+
+void Matriz::_verificarBanda(const int p, const int q) const {
+    if (p+1 > columnas() || q+1 > filas())
+        throw domain_error("La banda no puede superar la cantidad filas y columnas.");
 }
 
 bool Matriz::_eliminacionGaussiana(Matriz *b) {
