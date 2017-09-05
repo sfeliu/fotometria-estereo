@@ -23,6 +23,8 @@ class Matriz {
         Matriz& operator=(Matriz o);
         double& operator()(const int i, const int j);
         const double& operator()(const int i, const int j) const;
+        bool operator==(const Matriz &o) const;
+        bool operator!=(const Matriz &o) const;
         Matriz& operator*(const Matriz &o) const;
         Matriz& operator*(const double c) const;
 

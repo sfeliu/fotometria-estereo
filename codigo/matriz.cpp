@@ -94,6 +94,22 @@ const double& Matriz::operator()(const int i, const int j) const {
         return _matriz[i][_cols[j]];
 }
 
+bool Matriz::operator==(const Matriz &o) const {
+    if (filas() != o.filas() || columnas() != o.columnas())
+        return false;
+    for (int i = 0; i < filas(); ++i) {
+        for (int j = 0; j < columnas(); ++j) {
+            if (!eq((*this)(i,j), o(i,j)))
+                return false;
+        }
+    }
+    return true;
+}
+
+bool Matriz::operator!=(const Matriz &o) const {
+    return !(*this == o);
+}
+
 Matriz& Matriz::operator*(const Matriz &o) const {
     if (columnas() != o.filas()) {
         throw domain_error("Error: la multiplicación no esta definida para matrices de estas dimensiones");
