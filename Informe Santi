@@ -31,3 +31,15 @@ Para encontrar el punto mas brillante, empezamos pensando que solo debiamos cons
 
 conociendo la ecuación de la esfera podemos encontrar las coordenadas del punto mas brillante en R³
 
+*******************************************************
+
+** Utilizacion de factorización LU:
+
+Como dice el enunciado, la ecuación 5 tiene unas cuantas propiedades que se pueden utilizar para optimizar los calculos de las normales. Estas propiedades son que "los valores sx,sy,sz no cambian pixel a pixel sino que solamente se modifica el valor de la intensidad en xi para la imagen correspondiente y Ii, y por lo tanto poseen la misma matriz pero con distinto término independiente".
+Por lo visto en las clases teoricas de la materia y lo que hemos leido en el libro Numerical Analysis podemos hipotetizar que la complejidad temporal del algoritmo de eliminacion gaussiana va a ser O(n^3) (Se sabe que la complejidad de resolver una ecuación utilizando eliminación gaussiana es O(n³) ) y la complejidad de obtener la factorizacion LU es la misma. Aunque sus complejidades son iguales, la diferencia se encuentra al momento de resolver varias ecuaciones, donde la eliminación gaussiana mantiene su complejidad la factorización LU solo se debe obtener una vez y luego con la misma matriz (dos matrices trianguladas), solo se debe reemplazar terminos, por lo tanto su complejidad es O(n²).Por lo tanto si se encuentra una convinación de s1 s2 y s3 que posea factorización LU se podria bajar sustancialmente la complejidad de obtener las normales de una imagen, ya que estas poseen una gran cantidad de pixeles.
+La razon por la cual la factorizacion de eliminacion de gauss O(n^3) es que....
+Obtener la factorizacion LU no es mas que guardar las operaciones basicas que mensionamos previamente durante la ejecucion del algoritmo de eliminacion gaussiana. Por lo cual, la complejidad temporal del algoritmo de eliminacion de gauss es igual a obtener la factorizacion LU.
+
+Para poder comprobar nuestas hipotesis acerca de las complejidades de los algoritmos disenamos un experimento donde tomamos distintos tamaños de imagenes y medimos el tiempo que le toma a cada algoritmo resolver las matrices. Así poder observar, si es el caso, la diferencia de tiempo a medida que agrandamos la imágen. Para no caer en casos ****patológicos**** decidimos tomar los tiempos de resolución de mas de una imágen .
+
+Para esto tomamos 3 imágenes distintas a la cual la recortamos en 10 tamaños distintos, para lograr tener una buena pendiente de complejidad. Para ser mas objetivos decidimos correr 10 veces cada tamaño de matriz en distintos entornos y promediarlos entre si.
