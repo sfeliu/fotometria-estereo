@@ -174,13 +174,32 @@ Matriz& Matriz::inversa() const {
     return A.invertir();
 }
 
-Matriz& Matriz::multiplicarPorTraspuesta() {
-    return multiplicarBandaPorTraspuesta(columnas()-1, filas()-1);
+double Matriz::normaF() const {
+    double suma = 0;
+    for (int i = 0; i < filas(); ++i) {
+        for (int j = 0; j < columnas(); ++j) {
+            suma += pow((*this)(i,j), 2);
+        }
+    }
+    return pow(suma, 0.5);
 }
 
-Matriz& Matriz::multiplicarBandaPorTraspuesta(const int p, const int q) {
+Matriz& Matriz::multiplicarPorTraspuesta() {
+    Matriz A(filas());
+    for (int i = 0; i < A.filas(); ++i) {
+        for (int j = i; j < A.columnas(); ++j) {
+            for (int k = 0; k < columnas(); ++k)
+                A(i,j) += (*this)(i,k) * (*this)(j,k);
+            A(j,i) = A(i,j);
+        }
+    }
+    swap(A);
+    return *this;
+}
+
+Matriz& Matriz::multiplicarPorTraspuestaBanda(const int p, const int q) {
     _verificarBanda(p, q);
-    Matriz A(filas(), filas());
+    Matriz A(filas());
     for (int i = 0; i < A.filas(); ++i) {
         for (int j = i; j < A.columnas(); ++j) {
             for (int k = max(0, max(i,j)-q); k < min(columnas(), min(i,j)+p); ++k)
@@ -198,6 +217,14 @@ void Matriz::eliminacionGaussiana() {
 
 void Matriz::eliminacionGaussiana(Matriz &b) {
     _eliminacionGaussiana(&b);
+}
+
+void Matriz::eliminacionGaussianaBanda(const int p, const int q) {
+    _eliminacionGaussianaBanda(p, q, NULL);
+}
+
+void Matriz::eliminacionGaussianaBanda(const int p, const int q, Matriz &b) {
+    _eliminacionGaussianaBanda(p,q, &b);
 }
 
 void Matriz::factorizacionPLU(Matriz &P, Matriz &L, Matriz &U) {
@@ -302,14 +329,11 @@ void Matriz::restarMultiploDeFila(const int i, const int j, const double c) {
         (*this)(i, k) -= c * (*this)(j,k);
 }
 
-double Matriz::normaF() const {
-    double suma = 0;
-    for (int i = 0; i < filas(); ++i) {
-        for (int j = 0; j < columnas(); ++j) {
-            suma += pow((*this)(i,j), 2);
-        }
-    }
-    return pow(suma, 0.5);
+void Matriz::restarMultiploDeFilaBanda(const int p, const int q, const int i, const int j, const double c) {
+    _verificarRango(i, 0);
+    _verificarRango(j, 0);
+    for (int k = max(0, max(i,j)-q); k < min(columnas(), min(i,j)+p); ++k)
+        (*this)(i, k) -= c * (*this)(j,k);
 }
 
 void Matriz::_verificarRango(const int f, const int c) const {
@@ -325,18 +349,55 @@ void Matriz::_verificarBanda(const int p, const int q) const {
 void Matriz::_eliminacionGaussiana(Matriz *b) {
     int f = 0, c = 0;
     while (f < filas() && c < columnas()) {
-        int i = f;
+        // Busco fila de pivoteo parcial
+        int i = f; // fila de pivoteo parcial
         for (int k = i + 1; k < filas(); ++k) {
             if (fabs((*this)(i,c)) < fabs((*this)(k,c)))
                 i = k;
         }
-        if (!eq((*this)(i,c), 0)) {
+        if (!eq((*this)(i,c), 0)) { // si hay fila de pivoteo parcial
+            // Hago el pivoteo (se rompe el invariante de banda p, q)
             if (b) b->permutarFila(f, i);
             permutarFila(f, i);
             for (int k = f + 1; k < filas(); ++k) {
                 if (!eq((*this)(k,c), 0)) {
-                    if (b) b->restarMultiploDeFila(k, f, (*this)(k,c) / (*this)(f,c));
-                    restarMultiploDeFila(k, f, (*this)(k,c) / (*this)(f,c));
+                    double m = (*this)(k,c) / (*this)(f,c);
+                    if (b) b->restarMultiploDeFila(k, f, m);
+                    restarMultiploDeFila(k, f, m);
+                }
+            }
+            ++f;
+        }
+        ++c;
+    }
+}
+
+void Matriz::_eliminacionGaussianaBanda(const int p, const int q, Matriz *b) {
+    _verificarBanda(p, q);
+    int f = 0, c = 0;
+    while (f < filas() && c < columnas()) {
+        // Busco fila de pivoteo parcial
+        int i = f; // fila de pivoteo parcial
+        for (int k = i + 1; k < min(filas(), i+q); ++k) {
+            if (fabs((*this)(i,c)) < fabs((*this)(k,c)))
+                i = k;
+        }
+        if (!eq((*this)(i,c), 0)) { // si hay fila de pivoteo parcial
+            // Hago el pivoteo (se rompe el invariante de banda p, q)
+            if (b) b->permutarFila(f, i);
+            permutarFila(f, i);
+            // Elimino la columna del pivote
+            for (int k = f + 1; k < min(filas(), i+q); ++k) {
+                if (!eq((*this)(k,c), 0)) { // elimino la fila solo si hace falta
+                    double m = (*this)(k,c) / (*this)(f,c);
+                    if (b) b->restarMultiploDeFila(k, f, m);
+                    // Deshago el pivoteo parcial temporalmente para restablecer el invariante de banda p, q
+                    permutarFila(f,i);
+                    // La fila del pivote es ahora la fila i. Luego tengo que hacer fila(k) - m * fila(i)
+                    // Pero si k == i, la fila a eliminar es ahora f. Luego tengo que hacer fila(f) - m * fila(i)
+                    restarMultiploDeFilaBanda(p, q, k == i ? f : k, i, m);
+                    // Hago de vuelta el pivoteo parcial
+                    permutarFila(f,i);
                 }
             }
             ++f;

@@ -36,10 +36,13 @@ class Matriz {
         Matriz& trasponer();
         Matriz traspuesta() const;
         Matriz& multiplicarPorTraspuesta();
-        Matriz& multiplicarBandaPorTraspuesta(const int p, const int q);
+        Matriz& multiplicarPorTraspuestaBanda(const int p, const int q);
+        double normaF() const;
 
         void eliminacionGaussiana();
         void eliminacionGaussiana(Matriz &b);
+        void eliminacionGaussianaBanda(const int p, const int q);
+        void eliminacionGaussianaBanda(const int p, const int q, Matriz &b);
         void factorizacionPLU(Matriz &P, Matriz &L, Matriz &U);
         Matriz& backwardSubstitution(Matriz &x, const Matriz &b);
         Matriz& forwardSubstitution(Matriz &x, const Matriz &b);
@@ -47,9 +50,8 @@ class Matriz {
         void permutarFila(const int i, const int j);
         void multiplicarFilaPorEscalar(const int i, const double c);
         void restarMultiploDeFila(const int i, const int j, const double c);
+        void restarMultiploDeFilaBanda(const int p, const int q, const int i, const int j, const double c);
         void dividirFilaPorEscalar(const int i, const double c);
-
-        double normaF() const;
 
         void print() const {
             for (int i = 0; i < filas(); ++i) {
@@ -69,7 +71,8 @@ class Matriz {
         void _crearMatriz(const int f, const int c);
         void _verificarRango(const int f, const int c) const;
         void _verificarBanda(const int p, const int q) const;
-        void _eliminacionGaussiana(Matriz *b); // devuelve true si la matriz es no singular
+        void _eliminacionGaussiana(Matriz *b);
+        void _eliminacionGaussianaBanda(const int p, const int q, Matriz *b);
 };
 
 Matriz& operator*(const double c, const Matriz &m);
