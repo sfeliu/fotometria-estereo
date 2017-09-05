@@ -157,6 +157,23 @@ Matriz Matriz::traspuesta() const {
     return A.trasponer();
 }
 
+Matriz& Matriz::invertir() {
+    if (!esCuadrada())
+        throw domain_error("La matriz no es cuadrada.");
+    Matriz A(*this);
+    Matriz I = Matriz::Identidad(filas());
+    A.eliminacionGaussiana(I);
+    if (eq(A(A.filas()-1, A.filas()-1), 0))
+        throw domain_error("La matriz no tiene inversa");
+    A.backwardSubstitution(*this, I);
+    return *this;
+}
+
+Matriz& Matriz::inversa() const {
+    Matriz A(*this);
+    return A.invertir();
+}
+
 Matriz& Matriz::multiplicarPorTraspuesta() {
     return multiplicarBandaPorTraspuesta(columnas()-1, filas()-1);
 }
@@ -312,17 +329,6 @@ void Matriz::restarMultiploDeFila(const int i, const int j, const double c) {
     _verificarRango(j, 0);
     for (int k = 0; k < columnas(); ++k)
         (*this)(i, k) -= c * (*this)(j,k);
-}
-
-bool Matriz::invertir() {
-    if (!esCuadrada()) {
-        throw domain_error("La matriz no es cuadrada.");
-    }
-    Matriz A(*this);
-    Matriz b = Matriz::Identidad(filas());
-    bool invertible = A.eliminacionGaussJordan(b);
-    if (invertible) *this = b;
-    return invertible;
 }
 
 double Matriz::normaF() const {

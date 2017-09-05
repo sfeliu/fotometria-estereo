@@ -31,6 +31,8 @@ class Matriz {
         int filas() const;
         int columnas() const;
         bool esCuadrada() const;
+        Matriz& invertir();
+        Matriz& inversa() const;
         Matriz& trasponer();
         Matriz traspuesta() const;
         Matriz& multiplicarPorTraspuesta();
@@ -47,7 +49,6 @@ class Matriz {
         void multiplicarFilaPorEscalar(const int i, const double c);
         void restarMultiploDeFila(const int i, const int j, const double c);
         void dividirFilaPorEscalar(const int i, const double c);
-        bool invertir();
 
         double normaF() const;
 
