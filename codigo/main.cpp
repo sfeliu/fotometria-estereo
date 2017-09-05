@@ -17,6 +17,18 @@ double random01(){
     return ((double) rand() / RAND_MAX);
 }
 
+
+Matriz multiplicarPorTraspuesta(const Matriz &A) {
+    Matriz R(filas(A), vector<double>(filas(A), 0));
+    int N = filas(A);
+    int M = columnas(A);
+    for(int i=0; i<N; i++){
+        for(int j=0; j<=i; j++){
+            for(int k=0; k<j; k++) R[i][j] += A[i][k]*A[j][k];
+        }
+    }
+}
+
 Matriz randomMatriz(int n){
     int tamano = n*n;
     double matrizRandom[tamano];
