@@ -192,41 +192,12 @@ Matriz& Matriz::multiplicarBandaPorTraspuesta(const int p, const int q) {
     return *this;
 }
 
-bool Matriz::eliminacionGaussiana() {
-    return _eliminacionGaussiana(NULL);
+void Matriz::eliminacionGaussiana() {
+    _eliminacionGaussiana(NULL);
 }
 
-bool Matriz::eliminacionGaussiana(Matriz &b) {
-    return _eliminacionGaussiana(&b);
-}
-
-bool Matriz::eliminacionGaussJordan(Matriz &b) {
-    int f = 0, c = 0;
-    bool invertible = esCuadrada();
-    while (f < filas() && c < columnas()) {
-        int i = f;
-        for (int k = i + 1; k < filas(); ++k) {
-            if (fabs((*this)(i,c)) < fabs((*this)(k,c)))
-                i = k;
-        }
-        if (!eq((*this)(i,c), 0)) { // tener en cuenta error de redondeo
-            b.permutarFila(f, i);
-            permutarFila(f, i);
-            b.multiplicarFilaPorEscalar(f, 1 / (*this)(f,c));
-            multiplicarFilaPorEscalar(f, 1 / (*this)(f,c));
-            for (int k = 0; k < filas(); ++k) {
-                if (k != f && !eq((*this)(k,c), 0)) { // tener en cuenta error de redondeo
-                    b.restarMultiploDeFila(k, f, (*this)(k,c));
-                    restarMultiploDeFila(k, f, (*this)(k,c));
-                }
-            }
-            ++f;
-        } else {
-            invertible = false;
-        }
-        ++c;
-    }
-    return invertible;
+void Matriz::eliminacionGaussiana(Matriz &b) {
+    _eliminacionGaussiana(&b);
 }
 
 void Matriz::factorizacionPLU(Matriz &P, Matriz &L, Matriz &U) {
@@ -351,9 +322,8 @@ void Matriz::_verificarBanda(const int p, const int q) const {
         throw domain_error("La banda no puede superar la cantidad filas y columnas.");
 }
 
-bool Matriz::_eliminacionGaussiana(Matriz *b) {
+void Matriz::_eliminacionGaussiana(Matriz *b) {
     int f = 0, c = 0;
-    bool es_singular = false;
     while (f < filas() && c < columnas()) {
         int i = f;
         for (int k = i + 1; k < filas(); ++k) {
@@ -370,12 +340,9 @@ bool Matriz::_eliminacionGaussiana(Matriz *b) {
                 }
             }
             ++f;
-        } else {
-            es_singular = true;
         }
         ++c;
     }
-    return !es_singular;
 }
 
 Matriz& operator*(const double c, const Matriz &m) {
