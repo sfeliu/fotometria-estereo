@@ -17,18 +17,6 @@ double random01(){
     return ((double) rand() / RAND_MAX);
 }
 
-
-Matriz multiplicarPorTraspuesta(const Matriz &A) {
-    Matriz R(filas(A), vector<double>(filas(A), 0));
-    int N = filas(A);
-    int M = columnas(A);
-    for(int i=0; i<N; i++){
-        for(int j=0; j<=i; j++){
-            for(int k=0; k<j; k++) R[i][j] += A[i][k]*A[j][k];
-        }
-    }
-}
-
 Matriz randomMatriz(int n){
     int tamano = n*n;
     double matrizRandom[tamano];
@@ -117,11 +105,13 @@ int main() {
 
     // 1.1. Lectura de imagenes mate
 
-    cout << "Calibracion del sistema" << endl;
+    cout << "CALIBRACION DEL SISTEMA" << endl;
     cout << "Ingrese el archivo de texto de rutas del modelo mate: ";
     string mate_src_path;
     //cin >> mate_src_path;
     mate_src_path = "mate.txt"; cout << endl;
+    cout << "Cargando imagenes... " << flush;
+    
     ifstream mate_src(mate_src_path);
     if (!mate_src.is_open()) throw runtime_error("ERROR: no se pudo abrir el archivo");
     
@@ -137,9 +127,12 @@ int main() {
         }
         mate_mask.cargarImagen(ruta);
     }
+    cout << "listo" << endl;
     
     
     // 1.2. Obtenencion de direcciones de iluminacion
+    
+    cout << "Obteniendo direcciones de iluminacion... " << flush;
     
     pair<PPM::punto, PPM::punto> mate_mask_pts = mate_mask.generarMascara(); // obtengo puntos de la mascara
     int radio = (mate_mask_pts.second.x - mate_mask_pts.first.x + 1) / 2; // radio de la esfera
@@ -155,8 +148,12 @@ int main() {
         dirsI[i] = dirsI[i] * (1 / (double)radio); // normalizo el vector
     }
     
+    cout << "listo" << endl;
+    
     
     // 1.3. Eleccion de direcciones de iluminacion
+    
+    cout << "Seleccionando direcciones optimas... " << flush;
     
     // Elijo las direcciones que formen la matriz con menor numero de condicion para minimizar errores de estimacion
     double min_num_cond = INFINITY;
@@ -188,6 +185,8 @@ int main() {
         }
     }
     
+    cout << "listo" << endl;
+    
     // Defino matriz S
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) S(i,j) = dirsI[elecDirsI[i]](j,0);
@@ -195,6 +194,7 @@ int main() {
     
     
     // 1.4. Exportacion de datos de calibracion
+    cout << "Guardando datos de calibracion... " << flush;
     ofstream calibracion_out;
     calibracion_out.open("calibracion.txt");
     calibracion_out << dirs_cant << '\n';
@@ -203,9 +203,13 @@ int main() {
     calibracion_out << elecDirsI[2] << '\n';
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) calibracion_out << S(i,j) << ' ';
+        calibracion_out << '\n';
     }
     calibracion_out.close();
     
+    cout << "listo" << endl;
+    
+    cout << "Sistema calibrado existosamente" << endl << endl;
 
     }
     
@@ -308,7 +312,7 @@ int main() {
     // Estimo las profundidades
     Matriz &M_t = M.trasponer();
     Matriz b = M_t*v;
-    Matriz &A = M_t.multiplicarPorTraspuesta();
+    Matriz &A = M_t.multiplicarPorTraspuestaBanda(N, w);
     Matriz C; A.factorizacionCholesky(C); // A = CC_t
     // Resolucion de ecuacion Az = b <=> CC_tz = b
     Matriz u; C.forwardSubstitution(u, b); // resuelvo ecuacion Cu = b (u = C_tz)
