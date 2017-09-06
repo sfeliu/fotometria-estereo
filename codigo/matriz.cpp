@@ -313,12 +313,34 @@ Matriz& Matriz::factorizacionCholesky(Matriz &L) const {
         L(j,j) = (*this)(j,j);
         for (int k = 0; k < j; ++k)
             L(j,j) -= pow(L(j,k), 2);
-        if (lt(L(j,j), 0))
+        if (leq(L(j,j), 0))
             throw domain_error("La matriz no tiene factorizacion Cholesky.");
         L(j,j) = pow(L(j,j), 0.5);
         for (int i = j+1; i < n; ++i) {
             L(i,j) = (*this)(i,j);
             for (int k = 0; k < j; ++k)
+                L(j,j) -= pow(L(i,k)*L(j,k), 2);
+            L(i,j) /= L(j,j);
+        }
+    }
+    return L;
+}
+
+Matriz& Matriz::factorizacionCholeskyBanda(const int p, Matriz &L) const {
+    if (!esCuadrada())
+        throw domain_error("La matriz debe ser cuadrada.");
+    int n = filas();
+    L = Matriz(n);
+    for (int j = 0; j < n; ++j) {
+        L(j,j) = (*this)(j,j);
+        for (int k = max(0, j-p); k < j; ++k)
+            L(j,j) -= pow(L(j,k), 2);
+        if (leq(L(j,j), 0))
+            throw domain_error("La matriz no tiene factorizacion Cholesky.");
+        L(j,j) = pow(L(j,j), 0.5);
+        for (int i = j+1; i < min(n, j+p+1); ++i) {
+            L(i,j) = (*this)(i,j);
+            for (int k = max(0, i-p); k < j; ++k)
                 L(j,j) -= pow(L(i,k)*L(j,k), 2);
             L(i,j) /= L(j,j);
         }

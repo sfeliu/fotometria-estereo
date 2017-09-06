@@ -48,6 +48,7 @@ class Matriz {
         Matriz& backwardSubstitution(Matriz &x, const Matriz &b);
         Matriz& forwardSubstitution(Matriz &x, const Matriz &b);
         Matriz& factorizacionCholesky(Matriz &L) const;
+        Matriz& factorizacionCholeskyBanda(const int p, Matriz &L) const;
         void permutarFila(const int i, const int j);
         void multiplicarFilaPorEscalar(const int i, const double c);
         void restarMultiploDeFila(const int i, const int j, const double c);
