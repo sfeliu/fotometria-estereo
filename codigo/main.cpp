@@ -52,7 +52,6 @@ Matriz matrizDeIntensidades(const vector<PPM> &ppms, const int x, const int y) {
 }
 
 int main() {
-    return 0;
 
     clock_t clock_start;
 
@@ -279,13 +278,12 @@ int main() {
                 normales_x << n(0,0) << ',';
                 normales_y << n(1,0) << ',';
                 normales_z << n(2,0) << ',';
-                if (x == modelo_mask_pts.second.x - 1) {
-                    normales_x << endl;
-                    normales_y << endl;
-                    normales_z << endl;
-                }
 
             }
+
+            normales_x << endl;
+            normales_y << endl;
+            normales_z << endl;
         }
     }
     normales_x.close();
@@ -322,24 +320,35 @@ int main() {
     MatrizEsparza &M_t = M.trasponer();
     MatrizEsparza b = M_t*v;
     MatrizEsparza &A = M_t.multiplicarPorTraspuestaBanda(N, w);
+    M.print();
 
     // Resuelvo la ecuacion con factorizacion Cholesky: Ax = b <=> LL_tx = b
-    /*Matriz L, Q;
-    Matriz B = A;
+    MatrizEsparza L, Q;
+    MatrizEsparza B = A;
     clock_t start1 = clock();
     A.factorizacionCholesky(L);
-    cout << endl << "NO BANDA: " << (clock()-start1) << endl;
+    /*cout << endl << "NO BANDA: " << (clock()-start1) << endl;
     clock_t start2 = clock();
     B.factorizacionCholeskyBanda(N, Q);
     cout << "BANDA: " << (clock()-start2) << endl;
-    if (L != Q) throw runtime_error("NO SON IGUALES");
-    /*Matriz y
-;    L.forwardSubstitution(y, b); // resuelvo ecuacion Ly = b donde y = L_tx
-    Matriz x;
+    if (L != Q) throw runtime_error("NO SON IGUALES");*/
+    MatrizEsparza y;
+    L.forwardSubstitution(y, b); // resuelvo ecuacion Ly = b donde y = L_tx
+    MatrizEsparza x;
     L.trasponer().backwardSubstitution(x, y); // resuelvo ecuacion L_tx = y*/
 
 
-    // EXPORTAR PROFUNDIDADES
+    // Exporto profundidades
+    ofstream profundidades;
+    profundidades.open("profundidades.txt");
+    for (int i = 0; i < x.filas(); ++i) {
+        for (int j = 0; j < x.filas(); ++j) {
+            profundidades << x(i,j) << ' ';
+        }
+        profundidades << endl;
+    }
+
+    profundidades.close();
 
     cout << "listo (" << get_duration(clock_start) << " s)" << endl;
 
