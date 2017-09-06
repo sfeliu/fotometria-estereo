@@ -10,3 +10,7 @@ bool eq(const double a, const double b) {
 bool lt(const double a, const double b) {
     return a - b <= EPS;
 }
+
+bool leq(const double a, const double b) {
+    return !lt(b, a);
+}
