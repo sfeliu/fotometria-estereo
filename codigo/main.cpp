@@ -163,12 +163,12 @@ int main() {
 
     cout << "CALIBRACION DEL SISTEMA" << endl;
     cout << "Ingrese el archivo de texto de rutas del modelo mate: ";
-    clock_start = clock();
     
     string mate_src_path;
     //cin >> mate_src_path;
     mate_src_path = "mate.txt"; cout << endl;
     cout << "Cargando imagenes... " << flush;
+    clock_start = clock();
 
     ifstream mate_src(mate_src_path);
     if (!mate_src.is_open()) throw runtime_error("ERROR: no se pudo abrir el archivo");
@@ -283,9 +283,13 @@ int main() {
     // 2.1. Lectura de imagenes del modelo a reconstruir
     cout << "RECONSTRUICCION DEL MODELO 3D" << endl;
     cout << "Ingrese el archivo de texto de rutas del modelo a reconstruir: ";
+    
     string modelo_src_path;
     //cin >> modelo_src_path;
     modelo_src_path = "caballo.txt"; cout << endl;
+    cout << "Cargando imagenes... " << flush;
+    clock_start = clock();
+    
     ifstream modelo_src(modelo_src_path);
     if (!modelo_src.is_open()) throw runtime_error("ERROR: no se pudo abrir el archivo");
     vector<PPM> modelo(3);
@@ -308,10 +312,23 @@ int main() {
         modelo_mask.cargarImagen(ruta); // cargar mascara
     }
     
+    cout << "listo (" << get_duration(clock_start) << " s)" << endl;
     
-    // 2.2. Construccion del campo normal y estimacion de profundidades
+    
+    // 2.2. Obtencion de normales
+    
+    cout << "Obteniendo normales... " << flush;
+    clock_start = clock();
     
     pair<PPM::punto, PPM::punto> modelo_mask_pts = modelo_mask.generarMascara(); // obtengo puntos de la mascara
+    int w = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1; // ancho de mascara
+    int h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1; // alto de mascara
+    modelo_mask_pts.second.x -= w*0.90;
+    modelo_mask_pts.second.y -= h*0.90;
+    w = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1;
+    h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1;
+    int N = w*h; // cantidad total de pixeles en la mascara
+    vector<Matriz> normales(N);
     
     // Creo archivos de texto para guardar los datos
     ofstream normales_x, normales_y, normales_z;
@@ -319,67 +336,92 @@ int main() {
     normales_y.open("ejemplo2/normalesY.txt");
     normales_z.open("ejemplo2/normalesZ.txt");
     
-    // Datos para la estimacion de profundidades
-    int w = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1; // ancho de mascara
-    int h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1; // alto de mascara
-    modelo_mask_pts.second.x -= w*0.95;
-    modelo_mask_pts.second.y -= h*0.95;
-    w = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1;
-    h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1;
-    int N = w*h; // cantidad total de pixeles en la mascara
-    Matriz M(2*N, N); // matriz de coeficientes del sistema de ecuaciones 11 y 12
-    Matriz v(2*N, 1); // matriz de terminos independientes del sistema de ecuaciones 11 y 12
-    int f = 0; // fila en matriz M
-    
     // Obtengo la factorizacion PLU de S
-    Matriz P, L, U;
-    S.factorizacionPLU(P, L, U); // PS = LU
-    for (int y = modelo_mask_pts.first.y; y <= modelo_mask_pts.second.y; ++y) {
-        for (int x = modelo_mask_pts.first.x; x <= modelo_mask_pts.second.x; ++x) {
-            // Resolucion de ecuacion Sn = b <=> PSn = Pb <=> LUn = Pb
-            Matriz Pb = P * matrizDeIntensidades(modelo, x, y);
-            Matriz m; L.forwardSubstitution(m, Pb); // resuelvo ecuacion Lm = Pb (m = Un)
-            Matriz n; U.backwardSubstitution(n, m); // resuelvo ecuacion Un = m
-            double norma2 = n.normaF();
-            if (!eq(norma2, 0))
-                n = (1/norma2) * n; // normalizo el vector para obtener la normal
-            // Escribo coordenadas en archivos de texto
-            normales_x << n(0,0) << ',';
-            normales_y << n(1,0) << ',';
-            normales_z << n(2,0) << ',';
-            if (x == modelo_mask_pts.second.x - 1) {
-                normales_x << endl;
-                normales_y << endl;
-                normales_z << endl;
+    {
+        Matriz P, L, U;
+        S.factorizacionPLU(P, L, U); // PS = LU
+        int i = 0;
+        for (int y = modelo_mask_pts.first.y; y <= modelo_mask_pts.second.y; ++y) {
+            for (int x = modelo_mask_pts.first.x; x <= modelo_mask_pts.second.x; ++x) {
+                
+                // Resolucion de ecuacion (5) Sm = b <=> PSm = Pb <=> LUm = Pb
+                Matriz Pb = P * matrizDeIntensidades(modelo, x, y);
+                Matriz h; L.forwardSubstitution(h, Pb); // resuelvo ecuacion Lh = Pb (h = Um)
+                Matriz m; U.backwardSubstitution(m, h); // resuelvo ecuacion Um = h
+                double norma2 = m.normaF();
+                Matriz n(3,1); // normal
+                if (!eq(norma2, 0))
+                    n = (1/norma2) * m; // normalizo el vector para obtener la normal
+                normales[i] = n;
+                ++i;
+                // Escribo coordenadas en archivos de texto
+                normales_x << n(0,0) << ',';
+                normales_y << n(1,0) << ',';
+                normales_z << n(2,0) << ',';
+                if (x == modelo_mask_pts.second.x - 1) {
+                    normales_x << endl;
+                    normales_y << endl;
+                    normales_z << endl;
+                }
             }
-            // Defino los coeficientes correspondientes al pixel en ĺa matriz M
-            int c_xy = (y - modelo_mask_pts.first.y)*w + (x - modelo_mask_pts.first.x);
-            int c_x1y = c_xy + 1;
-            int c_xy1 = c_xy + w;
-            // Ecuacion 11
-            M(f, c_xy) = -n(2,0);
-            if (c_x1y < N) M(f, c_x1y) = n(2,0);
-            v(f,0) = -n(0,0);
-            ++f;
-            // Ecuacion 12
-            M(f, c_xy) = -n(2,0);
-            if (c_xy1 < N) M(f, c_xy1) = n(2,0);
-            v(f,0) = -n(1,0);
-            ++f;
         }
     }
     normales_x.close();
     normales_y.close();
     normales_z.close();
     
-    // Estimo las profundidades
+    cout << "listo (" << get_duration(clock_start) << " s)" << endl;
+    
+    
+    // 2.3 Estimacion de profundidades
+    
+    cout << "Estimando profundidades... " << flush;
+    clock_start = clock();
+    
+    // Construyo matrices M y v de ecuacion 13
+    Matriz M(2*N, N); // matriz de coeficientes del sistema de ecuaciones 11 y 12
+    Matriz v(2*N, 1, false); // matriz de terminos independientes del sistema de ecuaciones 11 y 12
+    for (int i = 0; i < (int) normales.size(); ++i) {
+        int f = 2 * i; // primera fila del pixel actual
+        int c_xy = i; // columna del pixel actual (x,y)
+        int c_x1y = i + 1; // columna del pixel (x+1,y)
+        int c_xy1 = i + w; // columna del pixel (x,y+1)
+        // Ecuacion 11
+        M(f, c_xy) = -normales[i](2,0);
+        if (c_x1y < N) M(f, c_x1y) = normales[i](2,0);
+        v(f,0) = -normales[i](0,0);
+        // Ecuacion 12
+        M(f+1, c_xy) = -normales[i](2,0);
+        if (c_xy1 < N) M(f+1, c_xy1) = normales[i](2,0);
+        v(f+1,0) = -normales[i](1,0);
+    }
+    
+    // Obtengo matrices A y b de ecuacion 15
     Matriz &M_t = M.trasponer();
     Matriz b = M_t*v;
     Matriz &A = M_t.multiplicarPorTraspuestaBanda(N, w);
-    Matriz C; A.factorizacionCholesky(C); // A = CC_t
-    // Resolucion de ecuacion Az = b <=> CC_tz = b
-    Matriz u; C.forwardSubstitution(u, b); // resuelvo ecuacion Cu = b (u = C_tz)
-    Matriz z; C.trasponer().backwardSubstitution(z, b); // resuelvo ecuacion C_tz = u
+    
+    // Resuelvo la ecuacion con factorizacion Cholesky: Ax = b <=> LL_tx = b
+    Matriz L, Q;
+    Matriz B = A;
+    clock_t start1 = clock();
+    A.factorizacionCholesky(L);
+    cout << endl << "NO BANDA: " << (clock()-start1) << endl;
+    clock_t start2 = clock();
+    B.factorizacionCholeskyBanda(N, Q);
+    cout << "BANDA: " << (clock()-start2) << endl;
+    if (L != Q) throw runtime_error("NO SON IGUALES");
+    /*Matriz y;
+    L.forwardSubstitution(y, b); // resuelvo ecuacion Ly = b donde y = L_tx
+    Matriz x;
+    L.trasponer().backwardSubstitution(x, y); // resuelvo ecuacion L_tx = y*/
+    
+    
+    // EXPORTAR PROFUNDIDADES
+    
+    cout << "listo (" << get_duration(clock_start) << " s)" << endl;
+    
+    cout << "Modelo reconstruido exitosamente" << endl;
 
 
     return 0;   
