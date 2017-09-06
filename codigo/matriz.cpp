@@ -3,7 +3,7 @@
 
 using namespace std;
 
-void Matriz::_crearMatriz(const int f, const int c) {
+void Matriz::_crearMatriz(const int f, const int c, const bool init) {
     if (f <= 0 || c <= 0) {
         throw domain_error("Error: la cantidad de filas y columnas debe ser mayor a cero.");
     }
@@ -12,7 +12,10 @@ void Matriz::_crearMatriz(const int f, const int c) {
     _traspuesta = false;
     _matriz = new double*[_filas];
     for (int i = 0; i < _filas; ++i) {
-        _matriz[i] = new double[_columnas]();
+        if (init)
+            _matriz[i] = new double[_columnas]();
+        else
+            _matriz[i] = new double[_columnas];
     }
     _cols = new int[_columnas];
     for (int i = 0; i < _columnas; ++i) {
@@ -35,8 +38,8 @@ Matriz::Matriz(const int n) {
     _crearMatriz(n, n);
 }
 
-Matriz::Matriz(const int f, const int c) {
-    _crearMatriz(f, c);
+Matriz::Matriz(const int f, const int c, const bool init) {
+    _crearMatriz(f, c, init);
 }
 
 Matriz::Matriz(const int f, const int c, const double a[], const int n) {
@@ -126,10 +129,10 @@ Matriz& Matriz::operator*(const Matriz &o) const {
 }
 
 Matriz& Matriz::operator+(const Matriz &o) const {
-    if ((columnas() != o.columnas()) or (filas() != o.filas())) {
-        throw domain_error("Error: la multiplicación no esta definida para matrices de estas dimensiones");
+    if (columnas() != o.columnas() || filas() != o.filas()) {
+        throw domain_error("Error: la suma no esta definida para matrices de estas dimensiones");
     }
-    Matriz *res = new Matriz(filas(), o.columnas());
+    Matriz *res = new Matriz(filas(), columnas());
     for (int i = 0; i < filas(); ++i) {
         for (int j = 0; j < o.columnas(); ++j) {
             (*res)(i,j) = (*this)(i,j) + o(i,j);

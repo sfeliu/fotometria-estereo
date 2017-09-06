@@ -13,7 +13,7 @@ class Matriz {
         Matriz();
         Matriz(const Matriz &o); // constructor por copia
         Matriz(const int n); // matriz nula de nxn
-        Matriz(const int f, const int c); // matriz nula de fxn
+        Matriz(const int f, const int c, const bool init = true); // matriz de fxn, inicializada como nula si init es true
         Matriz(const int f, const int c, const double a[], const int n); // construye una matriz de fxc a partir de un arreglo de tamanio n
         ~Matriz();
         
@@ -69,7 +69,7 @@ class Matriz {
         bool _traspuesta;
         int *_cols;
 
-        void _crearMatriz(const int f, const int c);
+        void _crearMatriz(const int f, const int c, const bool init = true);
         void _verificarRango(const int f, const int c) const;
         void _verificarBanda(const int p, const int q) const;
         void _eliminacionGaussiana(Matriz *b);
