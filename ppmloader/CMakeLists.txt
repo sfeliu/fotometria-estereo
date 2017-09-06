@@ -7,6 +7,6 @@ set(SOURCE_FILES
         main.cpp
         ppmloader.cpp
         ppmloader.h
-        )
+        ../codigo/experimentacion.cpp)
 
 add_executable(ppmloader ${SOURCE_FILES})

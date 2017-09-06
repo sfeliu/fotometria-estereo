@@ -1,5 +1,90 @@
-En el desarrollo de este trabajo practico lo primero que hicimos fue la calibracion del sistema. Lo cual consistio en encontrar las coordenadas del punto mas brillante de 12 imagenes de una esfera. Luego utilizamos la coordenadas del punto mas brillante junto con la ecuacion de la esfera para poder encontrar la direccion de la luz incidente a ella.\par
-\indent Para encontrar el punto mas brillante, nuestra primer idea fue analizar uno por uno todos los pixeles de cada imagen hasta encontrar el pixel con la máxima intensidad en el rango de 1 a 255, pero nos dimos cuenta que esta no era la mejor estrategia. El problema que surgió al tratar de seleccionar el pixel mas brillante de esta manera es que había mas de un pixel con el máximo valor de brillo en una imagen y en estos casos decidimos elegir uno de todos los pixeles con mayor intensidad al azar. Esto llevo a que en muchos casos eligiésemos mal el puntos mas brillante. Lo que no nos habíamos dado cuenta al principio fue que las imágenes discretisan el espacio y esto es lo que lleva que aya mad de un pixel que tengan la máxima intensidad de la imagen, pero esto no necesariamente quiere decir que la normal de todos estos puntos sean la dirección de la luz. Ademas no es muy lógico elegir el punto mas brillante al azar ya que este representa la dirección de la iluminación la cual es unica. Luego pensamos en que el brillo forma una aureola y que la esfera tiene algunas irregularidades sobre su superficie, entonces no alcanza con buscar el pixel mas brillante, por lo tanto se utilizamos las vecindades para lograr agrandar el espectro. Una vez seleccionadas las coordenadas del punto mas brillante de una imagen utilizamos la ecuación de la esfera, $r^{2}$=$(x-x_{0})^{2}$ + $(y-y_{0})^{2}$+ $(z-z_{0})^{2}$, para obtener las direcciones de la iluminación. De esta ecuacion los parametros que conocemos son las coordenadas ($x_{0}$,$y_{0}$) del centro de la esfera, el radio r y las coordenadas del pixel que consideramos mas brillante (x, y). Si C es el centro de la esfera y P el punto donde se encuentra el pixel mas brillante, entonces el vector que representa la dirección de la iluminación 
+El programa desarrollado se puede dividir en dos partes:
+	calibracion del sistema y reconstruccion del modelo 3D.
+	La primera parte consiste en conseguir las direcciones de fuentes de luz y elegir de estas las que nos permitan hacer una reconstruccion optima de los modelos.
+	En la segunda parte utilizando las direcciones obtenidas durante la calibracion, se estiman las dirreciones normales de la superficie del modelo y con estas se obtienen las profundidades 
+\subseccion{Calibracion}
+
+\subsubseccion{Obtencion de direcciones de fuentes de luz}
+
+Dado que la superficie de los modelos es Lambertiana tiene la prodiedad de que absorbe la luz uniformemente en cada punto, con lo cual la normal en el punto con mayor intensidad de luz de la superficie corresponde con la direccion de la iluminacion. Usamos para la calibracion el modelo de la esfera porque al conocer su geometria y las intensidades en cualquier parte de su superficie podemos calcular las normales en todo punto 
+
+Para determinar la intensidad de un pixel utilizamos un promedio de los tres colores(azul, verde, rojo) dandole mas peso al verde dado que este es el color que el ojo humano percibe en mayor proporcion.
+
+//Por tener la imagen con intensidades Discretas, no necesariamente habria una con el mayor valor.
+
+Nuestra primera estrategia para encontrar el punto con mayor intensidad de luz fue recorrer los pixeles de las imagenes uno por uno y guardar la posicion del de mayor intensidad. El problema que tuvimos es que como la esfera no es de color uniforme, pueden haber puntos que sean mas brillantes por tener un tono de color mas claro y no por ser el punto con mayor intensidad luz.
+
+La segunda estrategia fue considerar vecindades fijas que es un poco mas simple que tomar vecindades que se pudieran contraer o expandir(ya que en los bordes esto podria fallar), obteniendo una mejor aproximacion al pixel buscado.
+
+\subsubseccion{Eleccion de las direcciones de fuente de luz}
+
+Para eleccion de las direcciones de fuente de luz:
+	Lo primero fue hacer las diferentes permutaciones de tres direcciones de luz sin tomar elementos repetidos y aplicar el algoritmo de la eliminacion de gauss para ver si la matriz es inversible o no.
+	Una vez corroborado que la matriz fuera inversible, mediante el numero de condicion asociado a la matriz podemos discriminar entre las matrices para una mejor estimacion del valor, mirando el numero de condicion que esta relacionado con la estabilidad numerica de un sistema lineal ya que una matriz mal condicionada es propensa a tener graves errores y no darnos soluciones del sistema en las cuales podemos confiar.
+	Nosotros supones que el error que vamos a obtener al calcular las normales va a estar directamente relacionado al condicionamiento de la matriz que utilizamos. Dicho de otra manera, el mejor gráfico de las normales va a estar dado por la matriz mejor condicionada. Para corroborar esto buscamos la matrices con el máximo y mínimo grado de condicionamiento y comparamos visualmente las diferencias entre los campos normales que obtuvimos utilizando cada una.
+	
+	Con eso calculamos el numero de condicion de cada matriz, para luego tomar los maximos y minimos para poder comparar los resultados.
+
+
+\subseccion{Construccion de la matriz M }	
+
+Dadas las ecuaciones 11 y 12, para generar el sistema de ecuaciones para todos los pixeles se pueden ver de dos formas para poder generar la matriz banda.
+\subsubseccion{1 er Forma}
+
+La primera que pensamos,fue dar una relacion de orden (entre los pixeles, apartir de la relacion de orden de los enteros), verlos como un grafo dirigido y tomar la matriz asociada al grafo. Para la cual ordenamos los pixeles para que se recorran de forma univoca, donde la relacion de orden estaba dada por la coordenada en Y y luego x , con lo cual (i,j) < (k,l) <=> (l=> j)||(k =>i), con esto logramos obtener la matriz banda(anhelada).
+//Creo que no deberia ir ya que no vimos nada en la materia y deberiamos justificarlo de alguna forma (teorica)
+
+
+\subsubseccion{2 da Forma}
+
+La segunda forma (naiv), para la cual tomamos la misma relacion anterior, es ver la grilla de pixeles en forma de F1++F2++...++Fn
+concatenacion de los pixeles (donde F1 contiene a todos los pixeles correspondiente a todas las columnas de la fila 1 de la grilla, analogamente Fn). con los cual, si separamos las ecuaciones y formamos 2 matrices una para las ecuaciones correspondientes al eje X y otra matriz correspondiente al eje Y. Tenemos una Matriz Banda 1x2 Para el eje X y 1x(cantidad De Columnas de las grilla +1) para el eje Y. Combinandolos de manera adecuada, se obtiene la matriz banda(anhelada).(X1/Y1/.../Xn/Yn)
+
+MxMt es simetrica, es valido para toda matriz.
+
+\subsubseccion{Descripcion de la matriz M }
+
+La matriz M tiene dimension 2NxN y es banda PxQ, por lo tanto Mt es de dimension Nx2N y es banda QxP, luego siendo A = MxMt tiene dimension NxN y es banda Qx(Q+1).
+Ya que como esta armada la matriz M, se forma una escalera donde al moverse por las columnas,mirando desde la q+1 columna, la  primer coordenada tiene el primer elemento igual a cero y todas los demas no necesariamente distinto de cero.Al mirar la siguiente columna la cantidad de elementos que no son cero incrementan en dos y asi cada vez que se mira la siguiente columna.
+Luego al mirar las filas, se logra ver un patron en el cual se agrega un cero a las primeras coordenadas de la fila cuando se dan pasos de a dos filas. Lo cual forma un patron interesante al ser multiplicado por su transpuesta, esto relaciona la cantidad de pixeles con el ancho de banda de la matriz el cual queda dependiendo de la cantidad de pixeles y del ancho de la imagen.
+
+\subseccion{Descripcion de la matriz A}
+
+\subsubseccion{Mirando ceros de la parte superior} 
+Para la matriz A resultante al juntar lo visto, y siguiendo la misma idea con la matriz transpuesta, se observan los mismos patrones.Por lo tanto al hacer la multiplicacion, se puede observar un patron que siguen cada una de las filas de la matriz resultante , en particular la fila i(i <=Q) tiene sus coordenadas igual a cero desde la posicion Q+i+1, eso forma una diagonal de elementos no necesariamente igual a cero a partir de la fila 1 columna q.
+
+\subsubseccion{Mirando los ceros de la parte inferior} 
+Para la fila i(i > Q), tiene el primer cero a partir de la fila q+1 en la coordenada 1  y va incrementando un cero a las primeras coordenada del vector fila cada ves que avanza, con lo cual eso forma una diagonal de elementos no necesariamente igual a cero a partir de la fila q columna 1.
+
+\seubsubseccion{Forma de la matriz resultante}
+Para obtener la matriz A que da la multiplicacion de la matriz MxMt, dado que son matrices banda y que M es banda PxQ donde p=cantidad de elementos(pixeles)-1 y Q = cantidad de columnas de la imagen. Si la imagen es una tira de pixeles entonces P = Q, sino P > Q.
+La matriz resultante tiene dimension NxN y es banda Qx(Q+1). 
+
+5:Dudas.
+¿Porque no importa la cantidad de pixeles a la hora de ver la anchura de la matriz?.
+
+\subseccion{Justificacion de utilizacion de la factorizacion de cholesky Para la matriz A}
+
+Para poder justificar cholesky, nos alcanza con demostrar que las columnas de la matriz M son Li ya que por la definicion de matriz definida positiva, vale que para $w^{t}Aw$ $>$ 0 $\forall$ w $\in$ ${\rm I\!R}^{nxn}$ , la demostracion es por el contraresiproco con lo cual suponemos lo contrario existe un $ (\exist w ) Aw = 0 \land w$\neq$0  $ , como A = $ M^{t}M \rightarrow w^{t}M^{t}=(Mw)^{t}(Mw) =$||$Mw$||^{2}$ y como esto es la norma del vector, la norma de ese vector es 0, como demostramos que las columas eran Li, con lo cual llegamos a un absurdo que provino de suponer que existe tal w, por lo tanto la matriz A es definida positiva. Y usando la Propiedad*, tenemos que la matriz A tine factorizacion cholesky unica.
+
+Propiedad*: Una matriz es definida positiva <=> tiene factorizacion cholesky unica.
+
+
+
+
+
+
+//
+
+
+
+
+
+
+
+Lo cual consistio en encontrar las coordenadas del punto mas brillante de 12 imagenes de una esfera. Luego utilizamos la coordenadas del punto mas brillante junto con la ecuacion de la esfera para poder encontrar la direccion de la luz incidente a ella.\par
+\indent Para encontrar el punto mas brillante, nuestra primer idea fue analizar uno por uno todos los pixeles de cada imagen hasta encontrar el pixel con la máxima intensidad en el rango de 1 a 255, pero nos dimos cuenta que esta no era la mejor estrategia. El problema que surgió al tratar de seleccionar el pixel mas brillante de esta manera es que había mas de un pixel con el máximo valor de brillo en una imagen y en estos casos decidimos elegir uno de todos los pixeles con mayor intensidad al azar. Esto llevo a que en muchos casos eligiésemos mal el puntos mas brillante. 
+Lo que no nos habíamos dado cuenta al principio fue que las imágenes discretisan el espacio y esto es lo que lleva que aya mad de un pixel que tengan la máxima intensidad de la imagen, pero esto no necesariamente quiere decir que la normal de todos estos puntos sean la dirección de la luz. Ademas no es muy lógico elegir el punto mas brillante al azar ya que este representa la dirección de la iluminación la cual es unica. Luego pensamos en que el brillo forma una aureola y que la esfera tiene algunas irregularidades sobre su superficie, entonces no alcanza con buscar el pixel mas brillante, por lo tanto se utilizamos las vecindades para lograr agrandar el espectro. Una vez seleccionadas las coordenadas del punto mas brillante de una imagen utilizamos la ecuación de la esfera, $r^{2}$=$(x-x_{0})^{2}$ + $(y-y_{0})^{2}$+ $(z-z_{0})^{2}$, para obtener las direcciones de la iluminación. De esta ecuacion los parametros que conocemos son las coordenadas ($x_{0}$,$y_{0}$) del centro de la esfera, el radio r y las coordenadas del pixel que consideramos mas brillante (x, y). Si C es el centro de la esfera y P el punto donde se encuentra el pixel mas brillante, entonces el vector que representa la dirección de la iluminación 
 es C-P = ($x_{0}$ - x, $y_{0}$ - y, $z_{0}$ - ($ \sqrt{r^{2} - (x-x_{0})^{2} - (y-y_{0})^{2} + z_{0}}$)) = ($x_{0}$ - x, $y_{0}$ - y, $\sqrt{r^{2} - (x-x_{0})^{2} - (y-y_{0})^{2}}$). \par
 
 \indent Una vez obtenidos las direcciones de iluminacion, el siguiente paso del desarrollo fue elegir las tres direcciones de luz para después obtener las normales. Nuestra idea fue elegir aquella combinacion de direcciones que tengan el menor número de condición. Para hacer esto programamos un algoritmo que calcula todas las posibles permutaciones de tres vectores, teniendo 12 vectores para elegir, junto con el numero de condición asociado a cada una de estas matrices. Hay que tener cuenta que al calcular las posibles permutaciones de las direcciones consideramos a una elección de tres vectores como un conjunto, ya que el numero de condicion no cambia si permutamos las columnas o filas de una matriz. El condicionamiento de una matriz, dado por su numero de condicion, nos pareció la mejor forma de escoger las direcciones ya que, por lo que aprendimos en clase una matriz mal condicionada es propensa a tener graves errores y no darnos soluciones del sistema en las cuales podemos confiar. Pensando en el numero de condiciones en términos geométricos, también nos dimos cuenta de que el condicionamiento de una matriz va a mejorar a medida que las ecuaciones lineales de la matriz esten lo mas lejano posible de ser paralelas, lo cual tiene sentido ya que tener iluminación dispersa ayuda a ver un objeto mejor en el mundo real. Nosotros supones que el error que vamos a obtener al calcular las normales va a estar directamente relacionado al condicionamiento de la matriz que utilizamos. Dicho de otra manera, el mejor gráfico de las normales va a estar dado por la matriz mejor condicionada. Para corroborar esto buscamos la matrices con el máximo y mínimo grado de condicionamiento y comparamos visualmente las diferencias entre los campos normales que obtuvimos utilizando cada una. \par
@@ -9,4 +94,10 @@ es C-P = ($x_{0}$ - x, $y_{0}$ - y, $z_{0}$ - ($ \sqrt{r^{2} - (x-x_{0})^{2} - (
 \indent Nuestro algoritmo de eliminación gaussiana, hace n iteraciones donde n es la cantidad de filas de la matriz a triangular. En la i-esima iteración toma el elemento $a_{ii}$ como pivote. Si el pivote en cualquiera de las iteraciones es zero entonces no existe factorizacion LU pura, aunque si existe factorizacion PLU. Si el pivote no es cero el algoritmo hace otras k iteraciones donde k es la cantidad de filas que tiene por debajo. El algoritmo procede a calcular el múltiplo exacto por el cual tiene que multiplicar al pivote para poder eliminar al elemento, que este en la misma columna que el, y en la fila debajo si. Esto lo repite k veces, una ves para cada fila que se encuentra por debajo del pivote actual. Una vez terminadas las k iteraciones para el i-esimo pivote, el algoritmo incrementa en 1 a i y pasa al siguiente pivote. Resulta evidente que los pivotes va a ser todos los elementos de la diagonal. \par
 \indent Obtener la factorizacion LU no es mas que guardar los múltiplos que utilizamos para diagonalizar una matriz en el algoritmo de eliminacion gaussiana. Es importante notar que nosotros implementamos un algoritmo de factorizacion PLU donde la factorizacion LU es el caso especifico donde la matriz P es la matriz identidad. Por lo cual, la complejidad temporal de obtener la factorizacion LU  es igual a la complejidad del algoritmo de eliminacion de gauss, la cual es O($(n)^{3}$).\par
 \indent Aunque sus complejidades son iguales, la diferencia se encuentra al momento de resolver varios sistemas. La eliminación gaussiana va a tener la misma complejidad cada vez que la utilizamos. En contraste, la factorización LU solo se obtiene una vez y luego solo se debe resolver dos sistemas triangulares, esto lleva a que su complejidad es O($(n)^{2}$). Como dice el enunciado del TP, los valores sx,sy,sz, de la ecuación 5 no cambian pixel a pixel sino que solamente se modifica el valor de la intensidad en (x,y) para la imagen correspondiente Ii, y por lo tanto poseen la misma matriz pero con distinto término independiente. Por lo cual, si se encuentra una convinación de $s_{1}$, $s_{2}$ y $s_{3}$ que posea factorización LU se podria bajar sustancialmente la complejidad de obtener las normales de una imagen, ya que estas poseen una gran cantidad de pixeles.\par
-\indent Nuestra primer idea para tratar de comprobar nuestra hipótesis de que la factorizacion LU es mas rápida que la eliminación de gauss fue tomar distintos tamaños de matrices y trangularlos una vez con cada algoritmo para ver que método era mas rápido. Este experimento no pone a prueba nuestra hipótesis porque lo que intentábamos comprobar es que la factorizacion LU es mas rápida que la eliminación de gauss para resolver un sistema lineal despues de la primera vez que se resuelve el sistema. Si resolvíamos una sola vez cada tamaño de matriz, ambos algoritmos tardarían lo mismo. Por lo tanto, decidimos hacer un experimento donde mantuvimos constante el tamaño del sistema lineal a resolver y lo que variamos en cada instancia de teste fueron las cantidades de términos independientes. Por ejemplo, la primera instancia resolvimos el sistema Ax=b con 100 b diferentes y luego incrementamos la cantidad de términos independientes de 100 en 100, hasta llegar a 1000. Es importante remarcar que estos términos independientes fueron generados aleatoriamente con una función encontrada en la siguiente pagina:  \par SANTI TENES QUE PONER LA PAGINA ACA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+\indent Nuestra primer idea para tratar de comprobar nuestra hipótesis de que la factorizacion LU es mas rápida que la eliminación de gauss fue tomar distintos tamaños de matrices y trangularlos una vez con cada algoritmo para ver que método era mas rápido. Este experimento no pone a prueba nuestra hipótesis porque lo que intentábamos comprobar es que la factorizacion LU es mas rápida que la eliminación de gauss para resolver un sistema lineal despues de la primera vez que se resuelve el sistema. Si resolvíamos una sola vez cada tamaño de matriz, ambos algoritmos tardarían lo mismo. Por lo tanto, decidimos hacer un experimento donde mantuvimos constante el tamaño del sistema lineal a resolver y lo que variamos en cada instancia de teste fueron las cantidades de términos independientes. Por ejemplo, la primera instancia resolvimos el sistema Ax=b con 100 b diferentes y luego incrementamos la cantidad de términos independientes de 100 en 100, hasta llegar a 1000. Es importante remarcar que estos términos independientes fueron generados aleatoriamente con una función encontrada en la siguiente pagina:  \par SANTI TENES QUE PONER LA PAGINA ACA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+\ident 
+
+\begin{center}
+   \includegraphics[scale=0.6]{epsFig.eps}
+\end{center}
