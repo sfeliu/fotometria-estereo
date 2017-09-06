@@ -26,9 +26,9 @@ void Matriz::_crearMatriz(const int f, const int c, const bool init) {
 Matriz::Matriz() : _filas(0), _columnas(0), _matriz(NULL), _traspuesta(false), _cols(NULL) {}
 
 Matriz::Matriz(const Matriz &o) {
-    _crearMatriz(o._filas, o._columnas);
-    for (int i = 0; i < _filas; ++i) {
-        for (int j = 0; j < _columnas; ++j) {
+    _crearMatriz(o.filas(), o.columnas(), false);
+    for (int i = 0; i < filas(); ++i) {
+        for (int j = 0; j < columnas(); ++j) {
             (*this)(i,j) = o(i,j);
         }
     }
@@ -117,9 +117,10 @@ Matriz& Matriz::operator*(const Matriz &o) const {
     if (columnas() != o.filas()) {
         throw domain_error("Error: la multiplicación no esta definida para matrices de estas dimensiones");
     }
-    Matriz *res = new Matriz(filas(), o.columnas());
-    for (int i = 0; i < filas(); ++i) {
-        for (int j = 0; j < o.columnas(); ++j) {
+    Matriz *res = new Matriz(filas(), o.columnas(), false);
+    for (int i = 0; i < res->filas(); ++i) {
+        for (int j = 0; j < res->columnas(); ++j) {
+            (*res)(i,j) = 0;
             for (int k = 0; k < columnas(); ++k) {
                 (*res)(i,j) += (*this)(i,k) * o(k,j);
             }
@@ -132,9 +133,9 @@ Matriz& Matriz::operator+(const Matriz &o) const {
     if (columnas() != o.columnas() || filas() != o.filas()) {
         throw domain_error("Error: la suma no esta definida para matrices de estas dimensiones");
     }
-    Matriz *res = new Matriz(filas(), columnas());
-    for (int i = 0; i < filas(); ++i) {
-        for (int j = 0; j < o.columnas(); ++j) {
+    Matriz *res = new Matriz(filas(), columnas(), false);
+    for (int i = 0; i < res->filas(); ++i) {
+        for (int j = 0; j < res->columnas(); ++j) {
             (*res)(i,j) = (*this)(i,j) + o(i,j);
         }
     }
@@ -142,9 +143,9 @@ Matriz& Matriz::operator+(const Matriz &o) const {
 }
 
 Matriz& Matriz::operator*(const double c) const {
-    Matriz *res = new Matriz(filas(), columnas());
-    for (int i = 0; i < filas(); ++i) {
-        for (int j = 0; j < columnas(); ++j) {
+    Matriz *res = new Matriz(filas(), columnas(), false);
+    for (int i = 0; i < res->filas(); ++i) {
+        for (int j = 0; j < res->columnas(); ++j) {
             (*res)(i,j) = (*this)(i,j) * c;
         }
     }
@@ -201,9 +202,10 @@ double Matriz::normaF() const {
 }
 
 Matriz& Matriz::multiplicarPorTraspuesta() {
-    Matriz A(filas());
+    Matriz A(filas(), filas(), false);
     for (int i = 0; i < A.filas(); ++i) {
         for (int j = i; j < A.columnas(); ++j) {
+            A(i,j) = 0;
             for (int k = 0; k < columnas(); ++k)
                 A(i,j) += (*this)(i,k) * (*this)(j,k);
             A(j,i) = A(i,j);
@@ -218,7 +220,7 @@ Matriz& Matriz::multiplicarPorTraspuestaBanda(const int p, const int q) {
     Matriz A(filas());
     for (int i = 0; i < A.filas(); ++i) {
         for (int j = i; j < A.columnas(); ++j) {
-            for (int k = max(0, max(i,j)-q); k < min(columnas(), min(i,j)+p); ++k)
+            for (int k = max(0, max(i,j)-q); k < min(columnas(), min(i,j)+p+1); ++k)
                 A(i,j) += (*this)(i,k) * (*this)(j,k);
             A(j,i) = A(i,j);
         }
@@ -273,9 +275,9 @@ void Matriz::factorizacionPLU(Matriz &P, Matriz &L, Matriz &U) {
 Matriz& Matriz::backwardSubstitution(Matriz &x, const Matriz &b) {
     if (b.filas() != filas())
         throw domain_error("La cantidad de filas de la matriz parametro debe coincidicar con la de la matriz.");
-    x = Matriz(columnas(), b.columnas());
+    x = Matriz(columnas(), b.columnas(), false);
     for (int i = x.filas()-1; i >= 0; --i) {
-        for (int k = 0; k < b.columnas(); ++k) {
+        for (int k = 0; k < x.columnas(); ++k) {
             x(i,k) = b(i,k);
             for (int j = i + 1; j < x.filas(); ++j) {
                 x(i,k) -= (*this)(i,j) * x(j,k);
@@ -289,9 +291,9 @@ Matriz& Matriz::backwardSubstitution(Matriz &x, const Matriz &b) {
 Matriz& Matriz::forwardSubstitution(Matriz &x, const Matriz &b) {
     if (b.filas() != filas())
         throw domain_error("La cantidad de filas de la matriz parametro debe coincidicar con la de la matriz.");
-    x = Matriz(columnas(), b.columnas());
+    x = Matriz(columnas(), b.columnas(), false);
     for (int i = 0; i < x.filas(); ++i) {
-        for (int k = 0; k < b.columnas(); ++k) {
+        for (int k = 0; k < x.columnas(); ++k) {
             x(i,k) = b(i,k);
             for (int j = 0; j < i; ++j) {
                 x(i,k) -= (*this)(i,j) * x(j,k);
