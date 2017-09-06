@@ -30,6 +30,7 @@ class MatrizEsparza {
         MatrizEsparza& backwardSubstitution(MatrizEsparza &x, const MatrizEsparza &b);
         MatrizEsparza& forwardSubstitution(MatrizEsparza &x, const MatrizEsparza &b);
         MatrizEsparza& factorizacionCholesky(MatrizEsparza &L) const;
+        MatrizEsparza& factorizacionCholeskyBanda(const int p, MatrizEsparza &L) const;
 
         MatrizEsparza& multiplicarPorTraspuestaBanda(const int p, const int q);
 
