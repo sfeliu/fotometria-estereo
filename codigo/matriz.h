@@ -4,7 +4,6 @@
 #include "fputils.h"
 #include <stdio.h>
 #include <algorithm>
-#include <string>
 #include <cmath>
 #include <stdexcept>
 
@@ -16,7 +15,7 @@ class Matriz {
         Matriz(const int f, const int c, const bool init = true); // matriz de fxn, inicializada como nula si init es true
         Matriz(const int f, const int c, const double a[], const int n); // construye una matriz de fxc a partir de un arreglo de tamanio n
         ~Matriz();
-        
+
         static Matriz Identidad(const int n);
 
         void swap(Matriz &o);
@@ -26,8 +25,8 @@ class Matriz {
         bool operator==(const Matriz &o) const;
         bool operator!=(const Matriz &o) const;
         Matriz& operator*(const Matriz &o) const;
-        Matriz& operator+(const Matriz &o) const;
         Matriz& operator*(const double c) const;
+        Matriz& operator+(const Matriz &o) const;
 
         int filas() const;
         int columnas() const;
