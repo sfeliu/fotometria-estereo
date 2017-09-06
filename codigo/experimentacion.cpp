@@ -114,16 +114,16 @@ void testFactorizacionLU(vector<Matriz> terminosIndependientes, int filas){
 
 int main(){
     int tamano = 1000;
-    int filas = 100;
     cout<<"Coloque la cantidad de terminos independientes que quiera testear: ";
     cin >> tamano;
     cout<<"Coloque la cantidad de filas de la matriz que quiera testear: ";
+    int filas;
     cin >> filas;
     vector<Matriz> terminosIndependientes;
     for(int i=0; i<tamano; i++){
         Matriz temporal = Matriz(filas,1);
         for(int j=0; j<filas;j++){
-            temporal(i,0) = random02();
+            temporal(j,0) = random02();
         }
         terminosIndependientes.push_back(temporal);
     }
