@@ -1,5 +1,4 @@
 #include "matriz.h"
-#include "fputils.h"
 
 using namespace std;
 
@@ -129,6 +128,16 @@ Matriz& Matriz::operator*(const Matriz &o) const {
     return *res;
 }
 
+Matriz& Matriz::operator*(const double c) const {
+    Matriz *res = new Matriz(filas(), columnas(), false);
+    for (int i = 0; i < res->filas(); ++i) {
+        for (int j = 0; j < res->columnas(); ++j) {
+            (*res)(i,j) = (*this)(i,j) * c;
+        }
+    }
+    return *res;
+}
+
 Matriz& Matriz::operator+(const Matriz &o) const {
     if (columnas() != o.columnas() || filas() != o.filas()) {
         throw domain_error("Error: la suma no esta definida para matrices de estas dimensiones");
@@ -137,16 +146,6 @@ Matriz& Matriz::operator+(const Matriz &o) const {
     for (int i = 0; i < res->filas(); ++i) {
         for (int j = 0; j < res->columnas(); ++j) {
             (*res)(i,j) = (*this)(i,j) + o(i,j);
-        }
-    }
-    return *res;
-}
-
-Matriz& Matriz::operator*(const double c) const {
-    Matriz *res = new Matriz(filas(), columnas(), false);
-    for (int i = 0; i < res->filas(); ++i) {
-        for (int j = 0; j < res->columnas(); ++j) {
-            (*res)(i,j) = (*this)(i,j) * c;
         }
     }
     return *res;
