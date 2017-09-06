@@ -38,17 +38,9 @@ double random02(){
     return randomNumber;
 }
 
-/*
-Matriz multiplicarPorTraspuesta(const Matriz &A) {
-    Matriz R(filas(A), vector<double>(filas(A), 0));
-    int N = filas(A);
-    int M = columnas(A);
-    for(int i=0; i<N; i++){
-        for(int j=0; j<=i; j++){
-            for(int k=0; k<j; k++) R[i][j] += A[i][k]*A[j][k];
-        }
-    }
-}*/
+double get_duration(clock_t start) {
+    return (clock() - start) / (double) CLOCKS_PER_SEC;
+}
 
 Matriz randomMatriz(int f, int c){
     int tamano = f*c;
@@ -145,6 +137,8 @@ int main() {
     cout << "Pasaron " << segs << " segundos.\n";
     return 0;*/
     
+    clock_t clock_start;
+    
     // 1. Calibracion del sistema
     
     int dirs_cant;
@@ -169,6 +163,8 @@ int main() {
 
     cout << "CALIBRACION DEL SISTEMA" << endl;
     cout << "Ingrese el archivo de texto de rutas del modelo mate: ";
+    clock_start = clock();
+    
     string mate_src_path;
     //cin >> mate_src_path;
     mate_src_path = "mate.txt"; cout << endl;
@@ -189,12 +185,14 @@ int main() {
         }
         mate_mask.cargarImagen(ruta);
     }
-    cout << "listo" << endl;
+    
+    cout << "listo (" << get_duration(clock_start) << " s)" << endl;
 
     
     // 1.2. Obtenencion de direcciones de iluminacion
     
     cout << "Obteniendo direcciones de iluminacion... " << flush;
+    clock_start = clock();
 
     pair<PPM::punto, PPM::punto> mate_mask_pts = mate_mask.generarMascara(); // obtengo puntos de la mascara
     int radio = (mate_mask_pts.second.x - mate_mask_pts.first.x + 1) / 2; // radio de la esfera
@@ -210,12 +208,13 @@ int main() {
         dirsI[i] = dirsI[i] * (1 / (double)radio); // normalizo el vector
     }
     
-    cout << "listo" << endl;
+    cout << "listo (" << get_duration(clock_start) << " s)" << endl;
 
 
     // 1.3. Eleccion de direcciones de iluminacion
     
     cout << "Seleccionando direcciones optimas... " << flush;
+    clock_start = clock();
 
     // Elijo las direcciones que formen la matriz con menor numero de condicion para minimizar errores de estimacion
     double min_num_cond = INFINITY;
@@ -247,7 +246,7 @@ int main() {
         }
     }
     
-    cout << "listo" << endl;
+    cout << "listo (" << get_duration(clock_start) << " s)" << endl;
 
     // Defino matriz S
     for (int i = 0; i < 3; ++i) {
@@ -257,6 +256,8 @@ int main() {
     
     // 1.4. Exportacion de datos de calibracion
     cout << "Guardando datos de calibracion... " << flush;
+    clock_start = clock();
+    
     ofstream calibracion_out;
     calibracion_out.open("calibracion.txt");
     calibracion_out << dirs_cant << '\n';
@@ -269,7 +270,7 @@ int main() {
     }
     calibracion_out.close();
     
-    cout << "listo" << endl;
+    cout << "listo (" << get_duration(clock_start) << " s)" << endl;
 
     cout << "Sistema calibrado existosamente" << endl << endl;
 
@@ -280,7 +281,7 @@ int main() {
     
     
     // 2.1. Lectura de imagenes del modelo a reconstruir
-    cout << "Reconstruccion del modelo 3D" << endl;
+    cout << "RECONSTRUICCION DEL MODELO 3D" << endl;
     cout << "Ingrese el archivo de texto de rutas del modelo a reconstruir: ";
     string modelo_src_path;
     //cin >> modelo_src_path;
