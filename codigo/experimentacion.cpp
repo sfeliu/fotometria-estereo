@@ -62,17 +62,14 @@ Matriz randomMatrizSDP(int n){
     return r1;
 }
 
-void testEliminacionGaussiana(vector<Matriz> terminosIndependientes){
-    //cout<<"Empezando prueba de eliminación gaussiana con " << terminosIndependientes.size() << " terminos independientes" << endl;
+void testEliminacionGaussiana(vector<Matriz> terminosIndependientes, int filas){
+    cout<<"Empezando prueba de eliminación gaussiana con " << terminosIndependientes.size() << " terminos independientes" << endl;
     int tamano = terminosIndependientes.size();
-    Matriz random = randomMatrizSDP(3);
+    Matriz random = randomMatrizSDP(filas);
     clock_t start = clock();
     for(int i=0;i<tamano;i++){
         random.eliminacionGaussiana(terminosIndependientes[i]);
         Matriz x; random.backwardSubstitution(x,terminosIndependientes[i]);
-        double norma2 = x.normaF();
-        if (!eq(norma2, 0))
-            x = (1/norma2) * x; // normalizo el vector para obtener la normal
     }
     clock_t end = clock();
     double segs = (double) (end - start) / CLOCKS_PER_SEC;
@@ -80,21 +77,17 @@ void testEliminacionGaussiana(vector<Matriz> terminosIndependientes){
 }
 
 
-void testFactorizacionCholesky(vector<Matriz> terminosIndependientes){
+void testFactorizacionCholesky(vector<Matriz> terminosIndependientes, int filas){
     cout<<"Empezando prueba de factorización de Chelosky con " << terminosIndependientes.size() << " terminos independientes" << endl;
     int tamano = terminosIndependientes.size();
-    Matriz random = randomMatrizSDP(3);
+    Matriz random = randomMatrizSDP(filas);
     clock_t start = clock();
     Matriz L, Lt;
     random.factorizacionCholesky(L);
     Lt = L.traspuesta();
     for(int i=0;i<tamano;i++){
-        Matriz m; L.forwardSubstitution(m, random); // resuelvo ecuacion Lm = Pb (m = Un)
+        Matriz m; L.forwardSubstitution(m, terminosIndependientes[i]); // resuelvo ecuacion Lm = Pb (m = Un)
         Matriz n; Lt.backwardSubstitution(n, m); // resuelvo ecuacion Un = m
-        random.eliminacionGaussiana(terminosIndependientes[i]);
-        double norma2 = n.normaF();
-        if (!eq(norma2, 0))
-            n = (1/norma2) * n; // normalizo el vector para obtener la normal
     }
     clock_t end = clock();
     double segs = (double) (end - start) / CLOCKS_PER_SEC;
@@ -102,10 +95,10 @@ void testFactorizacionCholesky(vector<Matriz> terminosIndependientes){
 }
 
 
-void testFactorizacionLU(vector<Matriz> terminosIndependientes){
+void testFactorizacionLU(vector<Matriz> terminosIndependientes, int filas){
     cout<<"Empezando prueba de factorización LU con " << terminosIndependientes.size() << " terminos independientes" << endl;
     int tamano = terminosIndependientes.size();
-    Matriz random = randomMatrizSDP(3);
+    Matriz random = randomMatrizSDP(filas);
     clock_t start = clock();
     Matriz L,P,U;
     random.factorizacionPLU(P,L,U);
@@ -113,9 +106,6 @@ void testFactorizacionLU(vector<Matriz> terminosIndependientes){
         Matriz Pb = P * terminosIndependientes[i];
         Matriz m; L.forwardSubstitution(m, Pb); // resuelvo ecuacion Lm = Pb (m = Un)
         Matriz n; U.backwardSubstitution(n, m); // resuelvo ecuacion Un = m
-        double norma2 = n.normaF();
-        if (!eq(norma2, 0))
-            n = (1/norma2) * n; // normalizo el vector para obtener la normal
     }
     clock_t end = clock();
     double segs = (double) (end - start) / CLOCKS_PER_SEC;
@@ -123,26 +113,29 @@ void testFactorizacionLU(vector<Matriz> terminosIndependientes){
 }
 
 int main(){
-    int tamano = 500;
-    //cout<<"Coloque la cantidad de terminos independientes que quiera testear: ";
-    //cin >> tamano;
+    int tamano = 1000;
+    int filas = 100;
+    cout<<"Coloque la cantidad de terminos independientes que quiera testear: ";
+    cin >> tamano;
+    cout<<"Coloque la cantidad de filas de la matriz que quiera testear: ";
+    cin >> filas;
     vector<Matriz> terminosIndependientes;
     for(int i=0; i<tamano; i++){
-        Matriz temporal = Matriz(3,1);
-        temporal(0,0) = random02();
-        temporal(1,0) = random02();
-        temporal(2,0) = random02();
+        Matriz temporal = Matriz(filas,1);
+        for(int j=0; j<filas;j++){
+            temporal(i,0) = random02();
+        }
         terminosIndependientes.push_back(temporal);
     }
-    //cout<<endl<<"Ingrese el número del que se quiera testear: eliminación gaussiana: 1 - factorización LU: 2 - factorización Cholesky: 3"<< endl;
-    int modo = 1;
-    //cin >> modo;
+    cout<<endl<<"Ingrese el número del que se quiera testear: eliminación gaussiana: 1 - factorización LU: 2 - factorización Cholesky: 3"<< endl;
+    int modo = 3;
+    cin >> modo;
     if(modo == 1){
-        testEliminacionGaussiana(terminosIndependientes);
+        testEliminacionGaussiana(terminosIndependientes, filas);
     }else if(modo == 2){
-        testFactorizacionLU(terminosIndependientes);
+        testFactorizacionLU(terminosIndependientes, filas);
     }else{
-        testFactorizacionCholesky(terminosIndependientes);
+        testFactorizacionCholesky(terminosIndependientes, filas);
     }
     return 0;
 }
