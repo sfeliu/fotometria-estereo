@@ -318,7 +318,7 @@ Matriz& Matriz::factorizacionCholesky(Matriz &L) const {
         for (int i = j+1; i < n; ++i) {
             L(i,j) = (*this)(i,j);
             for (int k = 0; k < j; ++k)
-                L(j,j) -= pow(L(i,k)*L(j,k), 2);
+                L(i,j) -= L(i,k)*L(j,k);
             L(i,j) /= L(j,j);
         }
     }
@@ -340,7 +340,7 @@ Matriz& Matriz::factorizacionCholeskyBanda(const int p, Matriz &L) const {
         for (int i = j+1; i < min(n, j+p+1); ++i) {
             L(i,j) = (*this)(i,j);
             for (int k = max(0, i-p); k < j; ++k)
-                L(j,j) -= pow(L(i,k)*L(j,k), 2);
+                L(i,j) -= L(i,k)*L(j,k);
             L(i,j) /= L(j,j);
         }
     }

@@ -102,7 +102,7 @@ int main() {
         mate_mask.cargarImagen(ruta);
     }
 
-    cout << "listo (" << get_duration(clock_start) << " s)" << endl;
+    cout << "listo. [" << get_duration(clock_start) << " s]" << endl;
 
 
     // 1.2. Obtenencion de direcciones de iluminacion
@@ -124,7 +124,7 @@ int main() {
         dirsI[i] = dirsI[i] * (1 / (double)radio); // normalizo el vector
     }
 
-    cout << "listo (" << get_duration(clock_start) << " s)" << endl;
+    cout << "listo. [" << get_duration(clock_start) << " s]" << endl;
 
 
     // 1.3. Eleccion de direcciones de iluminacion
@@ -165,7 +165,7 @@ int main() {
     if (min_num_cond == INFINITY)
         throw runtime_error("ERROR: no hay direcciones de luz linealmente independientes");
 
-    cout << "listo (" << get_duration(clock_start) << " s)" << endl;
+    cout << "listo. [" << get_duration(clock_start) << " s]" << endl;
 
     // Defino matriz S
     for (int i = 0; i < 3; ++i) {
@@ -189,7 +189,7 @@ int main() {
     }
     calibracion_out.close();
 
-    cout << "listo (" << get_duration(clock_start) << " s)" << endl;
+    cout << "listo. [" << get_duration(clock_start) << " s]" << endl;
 
     cout << "Sistema calibrado existosamente" << endl << endl;
 
@@ -231,7 +231,7 @@ int main() {
         modelo_mask.cargarImagen(ruta); // cargar mascara
     }
 
-    cout << "listo (" << get_duration(clock_start) << " s)" << endl;
+    cout << "listo. [" << get_duration(clock_start) << " s]" << endl;
 
 
     // 2.2. Obtencion de normales
@@ -290,7 +290,7 @@ int main() {
     normales_y.close();
     normales_z.close();
 
-    cout << "listo (" << get_duration(clock_start) << " s)" << endl;
+    cout << "listo. [" << get_duration(clock_start) << " s]" << endl;
 
 
     // 2.3 Estimacion de profundidades
@@ -322,21 +322,21 @@ int main() {
     cout << endl << "Computando matriz A... " << flush;
     clock_start = clock();
     MatrizEsparza &A = M_t.multiplicarPorTraspuestaBanda(N, w);
-    cout << "listo (" << get_duration(clock_start) << "s)" << endl;
+    cout << "listo. [" << get_duration(clock_start) << " s]" << endl;
     // Resuelvo la ecuacion con factorizacion Cholesky: Ax = b <=> LL_tx = b
     MatrizEsparza L, Q;
     MatrizEsparza B = A;
     cout << "Obteniendo factorizacion Cholesky... " << flush;
     clock_start = clock();
     A.factorizacionCholeskyBanda(w, L);
-    cout << "listo (" << get_duration(clock_start) << "s)" << endl;
+    cout << "listo. [" << get_duration(clock_start) << " s]" << endl;
     cout << "Hallandos solucion..." << flush;
     clock_start = clock();
     MatrizEsparza y(N, 1);
     L.forwardSubstitution(y, b); // resuelvo ecuacion Ly = b donde y = L_tx
     MatrizEsparza x(N, 1);
     L.trasponer().backwardSubstitution(x, y); // resuelvo ecuacion L_tx = y*/
-    cout << "listo (" << get_duration(clock_start) << "s)" << endl;
+    cout << "listo. [" << get_duration(clock_start) << " s]" << endl;
 
 
     // Exporto profundidades
@@ -349,7 +349,7 @@ int main() {
 
     profundidades.close();
 
-    //cout << "listo (" << get_duration(clock_start) << " s)" << endl;
+    //cout << "listo. [" << get_duration(clock_start) << " s]" << endl;
 
     cout << "Modelo reconstruido exitosamente" << endl;
 

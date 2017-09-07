@@ -18,6 +18,8 @@ class MatrizEsparza {
         void swap(MatrizEsparza &o);
         double& elem(const int i, const int j);
         double operator()(const int i, const int j) const;
+        bool operator==(const MatrizEsparza &o) const;
+        bool operator!=(const MatrizEsparza &o) const;
         MatrizEsparza& operator*(const MatrizEsparza &o) const;
 
         MatrizEsparza& trasponer();

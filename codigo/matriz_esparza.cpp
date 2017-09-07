@@ -40,6 +40,22 @@ double MatrizEsparza::operator()(const int i, const int j) const {
     return it == _dicc.end() ? 0 : it->second;
 }
 
+bool MatrizEsparza::operator==(const MatrizEsparza &o) const {
+    if (filas() != o.filas() || columnas() != o.columnas())
+        return false;
+    for (int i = 0; i < filas(); ++i) {
+        for (int j = 0; j < columnas(); ++j) {
+            if (!eq((*this)(i,j), o(i,j)))
+                return false;
+        }
+    }
+    return true;
+}
+
+bool MatrizEsparza::operator!=(const MatrizEsparza &o) const {
+    return !(*this == o);
+}
+
 MatrizEsparza& MatrizEsparza::operator*(const MatrizEsparza &o) const {
     if (columnas() != o.filas()) {
         throw domain_error("Error: la multiplicación no esta definida para matrices de estas dimensiones");
@@ -126,7 +142,7 @@ MatrizEsparza& MatrizEsparza::factorizacionCholesky(MatrizEsparza &L) const {
         for (int i = j+1; i < n; ++i) {
             L.elem(i,j) = (*this)(i,j);
             for (int k = 0; k < j; ++k)
-                L.elem(j,j) -= pow(L(i,k)*L(j,k), 2);
+                L.elem(i,j) -= L(i,k)*L(j,k);
             L.elem(i,j) /= L(j,j);
         }
     }
@@ -148,7 +164,7 @@ MatrizEsparza& MatrizEsparza::factorizacionCholeskyBanda(const int p, MatrizEspa
         for (int i = j+1; i < min(n, j+p+1); ++i) {
             L.elem(i,j) = (*this)(i,j);
             for (int k = max(0, i-p); k < j; ++k)
-                L.elem(j,j) -= pow(L(i,k)*L(j,k), 2);
+                L.elem(i,j) -= L(i,k)*L(j,k);
             L.elem(i,j) /= L(j,j);
         }
     }
