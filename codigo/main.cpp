@@ -8,6 +8,7 @@
 #include <cstring>
 #include <ctime>
 #include <stdexcept>
+#include <set>
 
 double get_duration(clock_t start) {
     return (clock() - start) / (double) CLOCKS_PER_SEC;
@@ -242,10 +243,10 @@ int main() {
     pair<PPM::punto, PPM::punto> modelo_mask_pts = modelo_mask.generarMascara(); // obtengo puntos de la mascara
     int w = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1; // ancho de mascara
     int h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1; // alto de mascara
-    /*modelo_mask_pts.second.x -= w*0.90;
-    modelo_mask_pts.second.y -= h*0.90;
+    modelo_mask_pts.second.x -= w*0.50;
+    modelo_mask_pts.second.y -= h*0.50;
     w = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1;
-    h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1;*/
+    h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1;
     int N = w*h; // cantidad total de pixeles en la mascara
     vector<Matriz> normales(N);
 
@@ -316,12 +317,38 @@ int main() {
         v.elem(f+1,0) = -normales[i](1,0);
     }
 
+    //cout << endl;
+    //M.print();
     // Obtengo matrices A y b de ecuacion 15
     MatrizEsparza &M_t = M.trasponer();
     MatrizEsparza b = M_t*v;
     cout << endl << "Computando matriz A... " << flush;
     clock_start = clock();
-    MatrizEsparza &A = M_t.multiplicarPorTraspuestaBanda(N, w);
+    //MatrizEsparza &A = M_t.multiplicarPorTraspuestaBanda(N, w);
+    // Hago M_t * M
+    MatrizEsparza A(M_t.filas());
+    for (int i = 0; i < N; ++i) {
+        for (int j = i; j < min(N, i+w+1); ++j) {
+            // Obtengo las columnas a multiplicar de las filas
+            set<int> cols;
+            // Columnas de fila i
+            int ec1_i = 2*i - (i % 2);
+            cols.insert(ec1_i);
+            cols.insert(ec1_i + 1);
+            if (ec1_i - 2 >= 0) cols.insert(ec1_i - 2);
+            if (ec1_i - 2*w - 1 >= 0) cols.insert(ec1_i - 2*w - 1);
+            // Columnas de fila j
+            int ec1_j = 2*j - (j % 2);
+            cols.insert(ec1_j);
+            cols.insert(ec1_j + 1);
+            if (ec1_j - 2 >= 0) cols.insert(ec1_j - 2);
+            if (ec1_j - 2*w - 1 >= 0) cols.insert(ec1_j - 2*w - 1);
+            // Multiplico las filas
+            for (set<int>::iterator it = cols.begin(); it != cols.end(); ++it) {
+                A.elem(i,j) += M_t(i,*it) * M_t(j,*it);
+            }
+        }
+    }
     cout << "listo. [" << get_duration(clock_start) << " s]" << endl;
     // Resuelvo la ecuacion con factorizacion Cholesky: Ax = b <=> LL_tx = b
     MatrizEsparza L, Q;
