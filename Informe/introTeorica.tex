@@ -1,24 +1,6 @@
-El foco de este trabajo practico es la resolucion de sistmas de ecuaciones lineales. La idea principal de la resolucion de dichos sistemas es despejar todas sus variables. 
-En este trabajo utilizamos multiples metods numericos que simplifican la tarea de encontrar la solucion de estos sistemas. 
-El metodo mas comun es el de eliminacion gaussiana que consiste en aplicar tres operaciones basicas una cantidad finita de veces para transormar al sistema de ecuaciones en otro equivalente(traingula el sistema) donde despejar las incognitas es una tarea trivial utilizando "backwards substitution". 
-Estas tres operaciones basicas son multiplicar una fila por un escalar, sumar o restar un multiplo de una fila con otra y intercambiar filas. 
-Siempre teniendo en cuenta que una fila no denota solo los coeficientes de las variables de una ecuacion sino tambien su termino independiente.\par
-\indent Aunque el metodo de eliminacion gaussiana es muy comun y bastante simple de implementar su complejidad temporal es O($n^{3}$) y cuando tenemos que resolver multiples sistema de ecuaciones lineales esta complejida no es tan buena. 
 
-Encontrar la factorizacion LU de una matriz tiene costo O($n^{3}$), la resolucion del sistema A$x$ = LU$x$ = b tiene costo O($n^{2}$), lo cual hace que en las situaciones donde hay que resolver muchas veces el sistema Ax = b para diferentes b sea mucho mas eficiente que utilizar el algoritmo de eliminacion de gauss. 
-La demostracion de porque los algoritmos de eliminacion guassiana y el de factorizacion LU tienen complejidad O($n^{3}$) y O($n^{2}$) respectivamente, se puede ver en el libro Numerical Analysis de Burden. \par
-\indent La existencia de la factorizacion LU no esta garantizada para cualquier matriz. 
-Dada una matriz inversible, las condiciones necesarias y suficientes para que exista la factorizacion LU son que no aparezca un zero como pivote en cada iteracion del algoritmo de eliminacion de gauss o que todas las submatrices principales sean inversibles.\par
-Aunque la factorizacion LU no siempre existe, la factorizacion PLU si. 
-Esta factorizacion consiste de tres matrices cuadradas P , L y U donde L es una matriz triangular inferior y U es  una matriz triangular superior.  
-La matriz P es designada una matriz de permutacion que es necesaria cuando al aplicar la eliminacion de gauss hace falta hacer intercambios de filas.
-Una propiedad importante de la matriz P es que siempre existe su inversa, $P^{-1}$, y ademas $P^{-1}$ = $P^{t}$. \par
 \indent Un problema que no debe pasar desapercibido cuando trabajamos con operaciones aritmeticas en la computadora es el de perdida de digitos significativos. 
 Esto ocurre porque la computadora trabaja con aritmetica de digitos finitos lo cual quiere decir que la representacion de los numeros en la computadora tienen una cantidad de digitos finitos para ser representados. 
 Los errores mas comunes son el error de redondeo, el de cancelacion catastrofica y el error que obtenemos al dividir por un numero muy pequeno. 
 El error de redondeo ocurre cuando trabajamos con un numero cuya representacion requiere mas digitos de los que disponemos en la computadora. 
-El error de cancelacion catastrofica surge cuando restamos dos numeros que son tan parecidos que se se pierden demaciados digitos significativos.\par
-\indent En los algoritmos que nosotros implementamos abordar este problema es imprescindible ya que al computar el algoritmo de eliminacion de gauss se hacen alrededor de $n^{3}$ sumas, restas, diviciones y multiplicaciones, donde n es la cantidad de filas y columnas de la matriz asociada al sistema. 
-La mejor forma que nosotros encontramos de acotar este tipo de errores es implementado el metodo de pivoteo parcial en nuestro algoritmo de eliminacion gaussiana.\par
-\indent Otra factorizacion de matrices que utilizamos es la factorizacion $LL^{t}$, conocida como factorizacion de cholesky. Hay dos condiciones que tiene que cumplir una matriz para garantizar la existencia de esta factorizacion. 
-Primero que sea simetrica y segundo que sea definida-positiva. Se dice que una matriz es definida positiva cuando $x^{t}Ax$ $>$ 0 $\forall$ x $\in$ ${\rm I\!R}^{nxn}$.
+El error de cancelacion catastrofica surge cuando restamos dos numeros que son tan parecidos que se se pierden demaciados digitos significativos.
