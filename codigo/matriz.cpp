@@ -201,10 +201,9 @@ double Matriz::normaF() const {
 }
 
 Matriz& Matriz::multiplicarPorTraspuesta() {
-    Matriz A(filas(), filas(), false);
+    Matriz A(filas());
     for (int i = 0; i < A.filas(); ++i) {
-        for (int j = i; j < A.columnas(); ++j) {
-            A(i,j) = 0;
+        for (int j = i; j < A.filas(); ++j) {
             for (int k = 0; k < columnas(); ++k)
                 A(i,j) += (*this)(i,k) * (*this)(j,k);
             A(j,i) = A(i,j);
@@ -217,8 +216,9 @@ Matriz& Matriz::multiplicarPorTraspuesta() {
 Matriz& Matriz::multiplicarPorTraspuestaBanda(const int p, const int q) {
     _verificarBanda(p, q);
     Matriz A(filas());
-    for (int i = 0; i < A.filas(); ++i) {
-        for (int j = i; j < A.columnas(); ++j) {
+    int h = filas() <= columnas() ? filas() : min(filas(), columnas() + q);
+    for (int i = 0; i < h; ++i) {
+        for (int j = i; j < min(h, i+q+1); ++j) {
             for (int k = max(0, max(i,j)-q); k < min(columnas(), min(i,j)+p+1); ++k)
                 A(i,j) += (*this)(i,k) * (*this)(j,k);
             A(j,i) = A(i,j);

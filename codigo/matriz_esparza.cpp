@@ -158,8 +158,10 @@ MatrizEsparza& MatrizEsparza::factorizacionCholeskyBanda(const int p, MatrizEspa
 MatrizEsparza& MatrizEsparza::multiplicarPorTraspuestaBanda(const int p, const int q) {
     _verificarBanda(p, q);
     MatrizEsparza A(filas());
-    for (int i = 0; i < A.filas(); ++i) {
-        for (int j = i; j < A.columnas(); ++j) {
+    int h = filas() <= columnas() ? filas() : min(filas(), columnas() + q);
+    for (int i = 0; i < h; ++i) {
+        for (int j = i; j < min(h, i+q+1); ++j) {
+            A.elem(i,j) = 0;
             for (int k = max(0, max(i,j)-q); k < min(columnas(), min(i,j)+p+1); ++k)
                 A.elem(i,j) += (*this)(i,k) * (*this)(j,k);
             A.elem(j,i) = A(i,j);

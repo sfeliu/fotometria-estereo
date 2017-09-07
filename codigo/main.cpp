@@ -82,7 +82,7 @@ int main() {
 
     string mate_src_path;
     //cin >> mate_src_path;
-    mate_src_path = "/Users/pablo2martin/Metodos_TP1/codigo/mate.txt"; cout << endl;
+    mate_src_path = "mate.txt"; cout << endl;
     cout << "Cargando imagenes... " << flush;
     clock_start = clock();
 
@@ -205,7 +205,7 @@ int main() {
 
     string modelo_src_path;
     //cin >> modelo_src_path;
-    modelo_src_path = "/Users/pablo2martin/Metodos_TP1/codigo/caballo.txt"; cout << endl;
+    modelo_src_path = "caballo.txt"; cout << endl;
     cout << "Cargando imagenes... " << flush;
     clock_start = clock();
 
@@ -242,8 +242,8 @@ int main() {
     pair<PPM::punto, PPM::punto> modelo_mask_pts = modelo_mask.generarMascara(); // obtengo puntos de la mascara
     int w = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1; // ancho de mascara
     int h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1; // alto de mascara
-    modelo_mask_pts.second.x -= w*0.9;
-    modelo_mask_pts.second.y -= h*0.9;
+    modelo_mask_pts.second.x -= w*0.95;
+    modelo_mask_pts.second.y -= h*0.95;
     w = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1;
     h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1;
     int N = w*h; // cantidad total de pixeles en la mascara
@@ -319,37 +319,37 @@ int main() {
     // Obtengo matrices A y b de ecuacion 15
     MatrizEsparza &M_t = M.trasponer();
     MatrizEsparza b = M_t*v;
+    cout << endl << "Computando matriz A... " << flush;
+    clock_start = clock();
     MatrizEsparza &A = M_t.multiplicarPorTraspuestaBanda(N, w);
-
+    cout << "listo (" << get_duration(clock_start) << "s)" << endl;
     // Resuelvo la ecuacion con factorizacion Cholesky: Ax = b <=> LL_tx = b
     MatrizEsparza L, Q;
     MatrizEsparza B = A;
-    clock_t start1 = clock();
+    cout << "Obteniendo factorizacion Cholesky... " << flush;
+    clock_start = clock();
     A.factorizacionCholeskyBanda(w, L);
-    /*cout << endl << "NO BANDA: " << (clock()-start1) << endl;
-    clock_t start2 = clock();
-    B.factorizacionCholeskyBanda(N, Q);
-    cout << "BANDA: " << (clock()-start2) << endl;
-    if (L != Q) throw runtime_error("NO SON IGUALES");*/
-    MatrizEsparza y;
+    cout << "listo (" << get_duration(clock_start) << "s)" << endl;
+    cout << "Hallandos solucion..." << flush;
+    clock_start = clock();
+    MatrizEsparza y(N, 1);
     L.forwardSubstitution(y, b); // resuelvo ecuacion Ly = b donde y = L_tx
-    MatrizEsparza x;
+    MatrizEsparza x(N, 1);
     L.trasponer().backwardSubstitution(x, y); // resuelvo ecuacion L_tx = y*/
+    cout << "listo (" << get_duration(clock_start) << "s)" << endl;
 
 
     // Exporto profundidades
     ofstream profundidades;
-    profundidades.open("/Users/pablo2martin/Metodos_TP1/codigo/profundidades.txt");
+    profundidades.open("profundidades.txt");
     for (int i = 0; i < x.filas(); ++i) {
-        for (int j = 0; j < x.columnas(); ++j) {
-            profundidades << x(i,j) << ' ';
-        }
-        profundidades << endl;
+        profundidades << x(i,0) << ' ';
+        if ((i+1) % w == 0) profundidades << endl;
     }
 
     profundidades.close();
 
-    cout << "listo (" << get_duration(clock_start) << " s)" << endl;
+    //cout << "listo (" << get_duration(clock_start) << " s)" << endl;
 
     cout << "Modelo reconstruido exitosamente" << endl;
 
