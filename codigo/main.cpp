@@ -242,10 +242,10 @@ int main() {
     pair<PPM::punto, PPM::punto> modelo_mask_pts = modelo_mask.generarMascara(); // obtengo puntos de la mascara
     int w = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1; // ancho de mascara
     int h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1; // alto de mascara
-    modelo_mask_pts.second.x -= w*0.95;
-    modelo_mask_pts.second.y -= h*0.95;
+    /*modelo_mask_pts.second.x -= w*0.90;
+    modelo_mask_pts.second.y -= h*0.90;
     w = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1;
-    h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1;
+    h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1;*/
     int N = w*h; // cantidad total de pixeles en la mascara
     vector<Matriz> normales(N);
 
@@ -335,7 +335,7 @@ int main() {
     MatrizEsparza y(N, 1);
     L.forwardSubstitution(y, b); // resuelvo ecuacion Ly = b donde y = L_tx
     MatrizEsparza x(N, 1);
-    L.trasponer().backwardSubstitution(x, y); // resuelvo ecuacion L_tx = y*/
+    L.trasponer().backwardSubstitution(x, y); // resuelvo ecuacion L_tx = y
     cout << "listo. [" << get_duration(clock_start) << " s]" << endl;
 
 
