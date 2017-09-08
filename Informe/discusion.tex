@@ -1,1 +1,31 @@
-Aca escribimos la discusion.
+\subsection{Calibraci\'on}
+
+\indent La imágen en la cual vimos la mayor diferencia es en Mate.6, d\'onde se observan esos factores de los que hablamos en el desarrollo, entre aquellos, las manchas de distinto color y la aureola de luz. P\'or ejemplo se ve el de vecindad 0 (p\'unto negro) bi\'en lejos de los demas, por lo claro de la mancha blanca. Las vecindades de 2 y 4 (rojo y verde) tambi\'en fueron corrompidos por el ruido, aunque llegaron un poco mas cerca. Luego a partir de los 6, 8 y 10 (az\'ul, amar\'illo y cian) se podria creer que llega a un lugar en donde por m\'as que agrandes el n\'umero de cantidad de vecindades no modificaria la posici\'on, tambi\'en vi\'endolo a simple vista se puede corroborar que es de d\'onde uno diria que proviene la luz.
+Luego en el pr\'oximo experimento se observa que al modificar la cantidad de vecindades repercute fuertemente en la realizacion del resto del modelo, ya que con una mala direcci\'on de la luz se perdera el efecto 3D. \par
+
+\subsection{Complejidades}
+
+\indent Nuestra hipotesís, y a partir de lo que nos comentaron en las clases era que los algoritmos de eliminación gaussiana, factorización LU y Cholesky iban a tener un orden de complejidad cúbico y cuadrado, respectivamente, lo que al ver los resultados de las experimentaciones nos dice lo contrario. Las complejidades nos resultaron lineales, lo cual al pensarlo un momento se nos ocurrio que lo que puede estar pasando es debido a que la pendiente crece poco, a lo que deber\'iamos utilizar una cantidad may\'or de t\'erminos independientes. Esto \'ultimo no lo pudimos comprobar por falta de tiempo.  \par
+
+
+\subsection{N\'umero de condici\'on}
+
+
+\indent Nuestra hipótesis de que el n\'umero de condici\'on afecta directamente la estimaci\'on de las normales se puede ver confirmada claramente en las im\'agen del caballo. El campo de normales del caballo  en las figuras 1  esta estimado con la elección de direcciones de iluminaci\'on que causan que la matriz de la ecuaci\'on 5 tenga el m\'aximo n\'umero de condici\'on en comparaci\'on a todas las otras posibles combinaciones de direcciones. En contraste la figura 2 utiliza la conbinaci\'on de direcciones de iluminaci\'on que generan la matriz con el mejor n\'umero de condici\'on. Esto se da porque un n\'umero de condici\'on alto implica que las direcciones de iluminación est\'an apuntando desde una posici\'on muy similar lo cual es equivalente a tener una sola direcci\'on para generar las normales y tambi\'en las profundidades. \par
+
+\subsection{RGB}
+
+\indent La visi\'on humana tiende a diferenciar m\'as escalas de verde lo cual hace que al hacer un promedio ponderado para el color verde se obtengan mejores resultados. Esto lo tomamos en cuenta al momento de promediar los colores de los pixeles para buscar la direcci\'on proveniente de la luz. Al no poder encontrar una gran diferencia, decidimos utilizarlo.
+(lo cuales no pudimos verlos en las imagenes que probamos)
+
+//¿Como afectan la estimacion de las profundidades el calculo de las normales?
+
+
+//¿Que metodos de solucion de los sistemas lineales arrojan mejores calculos de profundidades?
+
+Aca escribimos las conclusiones.
+¿Como afecta la calibracion del sistema en el resto de las etapas?
+La calibracion es la parte inicial y fundamental para la resolucion de la reconstruccion 3D, ya que en ella obtenemos las direcciones de fuente de luz que afectara directamente al resultado, independientemente de que tan bueno sea el algoritmo para resolver sistemas lineales o estimar valores.
+
+¿Como impacta la eleccion de las 3 direcciones de iluminacion para el calculo de las normales?
+la eleccion de las direcciones de iluminacion afectara directamente a las normales ya que se aproximan apartir de ellas y si la matriz esta mal condicionada dara resultados no muy buenos.
