@@ -206,7 +206,7 @@ int main() {
 
     string modelo_src_path;
     //cin >> modelo_src_path;
-    modelo_src_path = "buda.txt"; cout << endl;
+    modelo_src_path = "caballo.txt"; cout << endl;
     cout << "Cargando imagenes... " << flush;
     clock_start = clock();
 
@@ -243,8 +243,8 @@ int main() {
     pair<PPM::punto, PPM::punto> modelo_mask_pts = modelo_mask.generarMascara(); // obtengo puntos de la mascara
     int w = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1; // ancho de mascara
     int h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1; // alto de mascara
-    modelo_mask_pts.second.x -= w*0.9;
-    modelo_mask_pts.second.y -= h*0.9;
+    modelo_mask_pts.second.x -= w*0.986;
+    modelo_mask_pts.second.y -= h*0.986;
     w = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1;
     h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1;
     int N = w*h; // cantidad total de pixeles en la mascara
@@ -318,11 +318,11 @@ int main() {
     }
 
     // Obtengo matrices A y b de ecuacion 15
-    MatrizEsparza &M_t = M.trasponer();
 
     // Multiplico M_t por v
     cout << endl << "Multiplicando M_t por v... " << flush;
     clock_start = clock();
+    MatrizEsparza &M_t = M.trasponer();
     MatrizEsparza b(M_t.filas(), v.columnas());
     for (int i = 0; i < b.filas(); ++i) {
         for (int j = 0; j < b.columnas(); ++j) {
@@ -339,11 +339,10 @@ int main() {
             }
         }
     }
-    if (b != (M_t*v)) throw runtime_error("NO SON IGUALES");
 
     cout << endl << "Computando matriz A... " << flush;
     clock_start = clock();
-    //MatrizEsparza &A = M_t.multiplicarPorTraspuestaBanda(N, w);
+
     // Hago M_t * M
     MatrizEsparza A(M_t.filas());
     for (int i = 0; i < N; ++i) {
@@ -365,15 +364,37 @@ int main() {
             for (set<int>::iterator it = cols.begin(); it != cols.end(); ++it) {
                 A.elem(i,j) += M_t(i,*it) * M_t(j,*it);
             }
+            A.elem(j,i) = A(i,j);
         }
     }
+
     cout << "listo. [" << get_duration(clock_start) << " s]" << endl;
     // Resuelvo la ecuacion con factorizacion Cholesky: Ax = b <=> LL_tx = b
-    MatrizEsparza L, Q;
+    //MatrizEsparza L, Q;
     MatrizEsparza B = A;
     cout << "Obteniendo factorizacion Cholesky... " << flush;
     clock_start = clock();
-    A.factorizacionCholeskyBanda(w, L);
+    MatrizEsparza Q;
+    A.factorizacionCholeskyBanda(w, Q);
+    //A.factorizacionCholeskyBanda(w, L);
+    MatrizEsparza L = MatrizEsparza(N);
+    for (int j = 0; j < N; ++j) {
+        L.elem(j,j) = A(j,j);
+        for (int k = max(0, j-w); k < j; ++k)
+            L.elem(j,j) -= pow(L(j,k), 2);
+        if (leq(L(j,j), 0))
+            throw domain_error("La matriz no tiene factorizacion Cholesky.");
+        L.elem(j,j) = pow(L(j,j), 0.5);
+        vector<int> filas;
+        if (j+1 < N) filas.push_back(j+1);
+        if (j+w < N) filas.push_back(j+w);
+        for (vector<int>::iterator it = filas.begin(); it != filas.end(); ++it) {
+            L.elem(*it,j) = A(*it,j) / L(j,j);
+        }
+    }
+    cout << endl;
+    Q.print();
+    if (L != Q) throw runtime_error("NO SON IGUALES");
     cout << "listo. [" << get_duration(clock_start) << " s]" << endl;
     cout << "Hallandos solucion..." << flush;
     clock_start = clock();
