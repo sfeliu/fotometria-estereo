@@ -22,7 +22,7 @@ PPM::punto puntoDeMayorIntensidad(const PPM &ppm, pair<PPM::punto, PPM::punto> m
     // Recorro la imagen (usando la maskara) y voy guardando los puntos de mayor intensidad
     for (int y = mask.first.y; y < mask.second.y; ++y) {
         for (int x = mask.first.x; x < mask.second.x; ++x) {
-            double intensidad = ppm.intensidadEnVecindad(x, y, 4);
+            double intensidad = ppm.intensidadEnVecindad(x, y, 6);
             //double intensidad = ppm.intensidad(x, y);
             if (eq(intensidadMax, intensidad)) {
                 // Si la siguiente posicion esta definida, le asigno el valor directamente
@@ -206,7 +206,7 @@ int main() {
 
     string modelo_src_path;
     //cin >> modelo_src_path;
-    modelo_src_path = "caballo.txt"; cout << endl;
+    modelo_src_path = "buda.txt"; cout << endl;
     cout << "Cargando imagenes... " << flush;
     clock_start = clock();
 
@@ -243,8 +243,8 @@ int main() {
     pair<PPM::punto, PPM::punto> modelo_mask_pts = modelo_mask.generarMascara(); // obtengo puntos de la mascara
     int w = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1; // ancho de mascara
     int h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1; // alto de mascara
-    modelo_mask_pts.second.x -= w*0.50;
-    modelo_mask_pts.second.y -= h*0.50;
+    modelo_mask_pts.second.x -= w*0.9;
+    modelo_mask_pts.second.y -= h*0.9;
     w = modelo_mask_pts.second.x - modelo_mask_pts.first.x + 1;
     h = modelo_mask_pts.second.y - modelo_mask_pts.first.y + 1;
     int N = w*h; // cantidad total de pixeles en la mascara
@@ -252,9 +252,9 @@ int main() {
 
     // Creo archivos de texto para guardar los datos
     ofstream normales_x, normales_y, normales_z;
-    normales_x.open("ejemplo2/normalesX.txt");
-    normales_y.open("ejemplo2/normalesY.txt");
-    normales_z.open("ejemplo2/normalesZ.txt");
+    normales_x.open("normalesX.txt");
+    normales_y.open("normalesY.txt");
+    normales_z.open("normalesZ.txt");
 
     // Obtengo la factorizacion PLU de S
     {
@@ -317,11 +317,30 @@ int main() {
         v.elem(f+1,0) = -normales[i](1,0);
     }
 
-    //cout << endl;
-    //M.print();
     // Obtengo matrices A y b de ecuacion 15
     MatrizEsparza &M_t = M.trasponer();
-    MatrizEsparza b = M_t*v;
+
+    // Multiplico M_t por v
+    cout << endl << "Multiplicando M_t por v... " << flush;
+    clock_start = clock();
+    MatrizEsparza b(M_t.filas(), v.columnas());
+    for (int i = 0; i < b.filas(); ++i) {
+        for (int j = 0; j < b.columnas(); ++j) {
+            // Obtengo las columnas no nulas de la fila i de M_t
+            vector<int> cols;
+            int ec1_i = 2*i;
+            cols.push_back(ec1_i);
+            cols.push_back(ec1_i + 1);
+            if (ec1_i - 2 >= 0) cols.push_back(ec1_i - 2);
+            if (ec1_i - 2*w + 1 >= 0) cols.push_back(ec1_i - 2*w + 1);
+            // Multiplico las filas
+            for (vector<int>::iterator it = cols.begin(); it != cols.end(); ++it) {
+                b.elem(i,j) += M_t(i,*it) * v(*it, j);
+            }
+        }
+    }
+    if (b != (M_t*v)) throw runtime_error("NO SON IGUALES");
+
     cout << endl << "Computando matriz A... " << flush;
     clock_start = clock();
     //MatrizEsparza &A = M_t.multiplicarPorTraspuestaBanda(N, w);
@@ -329,20 +348,19 @@ int main() {
     MatrizEsparza A(M_t.filas());
     for (int i = 0; i < N; ++i) {
         for (int j = i; j < min(N, i+w+1); ++j) {
-            // Obtengo las columnas a multiplicar de las filas
             set<int> cols;
-            // Columnas de fila i
+            // Obtengo las columnas no nulas de la fila i
             int ec1_i = 2*i - (i % 2);
             cols.insert(ec1_i);
             cols.insert(ec1_i + 1);
             if (ec1_i - 2 >= 0) cols.insert(ec1_i - 2);
-            if (ec1_i - 2*w - 1 >= 0) cols.insert(ec1_i - 2*w - 1);
-            // Columnas de fila j
+            if (ec1_i - 2*w + 1 >= 0) cols.insert(ec1_i - 2*w + 1);
+            // Obtengo las columnas no nulas de la fila j
             int ec1_j = 2*j - (j % 2);
             cols.insert(ec1_j);
             cols.insert(ec1_j + 1);
             if (ec1_j - 2 >= 0) cols.insert(ec1_j - 2);
-            if (ec1_j - 2*w - 1 >= 0) cols.insert(ec1_j - 2*w - 1);
+            if (ec1_j - 2*w + 1 >= 0) cols.insert(ec1_j - 2*w + 1);
             // Multiplico las filas
             for (set<int>::iterator it = cols.begin(); it != cols.end(); ++it) {
                 A.elem(i,j) += M_t(i,*it) * M_t(j,*it);
@@ -367,14 +385,14 @@ int main() {
 
 
     // Exporto profundidades
-    ofstream profundidades;
+    /*ofstream profundidades;
     profundidades.open("profundidades.txt");
     for (int i = 0; i < x.filas(); ++i) {
         profundidades << x(i,0) << ' ';
         if ((i+1) % w == 0) profundidades << endl;
     }
 
-    profundidades.close();
+    profundidades.close();*/
 
     //cout << "listo. [" << get_duration(clock_start) << " s]" << endl;
 
