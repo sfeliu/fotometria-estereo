@@ -350,13 +350,13 @@ int main() {
         for (int j = i; j < min(N, i+w+1); ++j) {
             set<int> cols;
             // Obtengo las columnas no nulas de la fila i
-            int ec1_i = 2*i - (i % 2);
+            int ec1_i = 2*i;
             cols.insert(ec1_i);
             cols.insert(ec1_i + 1);
             if (ec1_i - 2 >= 0) cols.insert(ec1_i - 2);
             if (ec1_i - 2*w + 1 >= 0) cols.insert(ec1_i - 2*w + 1);
             // Obtengo las columnas no nulas de la fila j
-            int ec1_j = 2*j - (j % 2);
+            int ec1_j = 2*j;
             cols.insert(ec1_j);
             cols.insert(ec1_j + 1);
             if (ec1_j - 2 >= 0) cols.insert(ec1_j - 2);
