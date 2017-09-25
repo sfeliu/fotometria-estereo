@@ -1,0 +1,48 @@
+
+\subsection{Fundamento ge\'ometrico'}
+Dado que la superficie del modelo en mate es Lambertiana tiene la propiedad de que absorbe la luz uniformemente en cada punto, con lo cual la normal en el punto con mayor intensidad de luz de la superficie corresponde con la direcci\'on de la iluminaci\'on. Usamos para la calibraci\'on el modelo de la esfera porque al conocer su geometria y las intensidades en cualquier parte de su superficie podemos calcular las normales en todo punto.
+
+Utilizaremos la tecnica de fotometria estereo que nos permite medir la posicion y distancia de los objetos con respecto al sensor(camara), es decir, obtener las coordenadas x,y,z basandonos unicamente en las propiedades reflectivas de la luz, para objetos no especualares y en un ambiente con iluminacion controlada.
+
+
+\subsection{Fundamentos de los m\'etodos num\'ericos involucrados en el trabajo}
+
+
+El foco de este trabajo pr\'actico es la resoluci\'on de sistemas de ecuaciones lineales.
+En este trabajo utilizamos multiples m\'etodos num\'ericos que simplifican la tarea de encontrar la soluci\'on de estos sistemas. 
+El m\'etodo mas com\'un es el de eliminaci\'on gaussiana para transormar al sistema de ecuaciones en otro equivalente(triangula el sistema) donde se pueden despejar las incognitas utilizando "backwards substitution". 
+Estas tres operaciones basicas son multiplicar una fila por un escalar, sumar o restar un multiplo de una fila con otra y intercambiar filas. Siempre teniendo en cuenta que una fila no denota solo los coeficientes de las variables de una ecuacion sino tambien su termino independiente.
+
+
+
+
+\subsubsection{Introducci\'on Te\'orica de algoritmos utilizados}
+
+En el desarrollo se usan diferentes metodos para resolver sistemas lineales, algunos mejores que otros, siempre tratando de no perder presicion por errores de redondeo u otros incombenientes.
+Los algoritmos que usamos son el algoritmo de eliminacion gaussiana, factorizacion LU, factorizacion de cholesky u otras variantes de ellos.
+Un problema que no debe pasar desapercibido cuando trabajamos con operaciones aritmeticas en la computadora es el de perdida de digitos significativos. Esto ocurre porque la computadora trabaja con aritmetica de digitos finitos lo cual quiere decir que la representacion de los numeros en la computadora tienen una cantidad de digitos finitos para ser representados.
+La mejor forma que nosotros encontramos de acotar este tipo de errores es implementado el metodo de pivoteo parcial en nuestro algoritmo de eliminacion gaussiana.
+
+\subsubsection{Eliminacion Gaussiana}
+El metodo de eliminacion gaussiana tiene complejidad temporal O($n^{3}$) y cuando tenemos que resolver multiples sistema de ecuaciones lineales esta complejida no es tan buena.
+En la division de los pivotes, se selecciona el mas grande de entre las filas mirando en esa columna, asi al dividir por el numero mas grande el error del numero al que estoy dividiendo, no se ve tan reflejado en las cuentas ya que estoy achicando el error o no lo estoy agrandando demasiado.
+
+
+\subsubsection{factorizacion LU}
+Encontrar la factorizacion LU de una matriz tiene costo O($n^{3}$), la resolucion del sistema A$x$ = LU$x$ = b tiene costo O($n^{2}$), lo cual hace que en las situaciones donde hay que resolver muchas veces el sistema Ax = b para diferentes b sea mucho mas eficiente que utilizar el algoritmo de eliminacion de gauss. 
+Tomamos la decision de usar la factorizacion PLU, ya que nos permite pivotear y es muy similar. 
+La existencia de la factorizacion LU no esta garantizada para cualquier matriz. Las condiciones necesarias y suficientes para que exista la factorizacion LU son que no aparezca un zero como pivote a lo largo de la factorizacion LU o que todas las submatrices principales sean inversibles. Aunque la factorizacion LU no siempre existe, la factorizacion PLU si.
+
+\subsubsection{Factorizacion Cholesky}
+Esta factorizacion se usa al obtener la matriz de pixeles para buscar las profundidades, y reescribir las ecuaciones para que la nueva matriz sea una matriz definida positiva, asegurando que existe la factorizacion cholesky para la matriz con la cual podemos trabajar ya que la solucion original al sistema no cambia.
+
+\subsubsection{Matrices Banda}
+En la construccion de la matrix de pixeles(para armar el espacio normal de ecuaciones), se puede armar la matriz de tal forma que quede una matriz banda, la cual hace que la matriz tenga muchos ceros y poder optimizar algunos algoritmos en funcion de eso.
+
+
+\subsubsection{Matrices Esparzas}
+Para la reconstruccion 3D, como las matrices con las que trabajamos son banda y esparzas podemos utilizar una estructura en la cual la matriz considere a los elementos que no son cero y asi disminuir la complejidad tanto temporal y espacial de los algoritmos 
+
+\subsubsection{Definiciones}
+Una matriz es simetrica y definida positiva <=> tiene factorizacion cholesky
+
