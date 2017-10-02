@@ -1,3 +1,6 @@
+El objetivo del siguiente trabajo es utilizar la tecnica de fotometria estereo para obtener modelos 3d a partir de imagenes en 2d. Esta t\'ecnica nos permite saber la distancia entre un objeto y la lente de la camara. Para poder lograrlo se nos brinda un set de imagenes especialmente tomadas, donde se encuentra un objeto central con distintos focos de luz.
+De esta manera debemos obtener las direcciones de luz de cada imagen asi lograr obtener un aproximado de la normal en cada punto de la imagen. Una vez teniendo las normales se procede a obtener la profundidad en cada pixel con la cual contruiremos el modelo.
+
 
 \subsection{Fundamento ge\'ometrico'}
 Dado que la superficie del modelo en mate es Lambertiana tiene la propiedad de que absorbe la luz uniformemente en cada punto, con lo cual la normal en el punto con mayor intensidad de luz de la superficie corresponde con la direcci\'on de la iluminaci\'on. Usamos para la calibraci\'on el modelo de la esfera porque al conocer su geometria y las intensidades en cualquier parte de su superficie podemos calcular las normales en todo punto.
