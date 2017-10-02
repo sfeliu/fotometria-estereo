@@ -21,11 +21,11 @@ Luego, para encontrar el punto mas brillante, debiamos considerar que la visi\'o
 Ya teniendo en cuenta como obtener la luminosidad pasamos a la forma de encontrar el pixel mas brillante, nuestra primer idea fue analizar uno por uno todos los pixeles de cada imagen hasta encontrar el pixel con la máxima intensidad en el rango de 1 a 255.
 Esto implico que al seleccionar el pixel con mayor intensidad encontramos que era posible que haya varios pixeles con la misma intensidad, lo cual solucionamos eligiendo uno al azar.
 Esta soluci\'on nos implico m\'as problemas, los cuales al analizarlos nos dimos cuenta de varias cosas, entre ellas:
-\begin{description}
-	\item [$\ast$] No es l\'ogico elegir un punto al azar, ya que este representaria la direcci\'on de la luz la cual es \'unica.
-	\item [$\ast$] La esfera tiene irregularidades sobre su superficie, lo que genera una clase de ruido.
-	\item [$\ast$] El brillo forma una clase de aureola sobre la superficie.
-\end{description}
+\begin{itemize}[noitemsep]
+	\item  No es l\'ogico elegir un punto al azar, ya que este representaria la direcci\'on de la luz la cual es \'unica.
+	\item La esfera tiene irregularidades sobre su superficie, lo que genera una clase de ruido.
+	\item El brillo forma una clase de aureola sobre la superficie.
+\end{itemize}
 A partir de estas observaciones concluimos que no alncanzar\'ia con obtener el pixel mas brillante. Por lo tanto se decidio que utilizar\'iamos un promedio del brillo de los pixeles vecinos, as\'i de esta manera poder agrandar el espectro de cada pixel.\\
 
 Finalmente al haber consegido los puntos mas brillantes de las im\'agenes lograriamos obtener la incognita z de la que hablamos en un principio.
@@ -57,47 +57,38 @@ Ya sabiendo cual seria el aspecto de nuestra matriz ideal nos faltar\'ia encontr
 \indent Aunque sus complejidades son iguales, la diferencia se encuentra al momento de resolver varios sistemas. La eliminaci\'on gaussiana va a tener la misma complejidad cada vez que la utilizamos. En contraste, la factorización LU solo se obtiene una vez y luego solo se debe resolver dos sistemas triangulares, esto lleva a que su complejidad es O($(n)^{2}$). Como dice el enunciado del TP, los valores $s_{x}$, $s_{y}$, $s_{z}$, de la ecuación 5 no cambian pixel a pixel sino que solamente se modifica el valor de la intensidad en (x,y) para la imagen correspondiente $I_{i}$, y por lo tanto poseen la misma matriz pero con distinto t\'ermino independiente. Por lo cual, si se encuentra una convinación de $s_{1}$, $s_{2}$ y $s_{3}$ que posea factorización LU se podria bajar sustancialmente la complejidad de obtener las normales de una imagen, ya que estas poseen una gran cantidad de pixeles.\par
 
 
-\subsection{Construccion de la matriz M }	
+\subsection{Obtenienci\'on de las profundidas}	
 
-Dadas las ecuaciones 11 y 12, para generar el sistema de ecuaciones para todos los pixeles para poder generar la matriz banda.
+Finalmente el \'ultimo paso es resolver las ecuaciones 11 y 12, las cuales nos permiten construir un sistema de ecuaciones sobredeterminado para todo el espacio de p\'ixeles. Esta la podemos pensar como una grilla de p\'ixeles.
 
 \subsubsection{Armando la matriz M}
 
-La segunda forma (naiv), para la cual tomamos la misma relacion anterior, es ver la grilla de pixeles en forma de F1++F2++...++Fn
-concatenacion de los pixeles (donde F1 contiene a todos los pixeles correspondiente a todas las columnas de la fila 1 de la grilla, analogamente Fn). Con los cual, si separamos las ecuaciones y formamos 2 matrices una para las ecuaciones correspondientes al eje X y otra matriz correspondiente al eje Y. Tenemos una Matriz Banda 1x2 Para el eje X y 1x(cantidad De Columnas de las grilla +1) para el eje Y. Combinandolos de manera adecuada, se obtiene la matriz banda(anhelada).(X1/Y1/.../Xn/Yn)
+La forma (naiv), es ver la grilla de p\'ixeles en forma de F1++F2++...++Fn concatenacion de los pixeles (donde F1 contiene a todos los p\'ixeles correspondiente a todas las columnas de la fila 1 de la grilla, analogamente Fn). Con los cual, si separamos las ecuaciones y formamos 2 matrices una para las ecuaciones correspondientes al eje X y otra matriz correspondiente al eje Y. Tenemos una Matriz Banda 1x2 Para el eje X y 1x(cantidad De Columnas de las grilla +1) para el eje Y. Combinandolos de manera adecuada, se obtiene la matriz banda(anhelada).(X1/Y1/.../Xn/Yn)
 
 MxMt es simetrica, es valido para toda matriz.
 
 \subsubsection{Descripcion de la matriz M }
 
 La matriz M tiene dimension 2NxN y es banda PxQ, por lo tanto Mt es de dimension Nx2N y es banda QxP, luego siendo A = MxMt tiene dimension NxN y es banda Qx(Q+1).
-Ya que como esta armada la matriz M, se forma una escalera donde al moverse por las columnas,mirando desde la q+1 columna, la  primer coordenada tiene el primer elemento igual a cero y todas los demas no necesariamente distinto de cero.Al mirar la siguiente columna la cantidad de elementos que no son cero incrementan en dos y asi cada vez que se mira la siguiente columna.
-Luego al mirar las filas, se logra ver un patron en el cual se agrega un cero a las primeras coordenadas de la fila cuando se dan pasos de a dos filas. Lo cual forma un patron interesante al ser multiplicado por su transpuesta, esto relaciona la cantidad de pixeles con el ancho de banda de la matriz el cual queda dependiendo de la cantidad de pixeles y del ancho de la imagen.
+Ya que como esta armada la matriz M, se forma una escalera donde al moverse por las columnas,mirando desde la q+1 columna, la  primer coordenada tiene el primer elemento igual a cero y todas los demas no necesariamente distinto de cero.Al mirar la siguiente columna la cantidad de elementos que no son cero incrementan en dos y asi mientras se observa la siguiente columna.
+Luego al mirar las filas, se logra encontrar un patr\'on en el cual se agrega un cero a las primeras coordenadas de la fila cuando se dan pasos de a dos filas. Lo cual forma un patron interesante al ser multiplicado por su transpuesta, esto relaciona la cantidad de p\'ixeles con el ancho de banda de la matriz el cual queda dependiendo de la cantidad de p\'ixeles y del ancho de la im\'agen.
 
 
 \subsubsection{Mirando ceros de la parte superior} 
-Para la matriz A resultante al juntar lo visto, y siguiendo la misma idea con la matriz transpuesta, se observan los mismos patrones.Por lo tanto al hacer la multiplicacion, se puede observar un patron que siguen cada una de las filas de la matriz resultante , en particular la fila i(i <=Q) tiene sus coordenadas igual a cero desde la posicion Q+i+1, eso forma una diagonal de elementos no necesariamente igual a cero a partir de la fila 1 columna q.
+Para la matriz A resultante al juntar lo visto, y siguiendo la misma idea con la matriz traspuesta, se observan los mismos patrones.Por lo tanto al hacer la multiplicaci\'on, se puede observar un patr\'on que siguen cada una de las filas de la matriz resultante , en particular la fila i (i $\leq$ Q) tiene sus coordenadas igual a cero desde la posicion Q+i+1, eso forma una diagonal de elementos no necesariamente igual a cero a partir de la fila 1 columna q.
 
 \subsubsection{Mirando los ceros de la parte inferior} 
-Para la fila i(i $>$ Q), tiene el primer cero a partir de la fila q+1 en la coordenada 1  y va incrementando un cero a las primeras coordenada del vector fila cada ves que avanza, con lo cual eso forma una diagonal de elementos no necesariamente igual a cero a partir de la fila q columna 1.
+Para la fila i (i $>$ Q), tiene el primer cero a partir de la fila q+1 en la coordenada 1  y va incrementando un cero a las primeras coordenada del vector fila cada ves que avanza, con lo cual eso forma una diagonal de elementos no necesariamente igual a cero a partir de la fila q columna 1.
 
 \subsubsection{Forma de la matriz resultante}
-Para obtener la matriz A que da la multiplicacion de la matriz MxMt, dado que son matrices banda y que M es banda PxQ donde p=cantidad de elementos(pixeles)-1 y Q = cantidad de columnas de la imagen. Si la imagen es una tira de pixeles entonces P = Q, sino P $>$ Q.
+Para obtener la matriz A que da la multiplicaci\'on de la matriz MxMt, dado que son matrices banda y que M es banda PxQ donde p=cantidad de elementos(pixeles)-1 y Q = cantidad de columnas de la imagen. Si la imagen es una tira de p\'ixeles entonces P = Q, sino P $>$ Q.
 La matriz resultante tiene dimension NxN y es banda Qx(Q+1). 
 
-\subsubsection{Justificaci\'on de utilizacion de la factorizacion de cholesky Para la matriz A}
+\subsubsection{Justificaci\'on de utilizaci\'on de la factorizaci\'on de cholesky Para la matriz A}
 
-Para poder justificar cholesky, nos alcanza con demostrar que las columnas de la matriz M son Li ya que por la definicion de matriz definida positiva, vale que para $w^{t}Aw$ $>$ 0 $\forall$ w $\in$ ${\rm I\!R}^{nxn}$, la demostracion es por el contrarresiproco con lo cual suponemos lo contrario existe un $(\exists w ) Aw = 0 \land w \neq 0 $ , como A = $ M^{t}M \rightarrow w^{t}M^{t}=(Mw)^{t}(Mw)$ =$||Mw||^{2}$ y como esto es la norma del vector, la norma de ese vector es 0, como demostramos que las columas eran Li, con lo cual llegamos a un absurdo que provino de suponer que existe tal w, por lo tanto la matriz A es definida positiva. Y usando la Propiedad*, tenemos que la matriz A tine factorizacion cholesky unica.
+Para poder justificar cholesky, nos alcanza con demostrar que las columnas de la matriz M son Li ya que por la definici\'on de matriz definida positiva, vale que para $w^{t}Aw$ $>$ 0 $\forall$ w $\in$ ${\rm I\!R}^{nxn}$, la demostraci\'on es por el contrarresiproco con lo cual suponemos lo contrario existe un $(\exists w ) Aw = 0 \land w \neq 0 $ , como A = $ M^{t}M \rightarrow w^{t}M^{t}=(Mw)^{t}(Mw)$ =$||Mw||^{2}$ y como esto es la norma del vector, la norma de ese vector es 0, como demostramos que las columas eran Li, con lo cual llegamos a un absurdo que provino de suponer que existe tal w, por lo tanto la matriz A es definida positiva. Y usando la Propiedad*, tenemos que la matriz A tine factorizacion cholesky unica.
 
 Propiedad*: Una matriz es simetrica definida positiva $\leftrightarrow$ tiene factorizacion cholesky unica.
-
-
-\subsubsection{Implementaci\'on}
-Para la estructura de representacion de la clase matriz, se utilizo la estructura arreglo de arreglo.
-Para la parte de implementacion, se creo una clase Matriz y una clase Matriz-Esparza y todas las operaciones necesarias para el desarrollo del los experimentos.
-En los algoritmos se trato de aprobechar tanto como fuera posible los patrones o irregularidades que se observaban tanto en la matriz M , como la matriz A(resultante de $M^{t}$M) y asi poder optimizar el tiempo y la estructura que se usa.
-La estructura que se usa, permite que la transposicion de una matriz y la permutaci\'on de una fila se realize en O(1).
-
 
 
 
