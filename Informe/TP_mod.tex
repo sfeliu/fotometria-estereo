@@ -1,4 +1,4 @@
-\documentclass[10pt,a4paper]{article}
+\documentclass[10pt,a4paper]{report}
 \usepackage[spanish]{babel} % para que comandos como \today den el resultado en castellano
 \usepackage{a4wide} % márgenes un poco más anchos que lo usual
 \usepackage[conEntregas]{caratula}
@@ -23,15 +23,17 @@
 
 \maketitle
 
-\section{Introducci\'on Te\'orica}
+\tableofcontents{}
+
+\chapter{Introducci\'on Te\'orica}
 
 \input{introTeorica_mod.tex}
 
-\section{Desarrollo}
+\chapter{Desarrollo}
 
 \input{desarrollo_mod.tex}
 
-\section{Experimentaci\'on y Resultados}
+\chapter{Experimentaci\'on y Resultados}
 
 \input{resultados_mod.tex}
 
@@ -39,7 +41,7 @@
 
 %\input{discusion.tex}
 
-\section{Conclusiones}
+\chapter{Conclusiones}
 
 \input{conclusiones_mod.tex}
 
@@ -47,7 +49,7 @@
 
 %\input{apendices.tex}
 
-\section{Referencias}
+\chapter{Referencias}
 
 \input{referencias.tex}
 
