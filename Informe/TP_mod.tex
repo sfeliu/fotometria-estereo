@@ -1,31 +1,17 @@
-\documentclass[10pt,a4paper]{report}
-\usepackage[spanish]{babel} % para que comandos como \today den el resultado en castellano
-\usepackage{a4wide} % márgenes un poco más anchos que lo usual
-\usepackage[conEntregas]{caratula}
-\usepackage{enumitem}
-\usepackage{graphicx}
-\graphicspath{{/home/santiago/tps/metodos_numericos/Metodos_TP1/Informe}}
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{float}
+\usepackage{geometry} % márgenes
+\usepackage[conEntregas]{caratula} % carátula
 
 \begin{document}
 
-\titulo{Trabajo Pr\'actico Número 1}
-\subtitulo{Fotometria Estereo}
-
-\fecha{\today}
-
-\materia{M\'etodos Num\'ericos}
-
-\integrante{Feliu, Santiago}{644/15}{santiagofeliu@hotmail.com}
-\integrante{Cuba, Kennedy}{503/15}{kennedy.wrc@hotmail.com}
-\integrante{Yan, Angel}{230/16}{angelyan96@gmail.com}
-\integrante{Ingaramo, Pablo}{544/15}{pablo2martin@hotmail.com}
-% Pongan cuantos integrantes quieran
-
-\maketitle
+\include{caratula}
 
 \tableofcontents{}
 
-\chapter{Introducci\'on Te\'orica}
+\chapter{Introducción Teórica}
 
 \input{introTeorica_mod.tex}
 
@@ -33,7 +19,7 @@
 
 \input{desarrollo_mod.tex}
 
-\chapter{Experimentaci\'on y Resultados}
+\chapter{Experimentación y Resultados}
 
 \input{resultados_mod.tex}
 
@@ -49,7 +35,7 @@
 
 %\input{apendices.tex}
 
-\chapter{Referencias}
+\section{Referencias}
 
 \input{referencias.tex}
 

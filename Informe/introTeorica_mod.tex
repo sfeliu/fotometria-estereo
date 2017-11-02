@@ -1,25 +1,25 @@
-El objetivo del siguiente trabajo es utilizar la tecnica de fotometria estereo para obtener modelos 3d a partir de imagenes en 2d. Esta t\'ecnica nos permite saber la distancia entre un objeto y la lente de la camara. Para poder lograrlo se nos brinda un set de imagenes especialmente tomadas, donde se encuentra un objeto central con distintos focos de luz.
+El objetivo del siguiente trabajo es utilizar la tecnica de fotometria estereo para obtener modelos 3d a partir de imagenes en 2d. Esta técnica nos permite saber la distancia entre un objeto y la lente de la camara. Para poder lograrlo se nos brinda un set de imagenes especialmente tomadas, donde se encuentra un objeto central con distintos focos de luz.
 De esta manera debemos obtener las direcciones de luz de cada imagen asi lograr obtener un aproximado de la normal en cada punto de la imagen. Una vez teniendo las normales se procede a obtener la profundidad en cada pixel con la cual contruiremos el modelo.
 
 
-\section{Fundamento ge\'ometrico'}
-Dado que la superficie del modelo en mate es Lambertiana tiene la propiedad de que absorbe la luz uniformemente en cada punto, con lo cual la normal en el punto con mayor intensidad de luz de la superficie corresponde con la direcci\'on de la iluminaci\'on. Usamos para la calibraci\'on el modelo de la esfera porque al conocer su geometria y las intensidades en cualquier parte de su superficie podemos calcular las normales en todo punto.
+\section{Fundamento geómetrico'}
+Dado que la superficie del modelo en mate es Lambertiana tiene la propiedad de que absorbe la luz uniformemente en cada punto, con lo cual la normal en el punto con mayor intensidad de luz de la superficie corresponde con la dirección de la iluminación. Usamos para la calibración el modelo de la esfera porque al conocer su geometria y las intensidades en cualquier parte de su superficie podemos calcular las normales en todo punto.
 
 Utilizaremos la tecnica de fotometria estereo que nos permite medir la posicion y distancia de los objetos con respecto al sensor(camara), es decir, obtener las coordenadas x,y,z basandonos unicamente en las propiedades reflectivas de la luz, para objetos no especualares y en un ambiente con iluminacion controlada.
 
 
-\section{Fundamentos de los m\'etodos num\'ericos involucrados en el trabajo}
+\section{Fundamentos de los métodos numéricos involucrados en el trabajo}
 
 
-El foco de este trabajo pr\'actico es la resoluci\'on de sistemas de ecuaciones lineales.
-En este trabajo utilizamos multiples m\'etodos num\'ericos que simplifican la tarea de encontrar la soluci\'on de estos sistemas. 
-El m\'etodo mas com\'un es el de eliminaci\'on gaussiana para transormar al sistema de ecuaciones en otro equivalente(triangula el sistema) donde se pueden despejar las incognitas utilizando "backwards substitution". 
+El foco de este trabajo práctico es la resolución de sistemas de ecuaciones lineales.
+En este trabajo utilizamos multiples métodos numéricos que simplifican la tarea de encontrar la solución de estos sistemas. 
+El método mas común es el de eliminación gaussiana para transormar al sistema de ecuaciones en otro equivalente(triangula el sistema) donde se pueden despejar las incognitas utilizando "backwards substitution". 
 Estas tres operaciones basicas son multiplicar una fila por un escalar, sumar o restar un multiplo de una fila con otra y intercambiar filas. Siempre teniendo en cuenta que una fila no denota solo los coeficientes de las variables de una ecuacion sino tambien su termino independiente.
 
 
 
 
-\subsection{Introducci\'on Te\'orica de algoritmos utilizados}
+\subsection{Introducción Teórica de algoritmos utilizados}
 
 En el desarrollo se usan diferentes metodos para resolver sistemas lineales, algunos mejores que otros, siempre tratando de no perder presicion por errores de redondeo u otros incombenientes.
 Los algoritmos que usamos son el algoritmo de eliminacion gaussiana, factorizacion LU, factorizacion de cholesky u otras variantes de ellos.
@@ -47,5 +47,5 @@ En la construccion de la matrix de pixeles(para armar el espacio normal de ecuac
 Para la reconstruccion 3D, como las matrices con las que trabajamos son banda y esparzas podemos utilizar una estructura en la cual la matriz considere a los elementos que no son cero y asi disminuir la complejidad tanto temporal y espacial de los algoritmos 
 
 \subsection{Propiedades}
-Una matriz es sim\'etrica y definida positiva $\leftrightarrow$ tiene factorizaci\'on cholesky
+Una matriz es simétrica y definida positiva $\leftrightarrow$ tiene factorización cholesky
 

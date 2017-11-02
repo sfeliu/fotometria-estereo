@@ -1,69 +1,69 @@
-Durante el desarrollo se fue observando que al trabajar con aritmetica finita se presenta la posibilidad de errores de redondeo en varias oportunidades por este motivo se decidio utilizar double's para la una mejor representacion de los n\'umeros. Con lo cual se decidio utilizar una cota para este error (llamada epsilon) la cual es un numero peque駉 que se utiliza para la comparaci\'on con el cero. En otros de los lugares donde tuvimos que considerar este error fue al momento de triangular las matrices en donde para cada columna se buscaba en que fila se encontraba el mayor valor, asi al restarle a las siguientes filas un multiplo del mayor valor se minimiza el error de redondeo. \\
+Durante el desarrollo se fue observando que al trabajar con aritmetica finita se presenta la posibilidad de errores de redondeo en varias oportunidades por este motivo se decidio utilizar double's para la una mejor representacion de los n煤meros. Con lo cual se decidio utilizar una cota para este error (llamada epsilon) la cual es un numero peque帽o que se utiliza para la comparaci贸n con el cero. En otros de los lugares donde tuvimos que considerar este error fue al momento de triangular las matrices en donde para cada columna se buscaba en que fila se encontraba el mayor valor, asi al restarle a las siguientes filas un multiplo del mayor valor se minimiza el error de redondeo. \\
 
 
-El programa desarrollado se puede dividir en tres partes: La obtenci\'on de las direcciones de luz, la obtenci\'on del campo normal y la reconstruccion del modelo 3D.
+El programa desarrollado se puede dividir en tres partes: La obtenci贸n de las direcciones de luz, la obtenci贸n del campo normal y la reconstruccion del modelo 3D.
 La primera parte consiste en conseguir las direcciones de fuentes de luz y elegir de estas las que nos permitan hacer una reconstruccion optima de los modelos.
 En la segunda parte utilizando las direcciones obtenidas durante la calibracion y se estiman las dirreciones normales de la superficie del modelo elegido.
-Y por \'ultimo se obtienen las profundidades con la utilizaci\'on del campo normal obtenido en el paso anterior.
+Y por 煤ltimo se obtienen las profundidades con la utilizaci贸n del campo normal obtenido en el paso anterior.
 
-\section{Obtenci\'on de las direcciones de la luz}
+\section{Obtenci贸n de las direcciones de la luz}
 
-\subsection{Calibraci\'on}
+\subsection{Calibraci贸n}
 
-En el desarrollo de este trabajo pr\'actico lo primero que hicimos fue la calibracion del sistema. Esto consistio
-en encontrar las direcciones de la luz en cada una de las 12 im\'agenes de la esfera. Para lo cual utilizar\'iamos la ecuaci\'on de la esfera $r^{2}$=$(x-x_{0})^{2}$ + $(y-y_{0})^{2}$+ $(z-z_{0})^{2}$, donde los datos que podremos obtener de las im\'agenes ser\'an las coordenadas ($x_{0}$,$y_{0}$) del centro de la esfera, el radio r y las coordenadas del pixel que consideramos mas brillante (x, y). Si C es el centro de la esfera y P el punto donde se encuentra el pixel mas brillante, entonces el vector que representa la direcci髇 de la iluminaci髇 
+En el desarrollo de este trabajo pr谩ctico lo primero que hicimos fue la calibracion del sistema. Esto consistio
+en encontrar las direcciones de la luz en cada una de las 12 im谩genes de la esfera. Para lo cual utilizar铆amos la ecuaci贸n de la esfera $r^{2}$=$(x-x_{0})^{2}$ + $(y-y_{0})^{2}$+ $(z-z_{0})^{2}$, donde los datos que podremos obtener de las im谩genes ser谩n las coordenadas ($x_{0}$,$y_{0}$) del centro de la esfera, el radio r y las coordenadas del pixel que consideramos mas brillante (x, y). Si C es el centro de la esfera y P el punto donde se encuentra el pixel mas brillante, entonces el vector que representa la direcci贸n de la iluminaci贸n 
 es C-P = ($x_{0}$ - x, $y_{0}$ - y, $z_{0}$ - ($ \sqrt{r^{2} - (x-x_{0})^{2} - (y-y_{0})^{2} + z_{0}}$)) = ($x_{0}$ - x, $y_{0}$ - y, $\sqrt{r^{2} - (x-x_{0})^{2} - (y-y_{0})^{2}}$). \\
 
-Lo mas sencillo de la obtenci\'on de los datos ser\'a encontrar coordenadas del centro y el radio de la esfera. Para ello utilizamos la m\'ascara donde al recorrer la im\'agen se logra conseguir facilmente los extremos de la esfera, con los cuales se obtiene la diferencia entre ellos y se obtiene el centro y el radio. \\
+Lo mas sencillo de la obtenci贸n de los datos ser谩 encontrar coordenadas del centro y el radio de la esfera. Para ello utilizamos la m谩scara donde al recorrer la im谩gen se logra conseguir facilmente los extremos de la esfera, con los cuales se obtiene la diferencia entre ellos y se obtiene el centro y el radio. \\
 
-Luego, para encontrar el punto mas brillante, debiamos considerar que la visi\'on humana tiende a diferenciar m\'as escalas de verde lo cual implica que al hacer un promedio ponderado para el color verde se obtengan mejores resultados. Por lo tanto este promedio ser\'a la forma en la que calcularemos la luminosidad del pixel.\\
+Luego, para encontrar el punto mas brillante, debiamos considerar que la visi贸n humana tiende a diferenciar m谩s escalas de verde lo cual implica que al hacer un promedio ponderado para el color verde se obtengan mejores resultados. Por lo tanto este promedio ser谩 la forma en la que calcularemos la luminosidad del pixel.\\
 
-Ya teniendo en cuenta como obtener la luminosidad pasamos a la forma de encontrar el pixel mas brillante, nuestra primer idea fue analizar uno por uno todos los pixeles de cada imagen hasta encontrar el pixel con la m醲ima intensidad en el rango de 1 a 255.
+Ya teniendo en cuenta como obtener la luminosidad pasamos a la forma de encontrar el pixel mas brillante, nuestra primer idea fue analizar uno por uno todos los pixeles de cada imagen hasta encontrar el pixel con la m谩xima intensidad en el rango de 1 a 255.
 Esto implico que al seleccionar el pixel con mayor intensidad encontramos que era posible que haya varios pixeles con la misma intensidad, lo cual solucionamos eligiendo uno al azar.
-Esta soluci\'on nos implico m\'as problemas, los cuales al analizarlos nos dimos cuenta de varias cosas, entre ellas:
-\begin{itemize}[noitemsep]
-	\item  No es l\'ogico elegir un punto al azar, ya que este representaria la direcci\'on de la luz la cual es \'unica.
+Esta soluci贸n nos implico m谩s problemas, los cuales al analizarlos nos dimos cuenta de varias cosas, entre ellas:
+\begin{itemize}
+	\item  No es l贸gico elegir un punto al azar, ya que este representaria la direcci贸n de la luz la cual es 煤nica.
 	\item La esfera tiene irregularidades sobre su superficie, lo que genera una clase de ruido.
 	\item El brillo forma una clase de aureola sobre la superficie.
 \end{itemize}
-A partir de estas observaciones concluimos que no alncanzar\'ia con obtener el pixel mas brillante. Por lo tanto se decidio que utilizar\'iamos un promedio del brillo de los pixeles vecinos, as\'i de esta manera poder agrandar el espectro de cada pixel.\\
+A partir de estas observaciones concluimos que no alncanzar铆a con obtener el pixel mas brillante. Por lo tanto se decidio que utilizar铆amos un promedio del brillo de los pixeles vecinos, as铆 de esta manera poder agrandar el espectro de cada pixel.\\
 
-Finalmente al haber consegido los puntos mas brillantes de las im\'agenes lograriamos obtener la incognita z de la que hablamos en un principio.
-
-
-\subsection{Elecci\'on de las direcciones de la fuente de luz}
-
-Nuestro criterio para la elecci\'on de las direcciones de luz se basa en elegir aquella combinaci\'on que tenga el menor n\'umero de condici\'on. Por lo que aprendimos en clase una matriz mal condicionada es propensa a tener graves errores y no darnos soluciones del sistema en las cuales podemos confiar.\\
-Al mismo tiempo, pensandolo de manera geom\'etrica observamos que el condicionamiento de una matriz va a mejorar a medida que las ecuaciones lineales de la matriz esten lo mas lejano posible de ser paralelas, lo cual tiene sentido ya que tener iluminaci\'on dispersa ayuda a ver un objeto mejor en el mundo real. Nosotros suponemos que el error que vamos a obtener al calcular las normales va a estar directamente relacionado al condicionamiento de la matriz que utilizamos. Dicho de otra manera, el mejor gr\'afico de las normales va a estar dado por la matriz mejor condicionada.\\
-
-Ya sabiendo cual seria el aspecto de nuestra matriz ideal nos faltar\'ia encontrar la mas apta. Para esto  programamos un algoritmo que calcula todas las posibles permutaciones de tres vectores, teniendo 12 vectores para elegir, junto con el numero de condici髇 asociado a cada una de estas matrices. Hay que tener en cuenta que al calcular las posibles permutaciones de las direcciones consideramos a una elecci髇 de tres vectores como un conjunto, ya que el n\'umero de condicion no cambia si permutamos las columnas o filas de una matriz.
+Finalmente al haber consegido los puntos mas brillantes de las im谩genes lograriamos obtener la incognita z de la que hablamos en un principio.
 
 
-\section{Construcci\'on del campo normal}	
+\subsection{Elecci贸n de las direcciones de la fuente de luz}
+
+Nuestro criterio para la elecci贸n de las direcciones de luz se basa en elegir aquella combinaci贸n que tenga el menor n煤mero de condici贸n. Por lo que aprendimos en clase una matriz mal condicionada es propensa a tener graves errores y no darnos soluciones del sistema en las cuales podemos confiar.\\
+Al mismo tiempo, pensandolo de manera geom茅trica observamos que el condicionamiento de una matriz va a mejorar a medida que las ecuaciones lineales de la matriz esten lo mas lejano posible de ser paralelas, lo cual tiene sentido ya que tener iluminaci贸n dispersa ayuda a ver un objeto mejor en el mundo real. Nosotros suponemos que el error que vamos a obtener al calcular las normales va a estar directamente relacionado al condicionamiento de la matriz que utilizamos. Dicho de otra manera, el mejor gr谩fico de las normales va a estar dado por la matriz mejor condicionada.\\
+
+Ya sabiendo cual seria el aspecto de nuestra matriz ideal nos faltar铆a encontrar la mas apta. Para esto  programamos un algoritmo que calcula todas las posibles permutaciones de tres vectores, teniendo 12 vectores para elegir, junto con el numero de condici贸n asociado a cada una de estas matrices. Hay que tener en cuenta que al calcular las posibles permutaciones de las direcciones consideramos a una elecci贸n de tres vectores como un conjunto, ya que el n煤mero de condicion no cambia si permutamos las columnas o filas de una matriz.
 
 
-\indent Con las tres direcciones de iluminaci\'on ya elegidas el siguiente paso del desarrollo es el c\'alculo de las normales en cada pixel. Esta es la etapa del trabajo pr\'actico en la cual implementamos y utilizamos los algoritmos de eliminaci\'on de gauss y la factorizaci\'on LU.\par
+\section{Construcci贸n del campo normal}	
 
-\subsection{Eliminaci\'on Gaussiana}
 
-\indent Nuestro algoritmo de eliminaci\'on gaussiana, hace n iteraciones donde n es la cantidad de filas de la matriz a triangular. En la i-esima iteraci髇 toma el elemento $a_{ii}$ como pivote. Si el pivote en cualquiera de las iteraciones es cero entonces no existe factorizaci\'on LU pura, aunque si existe factorizacion PLU. Si el pivote no es cero el algoritmo hace otras k iteraciones donde k es la cantidad de filas que tiene por debajo. El algoritmo procede a calcular el m\'ultiplo exacto por el cual tiene que multiplicar al pivote para poder eliminar al elemento, que este en la misma columna que el, y en la fila debajo de si. Esto lo repite k veces, una ves para cada fila que se encuentra por debajo del pivote actual. Una vez terminadas las k iteraciones para el i-esimo pivote, el algoritmo pasa al siguiente pivote. Resulta evidente que los pivotes va a ser todos los elementos de la diagonal. \par
+\indent Con las tres direcciones de iluminaci贸n ya elegidas el siguiente paso del desarrollo es el c谩lculo de las normales en cada pixel. Esta es la etapa del trabajo pr谩ctico en la cual implementamos y utilizamos los algoritmos de eliminaci贸n de gauss y la factorizaci贸n LU.\par
 
-\subsection{Factorizaci\'on LU}
+\subsection{Eliminaci贸n Gaussiana}
 
-\indent Obtener la factorizacion LU no es mas que guardar los m\'ultiplos que utilizamos para diagonalizar una matriz en el algoritmo de eliminaci\'on gaussiana. Es importante notar que nosotros implementamos un algoritmo de factorizacion PLU donde la factorizacion LU es el caso especifico donde la matriz P es la matriz identidad. Por lo cual, la complejidad temporal de obtener la factorizacion LU  es igual a la complejidad del algoritmo de eliminacion de gauss, la cual es O($(n)^{3}$).\par
+\indent Nuestro algoritmo de eliminaci贸n gaussiana, hace n iteraciones donde n es la cantidad de filas de la matriz a triangular. En la i-esima iteraci贸n toma el elemento $a_{ii}$ como pivote. Si el pivote en cualquiera de las iteraciones es cero entonces no existe factorizaci贸n LU pura, aunque si existe factorizacion PLU. Si el pivote no es cero el algoritmo hace otras k iteraciones donde k es la cantidad de filas que tiene por debajo. El algoritmo procede a calcular el m煤ltiplo exacto por el cual tiene que multiplicar al pivote para poder eliminar al elemento, que este en la misma columna que el, y en la fila debajo de si. Esto lo repite k veces, una ves para cada fila que se encuentra por debajo del pivote actual. Una vez terminadas las k iteraciones para el i-esimo pivote, el algoritmo pasa al siguiente pivote. Resulta evidente que los pivotes va a ser todos los elementos de la diagonal. \par
+
+\subsection{Factorizaci贸n LU}
+
+\indent Obtener la factorizacion LU no es mas que guardar los m煤ltiplos que utilizamos para diagonalizar una matriz en el algoritmo de eliminaci贸n gaussiana. Es importante notar que nosotros implementamos un algoritmo de factorizacion PLU donde la factorizacion LU es el caso especifico donde la matriz P es la matriz identidad. Por lo cual, la complejidad temporal de obtener la factorizacion LU  es igual a la complejidad del algoritmo de eliminacion de gauss, la cual es O($(n)^{3}$).\par
 
 \subsection{Diferencia entre ambos algoritmos}
 
-\indent Aunque sus complejidades son iguales, la diferencia se encuentra al momento de resolver varios sistemas. La eliminaci\'on gaussiana va a tener la misma complejidad cada vez que la utilizamos. En contraste, la factorizaci髇 LU solo se obtiene una vez y luego solo se debe resolver dos sistemas triangulares, esto lleva a que su complejidad es O($(n)^{2}$). Como dice el enunciado del TP, los valores $s_{x}$, $s_{y}$, $s_{z}$, de la ecuaci髇 5 no cambian pixel a pixel sino que solamente se modifica el valor de la intensidad en (x,y) para la imagen correspondiente $I_{i}$, y por lo tanto poseen la misma matriz pero con distinto t\'ermino independiente. Por lo cual, si se encuentra una convinaci髇 de $s_{1}$, $s_{2}$ y $s_{3}$ que posea factorizaci髇 LU se podria bajar sustancialmente la complejidad de obtener las normales de una imagen, ya que estas poseen una gran cantidad de pixeles.\par
+\indent Aunque sus complejidades son iguales, la diferencia se encuentra al momento de resolver varios sistemas. La eliminaci贸n gaussiana va a tener la misma complejidad cada vez que la utilizamos. En contraste, la factorizaci贸n LU solo se obtiene una vez y luego solo se debe resolver dos sistemas triangulares, esto lleva a que su complejidad es O($(n)^{2}$). Como dice el enunciado del TP, los valores $s_{x}$, $s_{y}$, $s_{z}$, de la ecuaci贸n 5 no cambian pixel a pixel sino que solamente se modifica el valor de la intensidad en (x,y) para la imagen correspondiente $I_{i}$, y por lo tanto poseen la misma matriz pero con distinto t茅rmino independiente. Por lo cual, si se encuentra una convinaci贸n de $s_{1}$, $s_{2}$ y $s_{3}$ que posea factorizaci贸n LU se podria bajar sustancialmente la complejidad de obtener las normales de una imagen, ya que estas poseen una gran cantidad de pixeles.\par
 
 
-\section{Obtenienci\'on de las profundidas}	
+\section{Obtenienci贸n de las profundidas}	
 
-Finalmente el \'ultimo paso es resolver las ecuaciones 11 y 12, las cuales nos permiten construir un sistema de ecuaciones sobredeterminado para todo el espacio de p\'ixeles. Esta la podemos pensar como una grilla de p\'ixeles.
+Finalmente el 煤ltimo paso es resolver las ecuaciones 11 y 12, las cuales nos permiten construir un sistema de ecuaciones sobredeterminado para todo el espacio de p铆xeles. Esta la podemos pensar como una grilla de p铆xeles.
 
 \subsection{Armando la matriz M}
 
-La forma (naiv), es ver la grilla de p\'ixeles en forma de F1++F2++...++Fn concatenacion de los pixeles (donde F1 contiene a todos los p\'ixeles correspondiente a todas las columnas de la fila 1 de la grilla, analogamente Fn). Con los cual, si separamos las ecuaciones y formamos 2 matrices una para las ecuaciones correspondientes al eje X y otra matriz correspondiente al eje Y. Tenemos una Matriz Banda 1x2 Para el eje X y 1x(cantidad De Columnas de las grilla +1) para el eje Y. Combinandolos de manera adecuada, se obtiene la matriz banda(anhelada).(X1/Y1/.../Xn/Yn)
+La forma (naiv), es ver la grilla de p铆xeles en forma de F1++F2++...++Fn concatenacion de los pixeles (donde F1 contiene a todos los p铆xeles correspondiente a todas las columnas de la fila 1 de la grilla, analogamente Fn). Con los cual, si separamos las ecuaciones y formamos 2 matrices una para las ecuaciones correspondientes al eje X y otra matriz correspondiente al eje Y. Tenemos una Matriz Banda 1x2 Para el eje X y 1x(cantidad De Columnas de las grilla +1) para el eje Y. Combinandolos de manera adecuada, se obtiene la matriz banda(anhelada).(X1/Y1/.../Xn/Yn)
 
 MxMt es simetrica, es valido para toda matriz.
 
@@ -71,22 +71,22 @@ MxMt es simetrica, es valido para toda matriz.
 
 La matriz M tiene dimension 2NxN y es banda PxQ, por lo tanto Mt es de dimension Nx2N y es banda QxP, luego siendo A = MxMt tiene dimension NxN y es banda Qx(Q+1).
 Ya que como esta armada la matriz M, se forma una escalera donde al moverse por las columnas,mirando desde la q+1 columna, la  primer coordenada tiene el primer elemento igual a cero y todas los demas no necesariamente distinto de cero.Al mirar la siguiente columna la cantidad de elementos que no son cero incrementan en dos y asi mientras se observa la siguiente columna.
-Luego al mirar las filas, se logra encontrar un patr\'on en el cual se agrega un cero a las primeras coordenadas de la fila cuando se dan pasos de a dos filas. Lo cual forma un patron interesante al ser multiplicado por su transpuesta, esto relaciona la cantidad de p\'ixeles con el ancho de banda de la matriz el cual queda dependiendo de la cantidad de p\'ixeles y del ancho de la im\'agen.
+Luego al mirar las filas, se logra encontrar un patr贸n en el cual se agrega un cero a las primeras coordenadas de la fila cuando se dan pasos de a dos filas. Lo cual forma un patron interesante al ser multiplicado por su transpuesta, esto relaciona la cantidad de p铆xeles con el ancho de banda de la matriz el cual queda dependiendo de la cantidad de p铆xeles y del ancho de la im谩gen.
 
 
 \subsection{Mirando ceros de la parte superior} 
-Para la matriz A resultante al juntar lo visto, y siguiendo la misma idea con la matriz traspuesta, se observan los mismos patrones.Por lo tanto al hacer la multiplicaci\'on, se puede observar un patr\'on que siguen cada una de las filas de la matriz resultante , en particular la fila i (i $\leq$ Q) tiene sus coordenadas igual a cero desde la posicion Q+i+1, eso forma una diagonal de elementos no necesariamente igual a cero a partir de la fila 1 columna q.
+Para la matriz A resultante al juntar lo visto, y siguiendo la misma idea con la matriz traspuesta, se observan los mismos patrones.Por lo tanto al hacer la multiplicaci贸n, se puede observar un patr贸n que siguen cada una de las filas de la matriz resultante , en particular la fila i (i $\leq$ Q) tiene sus coordenadas igual a cero desde la posicion Q+i+1, eso forma una diagonal de elementos no necesariamente igual a cero a partir de la fila 1 columna q.
 
 \subsection{Mirando los ceros de la parte inferior} 
 Para la fila i (i $>$ Q), tiene el primer cero a partir de la fila q+1 en la coordenada 1  y va incrementando un cero a las primeras coordenada del vector fila cada ves que avanza, con lo cual eso forma una diagonal de elementos no necesariamente igual a cero a partir de la fila q columna 1.
 
 \subsection{Forma de la matriz resultante}
-Para obtener la matriz A que da la multiplicaci\'on de la matriz MxMt, dado que son matrices banda y que M es banda PxQ donde p=cantidad de elementos(pixeles)-1 y Q = cantidad de columnas de la imagen. Si la imagen es una tira de p\'ixeles entonces P = Q, sino P $>$ Q.
+Para obtener la matriz A que da la multiplicaci贸n de la matriz MxMt, dado que son matrices banda y que M es banda PxQ donde p=cantidad de elementos(pixeles)-1 y Q = cantidad de columnas de la imagen. Si la imagen es una tira de p铆xeles entonces P = Q, sino P $>$ Q.
 La matriz resultante tiene dimension NxN y es banda Qx(Q+1). 
 
-\subsection{Justificaci\'on de utilizaci\'on de la factorizaci\'on de cholesky Para la matriz A}
+\subsection{Justificaci贸n de utilizaci贸n de la factorizaci贸n de cholesky Para la matriz A}
 
-Para poder justificar cholesky, nos alcanza con demostrar que las columnas de la matriz M son Li ya que por la definici\'on de matriz definida positiva, vale que para $w^{t}Aw$ $>$ 0 $\forall$ w $\in$ ${\rm I\!R}^{nxn}$, la demostraci\'on es por el contrarresiproco con lo cual suponemos lo contrario existe un $(\exists w ) Aw = 0 \land w \neq 0 $ , como A = $ M^{t}M \rightarrow w^{t}M^{t}=(Mw)^{t}(Mw)$ =$||Mw||^{2}$ y como esto es la norma del vector, la norma de ese vector es 0, como demostramos que las columas eran Li, con lo cual llegamos a un absurdo que provino de suponer que existe tal w, por lo tanto la matriz A es definida positiva. Y usando la Propiedad*, tenemos que la matriz A tine factorizacion cholesky unica.
+Para poder justificar cholesky, nos alcanza con demostrar que las columnas de la matriz M son Li ya que por la definici贸n de matriz definida positiva, vale que para $w^{t}Aw$ $>$ 0 $\forall$ w $\in$ ${\rm I\!R}^{nxn}$, la demostraci贸n es por el contrarresiproco con lo cual suponemos lo contrario existe un $(\exists w ) Aw = 0 \land w \neq 0 $ , como A = $ M^{t}M \rightarrow w^{t}M^{t}=(Mw)^{t}(Mw)$ =$||Mw||^{2}$ y como esto es la norma del vector, la norma de ese vector es 0, como demostramos que las columas eran Li, con lo cual llegamos a un absurdo que provino de suponer que existe tal w, por lo tanto la matriz A es definida positiva. Y usando la Propiedad*, tenemos que la matriz A tine factorizacion cholesky unica.
 
 Propiedad*: Una matriz es simetrica definida positiva $\leftrightarrow$ tiene factorizacion cholesky unica.
 
