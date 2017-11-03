@@ -86,7 +86,12 @@ La matriz resultante tiene dimension NxN y es banda Qx(Q+1).
 
 \subsection{Justificación de utilización de la factorización de cholesky Para la matriz A}
 
-Para poder justificar cholesky, nos alcanza con demostrar que las columnas de la matriz M son Li ya que por la definición de matriz definida positiva, vale que para $w^{t}Aw$ $>$ 0 $\forall$ w $\in$ ${\rm I\!R}^{nxn}$, la demostración es por el contrarresiproco con lo cual suponemos lo contrario existe un $(\exists w ) Aw = 0 \land w \neq 0 $ , como A = $ M^{t}M \rightarrow w^{t}M^{t}=(Mw)^{t}(Mw)$ =$||Mw||^{2}$ y como esto es la norma del vector, la norma de ese vector es 0, como demostramos que las columas eran Li, con lo cual llegamos a un absurdo que provino de suponer que existe tal w, por lo tanto la matriz A es definida positiva. Y usando la Propiedad*, tenemos que la matriz A tine factorizacion cholesky unica.
+Para poder justificar cholesky, nos alcanza con demostrar que las columnas de la matriz M son LI, lo cual vamos a demostrar por el contrarresiproco.\par
+\indent Supongo que M tiene columnas LI $\rightarrow$ A no es S.D.P. \par 
+\indent Como sabemos que M tiene columnas LI $\rightarrow$ $(\nexists w ) Mw = 0 \land w \neq 0 $. Por otro lado sabemos que A no es SDP, luego $x^{t}Ax$ $\leq$ 0 $\forall$ w $\in$ ${\rm I\!R}^{nxn}$. Como A = $M^{t}M$ $\rightarrow$ = $x^{t}Ax = x^{t}M^{t}Mx = (Mw)^{t}(Mw) = ||Mw||_{2}^{2}$ $\leq$ 0. Pero por definicion de norma sabemos que toda norma es mayor o igual a cero, entonces $||Mw||_{2}^{2}$ = 0, lo cual es absurdo ya que dijimos que no existe un w $\neq$ 0 tal que Mw = 0. Por ultimo, utilizando la Propiedad*, tenemos que la matriz A tine factorizacion cholesky unica.
+
+
+%Para poder justificar cholesky, nos alcanza con demostrar que las columnas de la matriz M son Li ya que por la definición de matriz definida positiva, vale que para $w^{t}Aw$ $>$ 0 $\forall$ w $\in$ ${\rm I\!R}^{nxn}$, la demostración es por el contrarresiproco con lo cual suponemos lo contrario existe un $(\exists w ) Aw = 0 \land w \neq 0 $ , como A = $ M^{t}M \rightarrow w^{t}M^{t}=(Mw)^{t}(Mw)$ =$||Mw||^{2}$ y como esto es la norma del vector, la norma de ese vector es 0, como demostramos que las columas eran Li, con lo cual llegamos a un absurdo que provino de suponer que existe tal w, por lo tanto la matriz A es definida positiva. Y usando la Propiedad*, tenemos que la matriz A tine factorizacion cholesky unica.
 
 Propiedad*: Una matriz es simetrica definida positiva $\leftrightarrow$ tiene factorizacion cholesky unica.
 
