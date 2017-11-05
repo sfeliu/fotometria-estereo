@@ -59,34 +59,43 @@ Ya sabiendo cual seria el aspecto de nuestra matriz ideal nos faltaría encontra
 
 \section{Obteniención de las profundidas}	
 
-Finalmente el último paso es resolver las ecuaciones 11 y 12, las cuales nos permiten construir un sistema de ecuaciones sobredeterminado para todo el espacio de píxeles. Esta la podemos pensar como una grilla de píxeles.
+Finalmente el último paso es resolver las ecuaciones 11 y 12, las cuales nos permiten construir un sistema de ecuaciones sobredeterminado para todo el espacio de píxeles.\par
+Las ecuaciones 11 y 12 asociadas a un pixel (x,y) se puede reescribir de la siguiente manera:\par
+$\begin{cases}
+n_{z} z_{x+1,y} - n_{z} z_{x,y}= n_{x} \text{(11*)}\\
+n_{z} z_{x,y+1} - n_{z} z_{x,y}= n_{y}\text(12*)
+\end{cases}$
+\break
+\indent Utilizano las ecuaciones 11* y 12* de todos los pixeles de una imagen podemos armar un sistema sobredeterminado de la forma Mz=v, donde M $\in$ ${\rm I\!R}^{2NxN}$. \par
+\indent El vector z $\in$ ${\rm I\!R}^{N}$ es un vector columna que tiene las profundidades que estamos estimando por lo cual va a tener en sus filas a las varaibles $z_{x,y}$ de todo pixel (x,y). El vector v$\in$ ${\rm I\!R}^{2N}$ es un vector columna que esta formado por los terminos idependientes de las ecuaciones 11* y 12*, por lo cual tiene en sus filas a los terminos $n_{x}$ y $n_{y}$ asociados a cada pixel de la imagen. Las filas de M van a estar formadas por los coeficientes de las ecuaciones (11*) y (12*). Por lo cual cualquiera fila de M que este asociado a algun pixel (x,y), va a tener todos ceros excepto en las columnas que coincidan con las variables $z_{x+1,y}$ y $z_{x,y}$ o las variables  $z_{x,y+1}$ y $z_{x,y}$, donde envez de ceros tiene los coeficientes $n_{z}$ y $-n_{z}$.\par 
+\indent El sistema de ecuaciones Mz=v lo transformaremos para obtener las ecuaciones normales que resuelven el problema de cuadrados minimos $M^{t}Mz=M^{t}v$. Al aplicar esta tranformacion nos queda que la matriz A= $M^{t}$M es simetrica definida positiva lo cual nos permite usar el metodo de factorizacion de choleky ya que sabemos que una matriz es simetrica definida positiva si y solo si tiene factorizacion cholesky.\par
 
-\subsection{Armando la matriz M}
+%\subsection{Armando la matriz M}
 
-La forma (naiv), es ver la grilla de píxeles en forma de F1++F2++...++Fn concatenacion de los pixeles (donde F1 contiene a todos los píxeles correspondiente a todas las columnas de la fila 1 de la grilla, analogamente Fn). Con los cual, si separamos las ecuaciones y formamos 2 matrices una para las ecuaciones correspondientes al eje X y otra matriz correspondiente al eje Y. Tenemos una Matriz Banda 1x2 Para el eje X y 1x(cantidad De Columnas de las grilla +1) para el eje Y. Combinandolos de manera adecuada, se obtiene la matriz banda(anhelada).(X1/Y1/.../Xn/Yn)
+%La forma (naiv), es ver la grilla de píxeles en forma de F1++F2++...++Fn concatenacion de los pixeles (donde F1 contiene a todos los píxeles correspondiente a todas las columnas de la fila 1 de la grilla, %analogamente Fn). Con los cual, si separamos las ecuaciones y formamos 2 matrices una para las ecuaciones correspondientes al eje X y otra matriz correspondiente al eje Y. Tenemos una Matriz Banda 1x2 %Para el eje X y 1x(cantidad De Columnas de las grilla +1) para el eje Y. Combinandolos de manera adecuada, se obtiene la matriz banda(anhelada).(X1/Y1/.../Xn/Yn)
 
-MxMt es simetrica, es valido para toda matriz.
+%MxMt es simetrica, es valido para toda matriz.
 
-\subsection{Descripcion de la matriz M }
+%\subsection{Descripcion de la matriz M }
 
-La matriz M tiene dimension 2NxN y es banda PxQ, por lo tanto Mt es de dimension Nx2N y es banda QxP, luego siendo A = MxMt tiene dimension NxN y es banda Qx(Q+1).
-Ya que como esta armada la matriz M, se forma una escalera donde al moverse por las columnas,mirando desde la q+1 columna, la  primer coordenada tiene el primer elemento igual a cero y todas los demas no necesariamente distinto de cero.Al mirar la siguiente columna la cantidad de elementos que no son cero incrementan en dos y asi mientras se observa la siguiente columna.
-Luego al mirar las filas, se logra encontrar un patrón en el cual se agrega un cero a las primeras coordenadas de la fila cuando se dan pasos de a dos filas. Lo cual forma un patron interesante al ser multiplicado por su transpuesta, esto relaciona la cantidad de píxeles con el ancho de banda de la matriz el cual queda dependiendo de la cantidad de píxeles y del ancho de la imágen.
+%La matriz M tiene dimension 2NxN y es banda PxQ, por lo tanto Mt es de dimension Nx2N y es banda QxP, luego siendo A = MxMt tiene dimension NxN y es banda Qx(Q+1).
+%Ya que como esta armada la matriz M, se forma una escalera donde al moverse por las columnas,mirando desde la q+1 columna, la  primer coordenada tiene el primer elemento igual a cero y todas los demas no necesariamente distinto de cero.Al mirar la siguiente columna la cantidad de elementos que no son cero incrementan en dos y asi mientras se observa la siguiente columna.
+%Luego al mirar las filas, se logra encontrar un patrón en el cual se agrega un cero a las primeras coordenadas de la fila cuando se dan pasos de a dos filas. Lo cual forma un patron interesante al ser multiplicado por su transpuesta, esto relaciona la cantidad de píxeles con el ancho de banda de la matriz el cual queda dependiendo de la cantidad de píxeles y del ancho de la imágen.
 
 
-\subsection{Mirando ceros de la parte superior} 
-Para la matriz A resultante al juntar lo visto, y siguiendo la misma idea con la matriz traspuesta, se observan los mismos patrones.Por lo tanto al hacer la multiplicación, se puede observar un patrón que siguen cada una de las filas de la matriz resultante , en particular la fila i (i $\leq$ Q) tiene sus coordenadas igual a cero desde la posicion Q+i+1, eso forma una diagonal de elementos no necesariamente igual a cero a partir de la fila 1 columna q.
+%\subsection{Mirando ceros de la parte superior} 
+%Para la matriz A resultante al juntar lo visto, y siguiendo la misma idea con la matriz traspuesta, se observan los mismos patrones.Por lo tanto al hacer la multiplicación, se puede observar un patrón que siguen cada una de las filas de la matriz resultante , en particular la fila i (i $\leq$ Q) tiene sus coordenadas igual a cero desde la posicion Q+i+1, eso forma una diagonal de elementos no necesariamente igual a cero a partir de la fila 1 columna q.
 
-\subsection{Mirando los ceros de la parte inferior} 
-Para la fila i (i $>$ Q), tiene el primer cero a partir de la fila q+1 en la coordenada 1  y va incrementando un cero a las primeras coordenada del vector fila cada ves que avanza, con lo cual eso forma una diagonal de elementos no necesariamente igual a cero a partir de la fila q columna 1.
+%\subsection{Mirando los ceros de la parte inferior} 
+%Para la fila i (i $>$ Q), tiene el primer cero a partir de la fila q+1 en la coordenada 1  y va incrementando un cero a las primeras coordenada del vector fila cada ves que avanza, con lo cual eso forma una diagonal de elementos no necesariamente igual a cero a partir de la fila q columna 1.
 
-\subsection{Forma de la matriz resultante}
-Para obtener la matriz A que da la multiplicación de la matriz MxMt, dado que son matrices banda y que M es banda PxQ donde p=cantidad de elementos(pixeles)-1 y Q = cantidad de columnas de la imagen. Si la imagen es una tira de píxeles entonces P = Q, sino P $>$ Q.
-La matriz resultante tiene dimension NxN y es banda Qx(Q+1). 
+%\subsection{Forma de la matriz resultante}
+%Para obtener la matriz A que da la multiplicación de la matriz MxMt, dado que son matrices banda y que M es banda PxQ donde p=cantidad de elementos(pixeles)-1 y Q = cantidad de columnas de la imagen. Si la imagen es una tira de píxeles entonces P = Q, sino P $>$ Q.
+%La matriz resultante tiene dimension NxN y es banda Qx(Q+1). 
 
 \subsection{Justificación de utilización de la factorización de cholesky Para la matriz A}
 
-Para poder justificar cholesky, nos alcanza con demostrar que las columnas de la matriz M son LI, lo cual vamos a demostrar por el contrarresiproco.\par
+Para poder justificar cholesky, nos alcanza con demostrar que las columnas de la matriz M son LI, lo cual vamos a demostrar por el absurdo.\par
 \indent Supongo que M tiene columnas LI $\rightarrow$ A no es S.D.P. \par 
 \indent Como sabemos que M tiene columnas LI $\rightarrow$ $(\nexists x ) Mx = 0 \land w \neq 0 $. Por otro lado sabemos que A no es SDP, luego $x^{t}Ax$ $\leq$ 0 $\forall$ x $\neq$ 0 $\in$ ${\rm I\!R}^{n}$.\par Como A = $M^{t}M$ $\rightarrow$ $x^{t}Ax = x^{t}M^{t}Mx = (Mx)^{t}(Mx) = ||Mx||_{2}^{2}$ ademas sabemos que $x^{t}Ax$ $\leq$ 0, entonces nos queda que $||Mx||_{2}^{2}$ $\leq$ 0. Pero por definicion de norma sabemos que toda norma es mayor o igual a cero, entonces $||Mx||_{2}^{2}$ = 0, lo cual es absurdo ya que dijimos que no existe un w $\neq$ 0 tal que Mx = 0. Por ultimo, utilizando la Propiedad*, tenemos que la matriz A tine factorizacion cholesky unica.
 
@@ -98,7 +107,7 @@ n_{z} z_{x+1,y} - n_{z} z_{x,y}=0\\
 n_{z} z_{x,y+1} - n_{z} z_{x,y}=0
 \end{cases}$
 \break
-\indent Entondes la matriz M tendria en las dos filas correspondientes al pixel (x,y) a todos los valores en cero salvo las columnas correspondientes a los pixeles (x,y), (x+1,y) y (x,y+1). \par
+\indent Entonces la matriz M tendria en las dos filas correspondientes al pixel (x,y) a todos los valores en cero salvo las columnas correspondientes a los pixeles (x,y) y (x+1,y) o (x,y+1). \par
 \indent Para ver la independencia lineal de las columnas de M vamos a analizar para que soluciones z $\in$ ${\rm I\!R}^{n}$ vale que Mz=0. Vamos a ver para cada pixel que valores de $z_{x,y} , z_{x+1,y}$  y $z_{x,y+1}$ dan que: \par
 $\begin{cases}
 n_{z} z_{x+1,y} - n_{z} z_{x,y}=0\\
