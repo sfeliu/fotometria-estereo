@@ -6,22 +6,22 @@ Para poder observar cuantos pixeles vecinos debíamos tomar en cuenta para encon
 
 \begin{figure}[h]
    \includegraphics[scale=0.6]{ejemplo.png}
-   \caption{Vecindades con ...}
+   \caption{Diferentes puntos mas brillantes cambiando la cantidad de vecindades.}
    \label{Fig. 1}
 \end{figure}
 
-\indent La imágen se observan esos factores de los que hablamos en el desarrollo, entre aquellos, las manchas de distinto color y la aureola de luz. Pór ejemplo se ve el de vecindad 0 (púnto negro) bién lejos de los demas, por lo claro de la mancha blanca. Las vecindades de 2 y 4 (rojo y verde) también fueron corrompidos por el ruido, aunque llegaron un poco mas cerca. Luego a partir de los 6, 8 y 10 (azúl, amaríllo y cian) se podria creer que llega a un lugar en donde por más que agrandes el número de cantidad de vecindades no modificaria la posición, también viéndolo a simple vista se puede corroborar que es de dónde uno diria que proviene la luz.
+\indent En la imágen se observan esos factores de los que hablamos en el desarrollo, entre aquellos, las manchas de distinto color y la aureola de luz. Pór ejemplo se ve el de vecindad 0 (púnto negro) bién lejos de los demas, por lo claro de la mancha blanca. Las vecindades de 2 y 4 (rojo y verde) también fueron corrompidos por el ruido, aunque llegaron un poco mas cerca. Luego a partir de los 6, 8 y 10 (azúl, amaríllo y cian) se podria creer que llega a un lugar en donde por más que agrandes el número de cantidad de vecindades no modificaria la posición, también viéndolo a simple vista se puede corroborar que es de dónde uno diria que proviene la luz.
 \\
-Prosiguiendo con las misma idea y utilizando las direcciones de luz obtenidas con vecindad 0 y vecindad 6,la cual consideramos la optima, obtuvimos distintos campos normales para la imágen del buda, observables a continuación:
+Prosiguiendo con las misma idea y utilizando las direcciones de luz obtenidas con vecindad 0 y vecindad 6,la cual consideramos la óptima, obtuvimos distintos campos normales para la imágen del buda, observables a continuación:
 
 
-\begin{figure}[h]
+\begin{figure}[H]
    \includegraphics[scale=0.4]{buda_vecindad_0.png}
    \label{Fig. 2}
    \caption{Buda con vecindad 0}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
    \includegraphics[scale=0.4]{buda_vecindades_6.png}
    \label{Fig. 3}
    \caption{Buda con vecindad 6}
@@ -39,24 +39,26 @@ La mejor forma de ver la diferencia entre dos matrices con distintos números de
 
 
 
-\begin{figure}[h]
+\begin{figure}[H]
    \includegraphics[scale=0.5]{caballoMax.png}
    \label{Fig. 4}
    \caption{Caballo con Número de condición de 407.581}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
    \includegraphics[scale=0.5]{caballoMin.png}
    \label{Fig. 5}
    \caption{Caballo con Número de condición de 15.0503}
 \end{figure}
 
 
+Como se puede observar, hay una gran diferencia entre ambos, donde el menor número de condición será con la que obtengamos mejores resultados.
+
 \section{Complejidades algoritmicas}
 
 \indent Nuestra primer idea para tratar de comprobar nuestra hipótesis de que la factorización LU es mas rápida que la eliminación de gauss fue tomar distintos tamaños de matrices y triangularlos una vez con cada algoritmo para ver que método era mas rápido. Este experimento no pone a prueba nuestra hipótesis porque lo que intentábamos comprobar es que la factorización LU es mas rápida que la eliminación de gauss para resolver un sistema lineal despues de la primera vez que se resuelve el sistema. Si resolvíamos una sola vez cada tamaño de matriz, ambos algoritmos tardarían lo mismo. Por lo tanto, decidimos hacer un experimento donde mantuvimos constante el tamaño del sistema lineal a resolver y lo que variamos en cada instancia de testeo fueron las cantidades de términos independientes que debia resolver. Agregamos al mismo experimento la factorización de Cholesky.
 
-\begin{figure}[h]
+\begin{figure}[H]
    \includegraphics[scale=0.5]{ComplejidadesMalas.png}
    \label{Fig. 6}
    \caption{Resultado obtenido al aumentar la cantidad de terminos independientes}
@@ -66,8 +68,11 @@ La mejor forma de ver la diferencia entre dos matrices con distintos números de
 Luego de consultarlo con la catedra, pudimos comprender que las complejidades no se iban a ver reflejadas en este experimento, ya que el tamaño de la matriz se mantenia igual. Por lo tanto debimos realizar un nuevo experimento en donde dejamos fijos en 100 terminos independientes a resolver y lo que se variaba en cada corrida era el tamaño de las matrices.
 
 
-\begin{figure}[h]
-   \includegraphics[scale=0.5]{complejidadesCorrecto.png}
+\begin{figure}[H]
+   \includegraphics[scale=0.8]{complejidadesCorrecto.png}
    \label{Fig. 7}
    \caption{Resultado obtenido al aumentar la cantidad de terminos independientes}
 \end{figure}
+
+
+Finalmente se puede observar que eliminación gaussiana tiene una complejidad mayor a los otros dos algoritmos, y que la complejidad algoritmica temporal esta ligada al tamaño de la matriz de entrada.

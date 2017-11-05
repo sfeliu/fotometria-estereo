@@ -63,12 +63,12 @@ Finalmente el último paso es resolver las ecuaciones 11 y 12, las cuales nos pe
 Las ecuaciones 11 y 12 asociadas a un pixel (x,y) se puede reescribir de la siguiente manera:\par
 $\begin{cases}
 n_{z} z_{x+1,y} - n_{z} z_{x,y}= n_{x} \text{(11*)}\\
-n_{z} z_{x,y+1} - n_{z} z_{x,y}= n_{y}\text(12*)
+n_{z} z_{x,y+1} - n_{z} z_{x,y}= n_{y} \text{(12*)}
 \end{cases}$
 \break
-\indent Utilizano las ecuaciones 11* y 12* de todos los pixeles de una imagen podemos armar un sistema sobredeterminado de la forma Mz=v, donde M $\in$ ${\rm I\!R}^{2NxN}$. \par
-\indent El vector z $\in$ ${\rm I\!R}^{N}$ es un vector columna que tiene las profundidades que estamos estimando por lo cual va a tener en sus filas a las varaibles $z_{x,y}$ de todo pixel (x,y). El vector v$\in$ ${\rm I\!R}^{2N}$ es un vector columna que esta formado por los terminos idependientes de las ecuaciones 11* y 12*, por lo cual tiene en sus filas a los terminos $n_{x}$ y $n_{y}$ asociados a cada pixel de la imagen. Las filas de M van a estar formadas por los coeficientes de las ecuaciones (11*) y (12*). Por lo cual cualquiera fila de M que este asociado a algun pixel (x,y), va a tener todos ceros excepto en las columnas que coincidan con las variables $z_{x+1,y}$ y $z_{x,y}$ o las variables  $z_{x,y+1}$ y $z_{x,y}$, donde envez de ceros tiene los coeficientes $n_{z}$ y $-n_{z}$.\par 
-\indent El sistema de ecuaciones Mz=v lo transformaremos para obtener las ecuaciones normales que resuelven el problema de cuadrados minimos $M^{t}Mz=M^{t}v$, donde la solucion z es el vector con las profundidades que buscamos. Al aplicar esta tranformacion nos queda que la matriz A= $M^{t}$M es simetrica definida positiva lo cual nos permite usar el metodo de factorizacion de choleky ya que sabemos que una matriz es simetrica definida positiva si y solo si tiene factorizacion cholesky.\par
+\indent Utilizando las ecuaciones 11* y 12* de todos los pixeles de una imagen podemos armar un sistema sobredeterminado de la forma $Mz=v$, donde $M \in {\rm I\!R}^{2NxN}$. \par
+\indent El vector $z \in {\rm I\!R}^{N}$ es un vector columna que tiene las profundidades que estamos estimando por lo cual va a tener en sus filas a las variables $z_{x,y}$ de todo pixel $(x,y)$. El vector $v \in {\rm I\!R}^{2N}$ es un vector columna que esta formado por los términos independientes de las ecuaciones 11* y 12*, por lo cual tiene en sus filas a los terminos $n_{x}$ y $n_{y}$ asociados a cada pixel de la imagen. Las filas de $M$ van a estar formadas por los coeficientes de las ecuaciones (11*) y (12*). Por lo cual cualquiera fila de $M$ que este asociado a algun pixel (x,y), va a tener todos ceros excepto en las columnas que coincidan con las variables $z_{x+1,y}$ y $z_{x,y}$ o las variables  $z_{x,y+1}$ y $z_{x,y}$, donde envez de ceros tiene los coeficientes $n_{z}$ y $-n_{z}$.\par 
+\indent El sistema de ecuaciones $Mz=v$ lo transformaremos para obtener las ecuaciones normales que resuelven el problema de cuadrados mínimos $M^{t}Mz=M^{t}v$, donde la solución $z$ es el vector con las profundidades que buscamos. Al aplicar esta tranformación nos queda que la matriz $A= M^{t}M$ es simétrica definida positiva lo cual nos permite usar el método de factorización de cholesky ya que sabemos que una matriz es simetrica definida positiva si y solo si tiene factorizacion cholesky.\par
 
 %\subsection{Armando la matriz M}
 
@@ -93,13 +93,13 @@ n_{z} z_{x,y+1} - n_{z} z_{x,y}= n_{y}\text(12*)
 %Para obtener la matriz A que da la multiplicación de la matriz MxMt, dado que son matrices banda y que M es banda PxQ donde p=cantidad de elementos(pixeles)-1 y Q = cantidad de columnas de la imagen. Si la imagen es una tira de píxeles entonces P = Q, sino P $>$ Q.
 %La matriz resultante tiene dimension NxN y es banda Qx(Q+1). 
 
-\subsection{Justificación de utilización de la factorización de cholesky Para la matriz A}
+\subsection{Justificación de utilización de la factorización de cholesky para la matriz A}
 
-Para poder justificar cholesky, nos alcanza con demostrar que las columnas de la matriz M son LI, lo cual vamos a demostrar por el absurdo.\par
-\indent Supongo que M tiene columnas LI $\rightarrow$ A no es S.D.P. \par 
-\indent Como sabemos que M tiene columnas LI $\rightarrow$ $(\nexists x ) Mx = 0 \land w \neq 0 $. Por otro lado sabemos que A no es SDP, luego $x^{t}Ax$ $\leq$ 0 $\forall$ x $\neq$ 0 $\in$ ${\rm I\!R}^{n}$.\par Como A = $M^{t}M$ $\rightarrow$ $x^{t}Ax = x^{t}M^{t}Mx = (Mx)^{t}(Mx) = ||Mx||_{2}^{2}$ ademas sabemos que $x^{t}Ax$ $\leq$ 0, entonces nos queda que $||Mx||_{2}^{2}$ $\leq$ 0. Pero por definicion de norma sabemos que toda norma es mayor o igual a cero, entonces $||Mx||_{2}^{2}$ = 0, lo cual es absurdo ya que dijimos que no existe un w $\neq$ 0 tal que Mx = 0. Por ultimo, utilizando la Propiedad*, tenemos que la matriz A tine factorizacion cholesky unica.
+Para poder justificar cholesky, nos alcanza con demostrar que las columnas de la matriz $M$ son LI, lo cual vamos a demostrar por el absurdo.\par
+\indent Supongo que $M$ tiene columnas LI $\rightarrow$ $A$ no es S.D.P. \par 
+\indent Como sabemos que $M$ tiene columnas LI $\rightarrow$ $(\nexists x ) Mx = 0 \land x \neq 0 $. Por otro lado sabemos que $A$ no es SDP, luego $x^{t}Ax$ $\leq 0 \forall x \neq 0 \in {\rm I\!R}^{n}$.\par Como $A = M^{t}M \rightarrow x^{t}Ax = x^{t}M^{t}Mx = (Mx)^{t}(Mx) = ||Mx||_{2}^{2}$ ademas sabemos que $x^{t}Ax \leq 0$, entonces nos queda que $||Mx||_{2}^{2} \leq 0$. Pero por definición de norma sabemos que toda norma es mayor o igual a cero, entonces $||Mx||_{2}^{2}$ = 0, lo cual es absurdo ya que dijimos que no existe un $x \neq$ 0 tal que $Mx = 0$. Por último, utilizando la Propiedad*, tenemos que la matriz A tiene factorización cholesky única.
 
-\subsubsection{Demostracion que las columnas de la Matriz M son L.I}
+\subsubsection{Demostración que las columnas de la Matriz M son L.I}
 \indent La matriz M se construye a partir del sistema de ecuaciones que resulta de considerar las ecuaciones 7 y 8 tomando a $z_{x,y}$ como la incognita que representa la profundiad del pixel (x,y). No se consideran los pixeles cuyo $n_{z}$=0 ya que esto seria un punto sin profundidad (z=0). \par
 \indent Luego cada pixel tendria las siguientes ecuaciones:\par
 $\begin{cases}
@@ -107,8 +107,8 @@ n_{z} z_{x+1,y} - n_{z} z_{x,y}=0\\
 n_{z} z_{x,y+1} - n_{z} z_{x,y}=0
 \end{cases}$
 \break
-\indent Entonces la matriz M tendria en las dos filas correspondientes al pixel (x,y) a todos los valores en cero salvo las columnas correspondientes a los pixeles (x,y) y (x+1,y) o (x,y+1). \par
-\indent Para ver la independencia lineal de las columnas de M vamos a analizar para que soluciones z $\in$ ${\rm I\!R}^{n}$ vale que Mz=0. Vamos a ver para cada pixel que valores de $z_{x,y} , z_{x+1,y}$  y $z_{x,y+1}$ dan que: \par
+\indent Entonces la matriz $M$ tendria en las dos filas correspondientes al pixel (x,y) a todos los valores en cero salvo las columnas correspondientes a los pixeles (x,y) y (x+1,y) o (x,y+1). \par
+\indent Para ver la independencia lineal de las columnas de $M$ vamos a analizar para que soluciones $z \in {\rm I\!R}^{n}$ vale que $Mz=0$. Vamos a ver para cada pixel que valores de $z_{x,y} , z_{x+1,y}$  y $z_{x,y+1}$ dan que: \par
 $\begin{cases}
 n_{z} z_{x+1,y} - n_{z} z_{x,y}=0\\
 n_{z} z_{x,y+1} - n_{z} z_{x,y}=0
@@ -121,10 +121,10 @@ n_{z} z_{x,y+1} = n_{z} z_{x,y}
 \end{cases}$
 \break
 \indent Lo cual sucede si y solo si $z_{x+1,y} = z_{x,y}$ y $z_{x,y+1} = z_{x,y}$. \par
-Replazando (x,y) por (x+1,y) tenemos que $z_{x+2,y} = z_{x+1,y}$ y $z_{x+1,y+1} = z_{x+1,y}$ lo cual implica que $z_{x,y}=z_{x+1,y} =z_{x,y+1}= z_{x+2,y} = z_{x+1,y+1}$.\par
+Reemplazando (x,y) por (x+1,y) tenemos que $z_{x+2,y} = z_{x+1,y}$ y $z_{x+1,y+1} = z_{x+1,y}$ lo cual implica que $z_{x,y}=z_{x+1,y} =z_{x,y+1}= z_{x+2,y} = z_{x+1,y+1}$.\par
 Esta idea se puede aplicar para cualquier par (x,y) luego tenemos que $z_{x,y} = z_{x',y'}$ para cualquier par de pixeles (x,y) y (x',y').\par
-\indent Entonces  Mz=0 si las profundidades de todos los pixeles son iguales. Pero esto sucede si la imagen es "plana". En este caso no tiene sentido realizar una rescontruccion 3D, ya que no hay nada para reconstruir. Por lo cual este caso lo podemos descartar.\par
-\indent Luego  $(\nexists x ) Mx = 0 \land w \neq 0 $ $\rightarrow$ las columnas de M son L.I.
+\indent Entonces  Mz=0 si las profundidades de todos los pixeles son iguales. Pero esto sucede si la imagen es "plana". En este caso no tiene sentido realizar una rescontrucción 3D, ya que no hay nada para reconstruir. Por lo cual este caso lo podemos descartar.\par
+\indent Luego  $(\nexists x ) Mx = 0 \land x \neq 0 $ $\rightarrow$ las columnas de M son L.I.
 
 
 %Para poder justificar cholesky, nos alcanza con demostrar que las columnas de la matriz M son Li ya que por la definición de matriz definida positiva, vale que para $w^{t}Aw$ $>$ 0 $\forall$ w $\in$ ${\rm I\!R}^{nxn}$, la demostración es por el contrarresiproco con lo cual suponemos lo contrario existe un $(\exists w ) Aw = 0 \land w \neq 0 $ , como A = $ M^{t}M \rightarrow w^{t}M^{t}=(Mw)^{t}(Mw)$ =$||Mw||^{2}$ y como esto es la norma del vector, la norma de ese vector es 0, como demostramos que las columas eran Li, con lo cual llegamos a un absurdo que provino de suponer que existe tal w, por lo tanto la matriz A es definida positiva. Y usando la Propiedad*, tenemos que la matriz A tine factorizacion cholesky unica.
